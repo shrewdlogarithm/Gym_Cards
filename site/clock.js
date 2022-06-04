@@ -5,6 +5,8 @@ if (!!window.EventSource) {
     if (e.data.startsWith("##TimeOffset")) {
       offs = parseInt(e.data.substring(12))
       serverTime = new Date(serverTime.getTime() + offs*1000*60*60*24)
+    } else if (e.data.startsWith("##Active Members")) {
+      $('#footright').text(e.data.substring(2));
     }
   }
 }
