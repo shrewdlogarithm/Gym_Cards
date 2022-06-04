@@ -18,8 +18,8 @@ dev/*
 install/*
 site/tablesorter/*
 
-data/*
-logs/*
+data/*.json
+logs/*.log
 
 __pycache__/
 *.py[cod]
