@@ -1,0 +1,84 @@
+.modal {
+  display: none;
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.modal.open {
+ display: block;
+}
+
+.modal__header {
+    height: 100px;
+}
+.modal__footer {
+    height: 45px;
+}
+
+.modal__content,
+.modal__footer {
+    position: absolute;
+    width: 100%;
+}
+
+.modal__content {
+    bottom: 45px;
+    top: 100px;
+    overflow-y: auto;
+}
+
+.modal__footer {
+    bottom: 0;
+}
+
+body {
+    color: white;
+}
+
+.modal__header {
+    background: #592E83;
+    font-size: 66px;
+}
+.modal__content,.modal_content * {
+    background: #331E4D;
+    font-size: 99px;
+    text-align: center;
+}
+
+.modal__footer {
+    background: #9984D4;
+    font-size: 22px;
+}
+
+.modal__footer p {
+    margin: 10px;
+}
+
+.centerbox {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.status {
+    position: absolute;
+    top: 90%;
+    left: 90%;
+    width: 10%;
+    height: 5%;
+    background: pink;
+}
+
+#footleft {
+    float: left;
+}
+
+#footright {
+    float: right;
+}

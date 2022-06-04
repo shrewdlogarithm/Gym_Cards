@@ -1,0 +1,119 @@
+<head>
+  {% include 'head.j2' %}
+  <link rel="stylesheet" href="tablesorter/css/theme.default.min.css">
+  <script src="tablesorter/js/jquery.tablesorter.js"></script>
+  <script src="tablesorter/js/jquery.tablesorter.widgets.js"></script>
+  <script src="tablesorter/js/parsers/parser-input-select.min.js"></script>
+  <script>
+      $(document).ready(function(){
+          $("#membertable").tablesorter({ 
+            theme: "default",
+            sortList: [[0,0]],
+            headers: {
+              0 : {
+                sorter: "digit"
+              },
+              1 : {
+                sorter: "digit"
+              },
+              2 : {
+                extractor: "inputs",
+                sorter : "inputs"
+              },
+              3 : {
+                extractor: "inputs",
+                sorter : "inputs"
+              },
+              4 : {
+                extractor: "inputs",
+                sorter : "shortdate",
+                filter: false
+              },
+              5 : {
+                extractor: "inputs",
+                sorter : "shortdate",
+                filter: false
+              },
+              6 : {
+                filter: false
+              }
+            },
+            emptyTo: 'emptyMax',
+            widgets: ["zebra", "filter"],
+            widgetOptions : {
+              filter_columnFilters : true,
+              filter_startsWith: false,
+            }
+          })
+      })
+  </script>
+</head>
+<body>
+  <iframe name="status" class="status"></iframe>
+  {% include 'toplayout.j2' %}
+  <table id="membertable" class="tablesorter">
+    <thead>
+      <tr>
+      <th>Mem No</th>
+      <th>Card ID</th>
+      <th>Member Name</th>
+      <th>Paper No</th>
+      <th>First Card Issued</th>
+      <th>Renew</th>
+      <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for card in carddb %}
+      <tr>                      
+          <form action="update" target="status" method="POST">
+            <td>
+              {{ carddb[card]["memno"] }}
+            </td>
+            <td>
+              {{ card }}
+              <input name="card" type="hidden" value="{{ card }}">
+            </td>
+            <td>
+              <input name="name" type="text" value='{{carddb[card]["name"]}}'>
+            </td>
+            {% if (carddb[card]["level"] == 0): %}
+            <td>
+              <input name="papermemno" type="text" value='{{carddb[card]["papermemno"]}}'>
+            </td>
+            <td>                            
+              <input type="date" name="created" value="{{ carddb[card]['created'] }}">
+            </td>
+            <td>                            
+              <input type="date" name="renew" value="{{ carddb[card]['renew'] }}">
+            </td>
+            {% else %}
+            <td>
+              { MASTER CARD }
+            </td>
+            <td>
+
+            </td>
+            <td>
+
+            </td>
+            {% endif %}
+            <td>
+              <input type="submit" value="Update">
+            </td>
+          </form>
+          {% if (carddb[card]["level"] == 0): %}
+          <form action=replace method="POST">
+            <td>
+              <input type=hidden name="card" value="{{ card }}">
+              <input type=hidden name="memno" value="{{ carddb[card]['memno'] }}">
+              <input type=submit value="Replace Card">
+            </td>
+          </form>
+          {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>        
+  {% include 'bottomlayout.j2' %}
+</body>
