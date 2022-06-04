@@ -16,6 +16,7 @@ README.txt
 
 dev/*
 install/*
+!site/tablesorter/get_tablesorter.sh
 site/tablesorter/*
 
 data/*.json
