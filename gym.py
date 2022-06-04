@@ -7,6 +7,32 @@ from flask import Flask, Response, request, render_template
 
 sysactive = True
 
+## Messages
+import queue
+class MessageAnnouncer:
+    def __init__(self):
+        self.listeners = []
+    def listen(self):
+        q = queue.Queue(maxsize=5)
+        self.listeners.append(q)
+        return q
+    def announce(self, msg):
+        for i in reversed(range(len(self.listeners))):
+            try:
+                self.listeners[i].put_nowait(msg)
+            except queue.Full:
+                del self.listeners[i]
+announcer = MessageAnnouncer()
+def format_sse(data: str, event=None) -> str:
+    msg = f'data: {data}\n\n'
+    if event is not None:
+        msg = f'event: {event}\n{msg}'
+    return msg
+def add_message(m):
+    msg = format_sse(data=m)
+    announcer.announce(msg=msg)
+    print(m)
+
 ## Date/Time functions
 timeoff = 0
 def get_time():
@@ -18,9 +44,10 @@ def get_remain(card):
     return (datetime.strptime(carddb[card]["renew"],dateform).date()-get_time()).days
 
 ## Logs
-logname = f'logs/gym-{get_time().strftime("%Y%m%d")}.log'
 logs = []
-def addlog(ev,card=0):
+def logname():
+    return f'logs/gym-{get_time().strftime("%Y%m%d")}.log'
+def addlog(ev,card="",db="",excep=""):
     global logs
     newlog = {
         "dt": datetime.now(),
@@ -28,42 +55,43 @@ def addlog(ev,card=0):
         "event": ev,
         
     }
-    if (card in carddb):
-        newlog["db"] = carddb[card]
+    if (card != ""):
+        newlog["card"] = card
+    if (db != ""):
+        newlog["db"] = db
+    if (excep != ""):
+        newlog["excep"] = excep
     logs.append(newlog)
     try:
-        with open(logname,"a") as lf:
-            json.dump(logs, lf, indent=4,default=str)
+        with open(logname(),"a") as lf:
+            lf.write(json.dumps(newlog,default=str) + ",\n")
     except Exception as e:
-        print(e)
-        logs = []
+        print(e) ## TODO hmmm
 try:
-    if os.path.exists(logname):
-        with open(logname) as lf:
-            logs = json.load(lf)
-except:
+    if os.path.exists(logname()):
+        with open(logname()) as lf:
+            listo = lf.read()
+            logs = json.loads("[" + listo[0:len(listo)-2] + "]")
+except Exception as e:
+    addlog("LoadingLogs",excep=e)
     logs = []
-
-## Member Functions
-def membersonsite(): 
-    memdb = {}
-    for log in logs:
-        if ("db" in log):
-            memno = log["db"]["memno"]
-            if memno in memdb:
-                memdb[memno] = not memdb[memno]
-            else:
-                memdb[memno] = True
-    memcount = 0
-    for mem in memdb:
-        if memdb[mem]:
-            memcount += 1
-    return memcount
 
 ## Database
 dbname = "data/cards.json"
 carddb = OrderedDict()
 dateform = '%Y-%m-%d' # the format Chrome requires...
+def savedb():
+    with open(dbname, 'w') as json_file:
+        json.dump(carddb, json_file, indent=4,default=str)
+        
+try:
+    if os.path.exists(dbname):
+        with open(dbname) as json_file:
+            carddb = json.load(json_file)
+except:
+    carddb = {}
+
+#Handle Cards
 def addcard(card,level=0):
     global carddb
     if (card not in carddb):
@@ -101,49 +129,37 @@ def replacecard(card):
     replcard = ""
     add_message('Card Replaced')
     savedb()
-def get_name(card):
+
+## Member Functions
+memdb = {}
+def handlemember(card):
+    if (card in carddb):
+        memno = carddb[card]["memno"]
+        if memno in memdb:
+            del memdb[memno]
+        else:
+            memdb[memno] = True
+def membersonsite():     
+    return len(memdb)
+def membername(card):
     if (carddb[card]["name"] != ""):
         return carddb[card]["name"]
     elif (carddb[card]["papermemno"] != ""):
         return carddb[card]["papermemno"]
     else:
         return carddb[card]["memno"]
-def savedb():
-    with open(dbname, 'w') as json_file:
-        json.dump(carddb, json_file, indent=4,default=str)
-        
-try:
-    if os.path.exists(dbname):
-        with open(dbname) as json_file:
-            carddb = json.load(json_file)
-except:
-    carddb = {}
-
-## Messages
-import queue
-class MessageAnnouncer:
-    def __init__(self):
-        self.listeners = []
-    def listen(self):
-        q = queue.Queue(maxsize=5)
-        self.listeners.append(q)
-        return q
-    def announce(self, msg):
-        for i in reversed(range(len(self.listeners))):
-            try:
-                self.listeners[i].put_nowait(msg)
-            except queue.Full:
-                del self.listeners[i]
-announcer = MessageAnnouncer()
-def format_sse(data: str, event=None) -> str:
-    msg = f'data: {data}\n\n'
-    if event is not None:
-        msg = f'event: {event}\n{msg}'
-    return msg
-def add_message(m):
-    msg = format_sse(data=m)
-    announcer.announce(msg=msg)
-    print(m)
+def membergreet(card):
+    if card in carddb:
+        if (carddb[card]["memno"] in memdb):
+            return ("Goodbye")
+        else:
+            return ("Welcome")
+    else:
+        return ""
+for log in logs:
+    if ("card" in log):
+        handlemember(log["card"])
+add_message(f'##Active Members {membersonsite()}')
 
 ## Threads
 thr = []
@@ -222,6 +238,33 @@ except:
     pass
 
 ## EvDev Input (USB RFID Reader)
+def eventinput():
+    try: 
+        import evdev
+        devs = {}
+        while True:
+            try:
+                devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+                for device in devices:
+                    if "rfid" in device.name.lower():
+                        devs[device.path] = ""
+                for dev in devs:
+                    for event in evdev.InputDevice(dev).read_loop():
+                        if event.type == evdev.ecodes.EV_KEY:
+                            try:
+                                keyevent = evdev.categorize(event)
+                                if (keyevent.keycode == evdev.ecodes.KEY_ENTER):
+                                    pass
+                                else:
+                                    devs[dev] += keyevent.keycode.replace("KEY_","")
+                                cards.put(devs[dev])
+                            except Exception as e:
+                                addlog("evdev_keyevent_exception",excep=e)
+            except Exception as e:
+                addlog("evdev_device_exception",excep=e)
+    except Exception as e:
+        pass # this catches the evdev library exception on Windows    
+start_thread(eventinput)
 
 ## Keyboard Input (this works with the USB RFID if it's in-focus but it might not be so the EvDev stuff is required)
 def keyinput():
@@ -253,7 +296,8 @@ def handle_card(card):
                 add_message("Ready to Add/Renew - swipe again to cancel")
             else:
                 addlog("MemberInOut",card)
-                add_message(f'Member {get_name(card)} <BR> { get_remain(card) } days left')
+                add_message(f'{membergreet(card)} Member {membername(card)} <BR> { get_remain(card) } days left')
+                handlemember(card)
                 add_message(f'##Active Members {membersonsite()}')
         else:
             add_message("Unrecognized Card")
@@ -267,7 +311,7 @@ def handle_card(card):
         elif (card in carddb): 
             if (carddb[card]["level"] == 0): 
                 renewcard(card)
-                add_message(f'Member { get_name(card) } Renewed to { carddb[card]["renew"] } ( { get_remain(card) } days')
+                add_message(f'Member { membername(card) } Renewed to { carddb[card]["renew"] } ( { get_remain(card) } days')
             else:
                 add_message("Cancelled")
         else: 
