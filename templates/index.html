@@ -5,7 +5,13 @@
     var source = new EventSource('/stream');
     source.onmessage = function(e) {
       if (!e.data.startsWith("##")) {
-        $(".centerbox").html(e.data);
+        vals = e.data.split(":::")
+        $(".modal__content").html(
+          $("<div>",{
+            id: "showdata",
+            class: "centerbox " + vals[1]
+          }).html(vals[0])
+        )
       }
     }
   }
@@ -13,8 +19,6 @@
 </head>
 <body>
     {% include 'toplayout.j2' %}
-    <div class="centerbox">
-        Swipe Card
-    </div>
+    
     {% include 'bottomlayout.j2' %}
 </body>
