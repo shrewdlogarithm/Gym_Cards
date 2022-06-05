@@ -69,7 +69,7 @@ def addlog(ev,card="",db="",excep=""):
         with open(logname(),"a") as lf:
             lf.write(json.dumps(newlog,default=str) + ",\n")
     except Exception as e:
-        print(e) ## TODO hmmm
+        print(f'Log Writing exception {e}')
 try:
     if os.path.exists(logname()):
         with open(logname()) as lf:
@@ -92,6 +92,7 @@ try:
         with open(dbname) as json_file:
             carddb = json.load(json_file)
 except:
+    addlog("LoadingDB",excep=e)
     carddb = {}
 
 #Handle Cards
@@ -289,7 +290,7 @@ def keyinput():
             else:
                 cards.put(i)
         except:
-            pass
+            addlog("KeyInput_exception",excep=e)
 start_thread(keyinput)
 
 ## Process Cards
@@ -355,12 +356,9 @@ def update():
     if (card in carddb):
         addlog("UpdateBefore",card)
         carddb[card]["name"] = request.form.get("name")
-        try:
-            carddb[card]["papermemno"] = request.form.get("papermemno")
-            carddb[card]["created"] = request.form.get("created")
-            carddb[card]["renew"] = request.form.get("renew")
-        except:
-            pass
+        carddb[card]["papermemno"] = request.form.get("papermemno")
+        carddb[card]["created"] = request.form.get("created")
+        carddb[card]["renew"] = request.form.get("renew")
         addlog("UpdateAfter",card)
         savedb()
     return "Updated Successfully"
