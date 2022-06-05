@@ -137,7 +137,7 @@ def replacecard(card):
 ## Member Functions
 memdb = {}
 def handlemember(card):
-    if (card in carddb):
+    if (card in carddb and carddb[card]["level"] == 0):
         memno = carddb[card]["memno"]
         if memno in memdb:
             del memdb[memno]
@@ -378,7 +378,6 @@ def replace():
 def stream():
     def stream():
         messages = announcer.listen()  
-        add_message("Ready!")
         add_message(f'##Active Members {membersonsite()}')
         while sysactive:
             msg = messages.get()  
