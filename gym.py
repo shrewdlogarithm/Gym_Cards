@@ -41,7 +41,10 @@ def calc_expiry(card):
     expdate = datetime.strptime(carddb[card]["renew"],dateform)+relativedelta(months=1)
     return expdate.strftime(dateform)
 def get_remain(card):
-    return (datetime.strptime(carddb[card]["renew"],dateform).date()-get_time()).days
+    if card in carddb:
+        return max(0,(datetime.strptime(carddb[card]["renew"],dateform).date()-get_time()).days,0)
+    else:
+        return ""
 
 ## Logs
 logs = []
@@ -147,7 +150,7 @@ def membername(card):
     elif (carddb[card]["papermemno"] != ""):
         return carddb[card]["papermemno"]
     else:
-        return carddb[card]["memno"]
+        return "Member" + str(carddb[card]["memno"])
 def membergreet(card):
     if card in carddb:
         if (carddb[card]["memno"] in memdb):
@@ -156,10 +159,17 @@ def membergreet(card):
             return ("Welcome")
     else:
         return ""
+def memberstatus(card):
+    gr = get_remain(card)
+    if (gr < 1):
+        return "expired"
+    elif (gr < 8):
+        return "renew"
+    else:
+        return ""
 for log in logs:
     if ("card" in log):
         handlemember(log["card"])
-add_message(f'##Active Members {membersonsite()}')
 
 ## Threads
 thr = []
@@ -293,10 +303,10 @@ def handle_card(card):
         if (card in carddb):
             if (carddb[card]["level"] > 0):
                 mode = 1
-                add_message("Ready to Add/Renew - swipe again to cancel")
+                add_message("Ready to Add/Renew <BR> Swipe again to cancel")
             else:
                 addlog("MemberInOut",card)
-                add_message(f'{membergreet(card)} Member {membername(card)} <BR> { get_remain(card) } days left')
+                add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
                 handlemember(card)
                 add_message(f'##Active Members {membersonsite()}')
         else:
@@ -311,7 +321,7 @@ def handle_card(card):
         elif (card in carddb): 
             if (carddb[card]["level"] == 0): 
                 renewcard(card)
-                add_message(f'Member { membername(card) } Renewed to { carddb[card]["renew"] } ( { get_remain(card) } days')
+                add_message(f'Member { membername(card) } <BR> { get_remain(card) } days left')
             else:
                 add_message("Cancelled")
         else: 
@@ -367,6 +377,8 @@ def replace():
 def stream():
     def stream():
         messages = announcer.listen()  
+        add_message("Ready!")
+        add_message(f'##Active Members {membersonsite()}')
         while sysactive:
             msg = messages.get()  
             yield msg
