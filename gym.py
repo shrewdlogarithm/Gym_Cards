@@ -252,27 +252,30 @@ except:
 def eventinput():
     try: 
         import evdev
-        devs = {}
+        from select import select
+        devs={}
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        devices = {dev.fd: dev for dev in devices}
         while True:
             try:
-                devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-                for device in devices:
-                    if "rfid" in device.name.lower():
-                        devs[device.path] = ""
-                for dev in devs:
-                    for event in evdev.InputDevice(dev).read_loop():
+                r, w, x = select(devices,[],[])
+                for fd in r:
+                    for event in devices[fd].read():                            
                         if event.type == evdev.ecodes.EV_KEY:
                             try:
                                 keyevent = evdev.categorize(event)
-                                if (keyevent.keycode == evdev.ecodes.KEY_ENTER):
-                                    pass
+                                if (keyevent.keycode == "KEY_ENTER"):
+                                    if (devs[fd] != ""):
+                                        cards.put(devs[fd])
+                                        devs[fd] = ""
                                 else:
-                                    devs[dev] += keyevent.keycode.replace("KEY_","")
-                                cards.put(devs[dev])
+                                    if (fd not in devs):
+                                        devs[fd] = ""
+                                    devs[fd] += keyevent.keycode.replace("KEY_","")                                
                             except Exception as e:
                                 addlog("evdev_keyevent_exception",excep=e)
             except Exception as e:
-                addlog("evdev_device_exception",excep=e)
+                    addlog("evdev_device_exception",excep=e)
     except Exception as e:
         pass # this catches the evdev library exception on Windows    
 start_thread(eventinput)
