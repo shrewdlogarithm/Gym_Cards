@@ -268,7 +268,7 @@ def eventinput():
         devs={}
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
         devices = {dev.fd: dev for dev in devices}
-        while True:
+        while sysactive:
             try:
                 r, w, x = select(devices,[],[])
                 for fd in r:
@@ -292,39 +292,41 @@ def eventinput():
         pass # this catches the evdev library exception on Windows    
 start_thread(eventinput)
 
-## Keyboard Input (this works with the USB RFID if it's in-focus but it might not be so the EvDev stuff is required)
+## Keyboard Input (this is mainly here for Windows as there's no evdev input there)
 def keyinput():
     global timeoff
     while sysactive:
         try:
             i = input()
-            off = re.search(r'(\d+)d', i)
-            if off:
-                timeoff += int(off.group(1))
-                add_message("##TimeOffset" + off.group(1))
-            else:
-                cards.put(i)
+            if sysactive:
+                off = re.search(r'(\d+)d', i)
+                if off:
+                    timeoff += int(off.group(1))
+                    add_message("##TimeOffset" + off.group(1))
+                else:
+                    cards.put(i)
         except:
             addlog("KeyInput_exception",excep=e)
 start_thread(keyinput)
 
 ## Process Cards
 mode = 0
-lastcard = 0
+lastcard = {"card": -1}
 adhits = 0
 def handle_card(card):
     global mode,lastcard,adhits
-    if (lastcard and lastcard["card"] in carddb and card in carddb and datetime.now()-lastcard["dt"] < timedelta(seconds=5) and carddb[lastcard["card"]]["level"] != 0 and carddb[card]["level"] != 0):
+    if (lastcard["card"] in carddb and datetime.now()-lastcard["dt"] < timedelta(seconds=5) and card in carddb and carddb[lastcard["card"]]["level"] != 0 and carddb[card]["level"] != 0):
         adhits += 1
     else:
         adhits = 0
     if adhits == 5:
-        add_message("Swipe TWICE  to Shutdown")
+        add_message("Swipe TWICE more to Shutdown")
     elif adhits == 6:
-        add_message("Swipe ONCE to Shutdown")
+        add_message("Swipe ONCE more to Shutdown")
     elif adhits == 7:
         add_message("Shutting Down <BR>Power Off when Card Reader Light out")
         stop_threads()
+        return
     lastcard = {"card": card,"dt": datetime.now()}
     if (len(carddb) == 0):
         addcard(card,1)
