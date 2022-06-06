@@ -58,8 +58,9 @@
       <th>Card ID</th>
       <th>Member Name</th>
       <th>Paper No</th>
-      <th>First Card Issued</th>
-      <th>Renew</th>
+      <th>Created</th>
+      <th>Last Seen</th>
+      <th>Expires</th>
       <th></th>
       </tr>
     </thead>
@@ -82,7 +83,10 @@
               <input name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
             </td>
             <td>                            
-              <input type="date" name="created" value="{{ carddb[card]['created'] }}">
+              {{ carddb[card]['created'] }}
+            </td>
+            <td>                            
+              {{ carddb[card]['lastseen'] }}
             </td>
             <td>                            
               <input type="date" name="renew" value="{{ carddb[card]['renew'] }}">
@@ -97,9 +101,12 @@
             <td>
 
             </td>
+            <td>
+
+            </td>
             {% endif %}
             <td>
-              <input type="submit" value="Update">
+              <input type="submit" value="Save">
             </td>
           </form>
           {% if (carddb[card]["level"] == 0): %}

@@ -4,6 +4,7 @@ from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta
 from queue import Queue
 from flask import Flask, Response, request, render_template
+from playsound import playsound
 
 sysactive = True
 
@@ -38,13 +39,22 @@ timeoff = 0
 def get_time():
     return datetime.now().date()+timedelta(days = timeoff)
 def calc_expiry(card):
-    expdate = datetime.strptime(carddb[card]["renew"],dateform)+relativedelta(months=1)
+    expdate = datetime.strptime(carddb[card]["renew"],dateform)
+    while expdate < datetime.now()+relativedelta(days=7):
+        expdate = expdate+relativedelta(months=1)
     return expdate.strftime(dateform)
 def get_remain(card):
     if card in carddb:
         return max(0,(datetime.strptime(carddb[card]["renew"],dateform).date()-get_time()).days,0)
     else:
         return ""
+def check_date(newdate,fbdate):
+    try:
+        ndate = datetime.strptime(newdate,dateform).strftime(dateform)
+        return ndate
+    except:
+        return fbdate
+
 
 ## Logs
 logs = []
@@ -107,6 +117,7 @@ def addcard(card,level=0):
         carddb[card] = {
             "level": level,
             "created": get_time().strftime(dateform),
+            "lastseen": "",
             "renew": get_time().strftime(dateform),
             "memno": memno,
             "papermemno": "",
@@ -163,6 +174,7 @@ def membergreet(card):
 def memberstatus(card):
     gr = get_remain(card)
     if (gr < 1):
+        playsound('./sounds/exp.mp3')
         return "expired"
     elif (gr < 8):
         return "renew"
@@ -298,8 +310,22 @@ start_thread(keyinput)
 
 ## Process Cards
 mode = 0
+lastcard = 0
+adhits = 0
 def handle_card(card):
-    global mode
+    global mode,lastcard,adhits
+    if (lastcard and datetime.now()-lastcard["dt"] < timedelta(seconds=5) and carddb[lastcard["card"]]["level"] != 0 and carddb[card]["level"] != 0):
+        adhits += 1
+    else:
+        adhits = 0
+    if adhits == 5:
+        add_message("Swipe TWICE  to Shutdown")
+    elif adhits == 6:
+        add_message("Swipe ONCE to Shutdown")
+    elif adhits == 7:
+        add_message("Shutting Down <BR>Power Off when Card Reader Light out")
+        stop_threads()
+    lastcard = {"card": card,"dt": datetime.now()}
     if (len(carddb) == 0):
         addcard(card,1)
         add_message("Master Card Created")
@@ -346,33 +372,44 @@ app = Flask(__name__,
 
 @app.route('/')
 def root():
-    return render_template('index.html')
+    if sysactive:
+        return render_template('index.html')
+    else:
+        return "System Shutting Down"
 
 @app.route('/showcards')
 def showcards():
-    return render_template('showcards.html',carddb=carddb)
+    if sysactive:
+        return render_template('showcards.html',carddb=carddb)
+    else:
+        return "System Shutting Down"
 
 @app.route('/update', methods=['POST'])
 def update():
     global carddb
-    card = request.form.get("card")
-    if (card in carddb):
-        addlog("UpdateBefore",card)
-        carddb[card]["name"] = request.form.get("name")
-        carddb[card]["papermemno"] = request.form.get("papermemno")
-        carddb[card]["created"] = request.form.get("created")
-        carddb[card]["renew"] = request.form.get("renew")
-        addlog("UpdateAfter",card)
-        savedb()
-    return "Updated Successfully"
+    if sysactive:
+        card = request.form.get("card")
+        if (card in carddb):
+            addlog("UpdateBefore",card) # TODO log DB also?
+            carddb[card]["name"] = request.form.get("name")
+            carddb[card]["papermemno"] = request.form.get("papermemno")
+            carddb[card]["renew"] = check_date(request.form.get("renew"),carddb[card]["renew"])
+            addlog("UpdateAfter",card)
+            savedb()
+        return "Updated Successfully"
+    else:
+        return "System Shutting Down"
 
 @app.route('/replace', methods=['POST'])
 def replace():
     global replcard, mode
-    replcard = request.form.get("card")
-    mode = 1
-    add_message(f'Scan Replacement Card for Member {request.form.get("memno")}')
-    return render_template('replace.html')
+    if sysactive:
+        replcard = request.form.get("card")
+        mode = 1
+        add_message(f'Scan Replacement Card for Member {request.form.get("memno")}')
+        return render_template('replace.html')
+    else:
+        return "System Shutting Down"
 
 @app.route('/stream')
 def stream():
