@@ -40,12 +40,13 @@ def get_time():
     return datetime.now().date()+timedelta(days = timeoff)
 def calc_expiry(card):
     expdate = datetime.strptime(carddb[card]["renew"],dateform)
-    while expdate < datetime.now()+relativedelta(days=7):
+    oexpdate = expdate
+    while expdate < datetime.now() or expdate-oexpdate < timedelta(days=28):
         expdate = expdate+relativedelta(months=1)
     return expdate.strftime(dateform)
 def get_remain(card):
     if card in carddb:
-        return max(0,(datetime.strptime(carddb[card]["renew"],dateform).date()-get_time()).days,0)
+        return max(0,(datetime.strptime(carddb[card]["renew"],dateform).date()-get_time()).days+1,0)
     else:
         return ""
 def check_date(newdate,fbdate):
@@ -118,7 +119,7 @@ def addcard(card,level=0):
             "level": level,
             "created": get_time().strftime(dateform),
             "lastseen": "",
-            "renew": get_time().strftime(dateform),
+            "renew": (get_time()+relativedelta(months=1)).strftime(dateform),
             "memno": memno,
             "papermemno": "",
             "name": ""
@@ -174,9 +175,16 @@ def membergreet(card):
 def memberstatus(card):
     gr = get_remain(card)
     if (gr < 1):
-        playsound('./sounds/exp.mp3')
+        try:
+            playsound('sounds/expired.mp3')
+        except:
+            pass
         return "expired"
     elif (gr < 8):
+        try:
+            playsound('sounds/renew.mp3')
+        except:
+            pass
         return "renew"
     else:
         return ""
