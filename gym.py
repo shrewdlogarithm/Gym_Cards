@@ -139,7 +139,7 @@ def replacecard(card):
     global replcard
     addlog("CardReplacedOld",replcard)
     carddb[card] = carddb[replcard]
-    add_message(f'##Replaced {replcard} with {card} for Member {carddb[card]["memno"]}')
+    add_message(f'##Replaced Card OK!')
     addlog("CardReplacedNew",card)
     del carddb[replcard]
     replcard = ""
