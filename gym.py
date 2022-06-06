@@ -314,7 +314,7 @@ lastcard = 0
 adhits = 0
 def handle_card(card):
     global mode,lastcard,adhits
-    if (lastcard and lastcard["card"] in carddb and datetime.now()-lastcard["dt"] < timedelta(seconds=5) and carddb[lastcard["card"]]["level"] != 0 and carddb[card]["level"] != 0):
+    if (lastcard and lastcard["card"] in carddb and card in carddb and datetime.now()-lastcard["dt"] < timedelta(seconds=5) and carddb[lastcard["card"]]["level"] != 0 and carddb[card]["level"] != 0):
         adhits += 1
     else:
         adhits = 0
