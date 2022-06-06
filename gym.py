@@ -327,14 +327,6 @@ def handle_card(card):
         adhits += 1
     else:
         adhits = 0
-    if adhits == 5:
-        add_message("Swipe TWICE more to Shutdown")
-    elif adhits == 6:
-        add_message("Swipe ONCE more to Shutdown")
-    elif adhits == 7:
-        add_message("Shutting Down <BR>Power Off when Card Reader Light out")
-        stop_threads()
-        return
     lastcard = {"card": card,"dt": datetime.now()}
     if (len(carddb) == 0):
         addcard(card,1)
@@ -368,6 +360,14 @@ def handle_card(card):
             memno = addcard(card)
             add_message(f'Member { memno } Created')
         mode = 0
+    if adhits == 5:
+        add_message("Swipe TWICE more to Shutdown")
+    elif adhits == 6:
+        add_message("Swipe ONCE more to Shutdown")
+    elif adhits == 7:
+        add_message("Shutting Down <BR>Power Off when Card Reader Light out")
+        stop_threads()
+        return
 def process_cards():
     while sysactive:
         time.sleep(.2) # this avoids thrashing 1 core constantly...
