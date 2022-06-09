@@ -1,16 +1,17 @@
-import json
+import os,json
 from datetime import datetime
 ## Logs
 logs = []
 def logname():
     return f'logs/gym-{datetime.now().strftime("%Y%m%d")}.log'
-def addlog(ev,card="",db="",excep=""):
+def addlog(ev,card="",db={},excep=""):
     global logs
     newlog = {
+        "event": ev,       
         "dt": datetime.now(),
-        "offdt": datetime.now(),
-        "event": ev,
-        
+        "card": card,
+        "db": db,
+        "excep": excep
     }
     if (card != ""):
         newlog["card"] = card
@@ -24,6 +25,18 @@ def addlog(ev,card="",db="",excep=""):
             lf.write(json.dumps(newlog,default=str) + ",\n")
     except Exception as e:
         print(f'Log Writing exception {e}')
+memdb = {}
+def countmember(card=""):
+    if (card != ""):
+        memno = card
+        if memno in memdb:
+            del memdb[memno]
+        else:
+            memdb[memno] = True  
+    return len(memdb)
+def memberin(card):
+    return card in memdb;
+
 try:
     if os.path.exists(logname()):
         with open(logname()) as lf:
@@ -32,7 +45,6 @@ try:
 except Exception as e:
     addlog("LoadingLogs",excep=e)
     logs = []
-
 for log in logs:
     if ("card" in log):
-        handlemember(log["card"])
+        countmember(log["card"])

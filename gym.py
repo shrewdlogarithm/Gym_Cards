@@ -1,22 +1,19 @@
 import os,json,time
-from collections import OrderedDict
-from datetime import datetime,timedelta
-from dateutil.relativedelta import relativedelta
+from datetime import timedelta
 from queue import Queue
-from flask import Flask, Response, request, render_template
 from playsound import playsound
-import sse,log,threads
+from flask import Flask, Response, request, render_template
+import sse,log,threads,utils # our own libraries
 
 sysactive = True
 
 ## Database
 dbname = "data/cards.json"
-carddb = OrderedDict()
-dateform = '%Y-%m-%d' # the format Chrome requires...
+carddb = {}
 def savedb():
     with open(dbname, 'w') as json_file:
-        json.dump(carddb, json_file, indent=4,default=str)
-        
+        json.dump(carddb, json_file, indent=4,default=str)        
+
 try:
     if os.path.exists(dbname):
         with open(dbname) as json_file:
@@ -26,7 +23,7 @@ except:
     carddb = {}
 
 #Handle Cards
-def addcard(card,level=0):
+def addcard(card,staff=False):
     global carddb
     if (card not in carddb):
         memno = 0
@@ -35,10 +32,10 @@ def addcard(card,level=0):
                 memno = int(carddb[c]["memno"])
         memno += 1
         carddb[card] = {
-            "level": level,
-            "created": datetime.now().strftime(dateform),
+            "staff": staff,
+            "created": utils.getnowform(),
             "lastseen": "",
-            "renew": (datetime.now()+relativedelta(months=1)).strftime(dateform),
+            "expires": utils.getrenewform(),
             "memno": memno,
             "papermemno": "",
             "name": ""
@@ -48,20 +45,20 @@ def addcard(card,level=0):
         return memno
     else:
         return -1 # this should really never happen...
+def calc_expiry(card):
+    expdate = utils.getdate(carddb[card]["expires"])
+    print(utils.getnow()-expdate)
+    if expdate-utils.getnow() >= timedelta(days=-7):
+        return utils.getrenewform(expdate)
+    else:
+        return utils.getrenewform()
 def renewcard(card):
-    newexpires = calc_expiry(card)
-    carddb[card]["renew"] = newexpires
+    carddb[card]["expires"] = calc_expiry(card)
     log.addlog("CardRenew",card)
     savedb()
-def calc_expiry(card):
-    expdate = datetime.strptime(carddb[card]["renew"],dateform)
-    oexpdate = expdate
-    while expdate < datetime.now() or expdate-oexpdate < timedelta(days=28):
-        expdate = expdate+relativedelta(months=1)
-    return expdate.strftime(dateform)
 def get_remain(card):
     if card in carddb:
-        return max(0,(datetime.strptime(carddb[card]["renew"],dateform).date()-datetime.now().date()).days+1,0)
+        return max(0,(utils.getdate(carddb[card]["expires"])-utils.getnow()).days+1,0)
     else:
         return ""
 replcard=""
@@ -77,16 +74,6 @@ def replacecard(card):
     savedb()
 
 ## Member Functions
-memdb = {}
-def handlemember(card):
-    if (card in carddb and carddb[card]["level"] == 0):
-        memno = carddb[card]["memno"]
-        if memno in memdb:
-            del memdb[memno]
-        else:
-            memdb[memno] = True
-def membersonsite():     
-    return len(memdb)
 def membername(card):
     if (carddb[card]["name"] != ""):
         return carddb[card]["name"]
@@ -96,7 +83,7 @@ def membername(card):
         return "Member" + str(carddb[card]["memno"])
 def membergreet(card):
     if card in carddb:
-        if (carddb[card]["memno"] in memdb):
+        if log.memberin(card):
             return ("Goodbye")
         else:
             return ("Welcome")
@@ -158,7 +145,7 @@ threads.start_thread(eventinput)
 def keyinput():
     while sysactive:
         try:
-            cards.put(i)
+            cards.put(input())
         except Exception as e:
             log.addlog("KeyInput_exception",excep=e)
 threads.start_thread(keyinput)
@@ -169,24 +156,25 @@ lastcard = {"card": -1}
 adhits = 0
 def handle_card(card):
     global mode,lastcard,adhits
-    if (lastcard["card"] in carddb and datetime.now()-lastcard["dt"] < timedelta(seconds=5) and card in carddb and carddb[lastcard["card"]]["level"] != 0 and carddb[card]["level"] != 0):
+    if (lastcard["card"] in carddb and utils.getnow()-lastcard["dt"] < timedelta(seconds=5) and card in carddb and carddb[lastcard["card"]]["staff"] and carddb[card]["staff"]):
         adhits += 1
     else:
         adhits = 0
-    lastcard = {"card": card,"dt": datetime.now()}
+    lastcard = {"card": card,"dt": utils.getnow()}
     if (len(carddb) == 0):
         addcard(card,1)
         sse.add_message("Master Card Created")
     elif (mode == 0):
         if (card in carddb):
-            if (carddb[card]["level"] > 0):
+            if (carddb[card]["staff"]):
                 mode = 1
                 sse.add_message("Ready to Add/Renew <BR> Swipe again to cancel")
             else:
                 log.addlog("MemberInOut",card)
                 sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
-                handlemember(card)
-                sse.add_message(f'##Active Members {membersonsite()}')
+                carddb[card]["lastseen"] = utils.getnowform()
+                savedb()
+                sse.add_message(f'##Active Members {log.countmember(card)}')
         else:
             sse.add_message("Unrecognized Card")
     else:
@@ -197,7 +185,7 @@ def handle_card(card):
                 sse.add_message("Card already in use")
                 return
         elif (card in carddb): 
-            if (carddb[card]["level"] == 0): 
+            if (not carddb[card]["staff"]): 
                 renewcard(card)
                 sse.add_message(f'Member { membername(card) } <BR> { get_remain(card) } days left')
             else:
@@ -243,21 +231,22 @@ def showcards():
 @app.route('/update', methods=['POST'])
 def update():
     global carddb
-    def check_date(newdate,fbdate):
-        try:
-            ndate = datetime.strptime(newdate,dateform).strftime(dateform)
-            return ndate
-        except:
-            return fbdate
     if sysactive:
         card = request.form.get("card")
         if (card in carddb):
-            log.addlog("UpdateBefore",card) 
-            carddb[card]["name"] = request.form.get("name")
-            carddb[card]["papermemno"] = request.form.get("papermemno")
-            carddb[card]["renew"] = check_date(request.form.get("renew"),carddb[card]["renew"])
-            log.addlog("UpdateAfter",card)
-            savedb()
+            try:
+                log.addlog("UpdateBefore",card) 
+                carddb[card]["name"] = request.form.get("name")
+                carddb[card]["papermemno"] = request.form.get("papermemno")
+                carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
+                try: 
+                    carddb[card]["staff"] = request.form.get("staff").lower()=="on"
+                except:
+                    pass # if not checked we get Nonetype so catch that...
+                log.addlog("UpdateAfter",card)
+                savedb()
+            except Exception as e:
+                print(e)
         return "Updated Successfully"
     else:
         return "System Shutting Down"
@@ -276,8 +265,8 @@ def replace():
 @app.route('/stream')
 def stream():
     def stream():
-        messages = announcer.listen()  
-        sse.add_message(f'##Active Members {membersonsite()}')
+        messages = sse.announcer.listen()  
+        sse.add_message(f'##Active Members {log.countmember()}')
         while sysactive:
             msg = messages.get()  
             yield msg

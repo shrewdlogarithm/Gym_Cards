@@ -61,6 +61,7 @@
       <th>Created</th>
       <th>Last Seen</th>
       <th>Expires</th>
+      <th>Staff</th>
       <th></th>
       </tr>
     </thead>
@@ -78,7 +79,6 @@
             <td>
               <input name="name" type="text" value='{{carddb[card]["name"]}}'>
             </td>
-            {% if (carddb[card]["level"] == 0): %}
             <td>
               <input name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
             </td>
@@ -89,27 +89,15 @@
               {{ carddb[card]['lastseen'] }}
             </td>
             <td>                            
-              <input type="date" name="renew" value="{{ carddb[card]['renew'] }}">
+              <input type="date" name="expires" value="{{ carddb[card]['expires'] }}">
             </td>
-            {% else %}
-            <td>
-              { MASTER CARD }
+            <td>                            
+              <input type="checkbox" name="staff" {{ 'checked' if carddb[card]['staff'] else '' }}>
             </td>
-            <td>
-
-            </td>
-            <td>
-
-            </td>
-            <td>
-
-            </td>
-            {% endif %}
             <td>
               <input type="submit" value="Save">
             </td>
           </form>
-          {% if (carddb[card]["level"] == 0): %}
           <form action=replace method="POST">
             <td>
               <input type=hidden name="card" value="{{ card }}">
@@ -117,7 +105,6 @@
               <input type=submit value="Replace Card">
             </td>
           </form>
-          {% endif %}
         </tr>
     {% endfor %}
     </tbody>
