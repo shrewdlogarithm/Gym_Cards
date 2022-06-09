@@ -22,6 +22,8 @@ site/tablesorter/*
 data/*.json
 logs/*.log
 
+webcam.*
+
 __pycache__/
 *.py[cod]
 *$py.class

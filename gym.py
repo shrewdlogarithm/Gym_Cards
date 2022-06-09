@@ -1,4 +1,4 @@
-import os,json,time
+import os,json,time,base64
 from datetime import timedelta
 from queue import Queue
 from playsound import playsound
@@ -18,7 +18,7 @@ try:
     if os.path.exists(dbname):
         with open(dbname) as json_file:
             carddb = json.load(json_file)
-except:
+except Exception as e:
     log.addlog("LoadingDB",excep=e)
     carddb = {}
 
@@ -47,11 +47,16 @@ def addcard(card,staff=False):
         return -1 # this should really never happen...
 def calc_expiry(card):
     expdate = utils.getdate(carddb[card]["expires"])
-    print(utils.getnow()-expdate)
     if expdate-utils.getnow() >= timedelta(days=-7):
         return utils.getrenewform(expdate)
     else:
         return utils.getrenewform()
+def cardvisit(card):
+    log.addlog("MemberInOut",card)
+    sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+    carddb[card]["lastseen"] = utils.getnowform()
+    savedb()
+    sse.add_message(f'##Active Members {log.countmember(card)}')
 def renewcard(card):
     carddb[card]["expires"] = calc_expiry(card)
     log.addlog("CardRenew",card)
@@ -79,6 +84,8 @@ def membername(card):
         return carddb[card]["name"]
     elif (carddb[card]["papermemno"] != ""):
         return carddb[card]["papermemno"]
+    elif (carddb[card]["staff"]):
+        return "StaffMember" + str(carddb[card]["memno"])
     else:
         return "Member" + str(carddb[card]["memno"])
 def membergreet(card):
@@ -162,7 +169,7 @@ def handle_card(card):
         adhits = 0
     lastcard = {"card": card,"dt": utils.getnow()}
     if (len(carddb) == 0):
-        addcard(card,1)
+        addcard(card,True)
         sse.add_message("Master Card Created")
     elif (mode == 0):
         if (card in carddb):
@@ -170,11 +177,7 @@ def handle_card(card):
                 mode = 1
                 sse.add_message("Ready to Add/Renew <BR> Swipe again to cancel")
             else:
-                log.addlog("MemberInOut",card)
-                sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
-                carddb[card]["lastseen"] = utils.getnowform()
-                savedb()
-                sse.add_message(f'##Active Members {log.countmember(card)}')
+                cardvisit(card)
         else:
             sse.add_message("Unrecognized Card")
     else:
@@ -202,11 +205,114 @@ def handle_card(card):
         sse.add_message("Shutting Down <BR>Power Off when Card Reader Light out")
         threads.stop_threads()
         return
+
+qq=[]
+def clearq():
+    global qq
+    qq = []
+def addq(c):
+    global qq
+    #if len(qq) > 0 and utils.getnow()-qq[0]["dt"] > timedelta(seconds=5):
+    #    clearq()        
+    if c == "qq":
+        clearq()
+    elif c[0:1] == "r":
+        rcd = c[1:]
+        qq.append({"cd": "1","dt": utils.getnow()}) 
+        qq.append({"cd": "1","dt": utils.getnow()}) 
+        qq.append({"cd": rcd,"repl": True,"dt": utils.getnow()}) 
+    else:
+        qq.append({"cd": c,"dt": utils.getnow()}) 
+def getq():
+    cseq = ""
+    for q in qq:
+        if "repl" in q:
+            nc = "Q"
+        elif q["cd"] in carddb:
+            if carddb[q["cd"]]["staff"]: # is a master card
+                if cseq[0:1] == "M" and q["cd"] != qq[0]["cd"]: # master cards other than the first seen aren't masters here
+                    nc = "K"
+                else:
+                    nc = "M"
+            else:
+                nc = "K"
+        else:
+            nc = "U"
+        cseq += nc
+    return cseq  
+
+def handlecard(card):
+    if len(carddb) == 0:
+        addcard(card,True)
+        sse.add_message("Master Card Created")
+    else:
+        addq(card)
+        cq=getq()
+        if cq == "MMMMMM":
+            sse.add_message("Shutdown")
+            clearq()
+        elif cq == "MMMMM":
+            sse.add_message("Swipe ONE more time to Shutdown")
+        elif cq == "MMMM":
+            sse.add_message("Swipe TWO more times to Shutdown")
+        elif cq == "MMM": # special case for shutdown only - we want to NOT clear but put screen back to normal??
+            sse.add_message("Swipe THREE more times to Shutdown")
+        elif cq == "MMKM":
+            card = qq[2]["cd"]
+            renewcard(card)
+            sse.add_message(f'Member { membername(card) } <BR> { get_remain(card) } days left')
+            clearq()
+        elif cq[0:3] == "MMK" and len(cq) > 3:
+            sse.add_message("Cancelled")
+            clearq()
+        elif cq == "MMK":
+            sse.add_message("Swipe Master to Renew <BR> Any other card will cancel")
+        elif cq == "MMUM":
+            memno = addcard(qq[2]["cd"])
+            sse.add_message(f'Member { memno } Created')
+            clearq()
+        elif cq[0:3] == "MMU" and len(cq) > 3:
+            sse.add_message("Cancelled")
+            clearq()
+        elif cq == "MMU":
+            sse.add_message("Swipe Master to Add - any other card to cancel")
+        elif cq == "MMQ":
+            if qq[2]["cd"] in carddb:
+                sse.add_message(f'Swipe card to replace for { membername(qq[2]["cd"]) }')
+            else:
+                sse.add_message("Invalid Card - cannot replace")
+                clearq()
+        elif cq[0:3] == "MMQ" and len(cq) > 3:
+            if cq == "MMQU":
+                ccd = qq[2]["cd"]
+                rcd = qq[3]["cd"]
+                sse.add_message(f'Replaced Card for { membername(ccd) }')
+                carddb[rcd] = carddb[ccd]
+                del carddb[ccd]
+            else:
+                sse.add_message("Card already in use <BR> Replacement cancelled")
+            clearq()
+        elif cq == "MM":
+            sse.add_message("Add or Renew a Card")
+        elif cq == "MK":
+            cardvisit(qq[1]["cd"])
+            clearq()
+        elif cq == "MU" or cq == "U":
+            sse.add_message("Unknown Card")
+            clearq()
+        elif len(cq) == 1:
+            cardvisit(qq[0]["cd"])
+            if cq[0] == "K":
+                clearq()
+        else:
+            sse.add_message("Ready for Card")
+            clearq()
+
 def process_cards():
     while sysactive:
         time.sleep(.2) # this avoids thrashing 1 core constantly...
         while (not cards.empty()):
-            handle_card(cards.get())            
+            handlecard(cards.get())
 threads.start_thread(process_cards)
 
 ## Flask Server
@@ -250,6 +356,18 @@ def update():
         return "Updated Successfully"
     else:
         return "System Shutting Down"
+
+@app.route('/savepic', methods=['POST'])
+def savepic():
+    global carddb
+    if sysactive:
+        card = request.form.get("image")
+        with open("imageToSave.png", "wb") as fh:
+            imagedata = request.form.get("image")
+            imagedata = imagedata.replace("data:image/png;base64,","")
+            b64data = base64.b64decode(imagedata)
+            fh.write(b64data)
+    return("OK")
 
 @app.route('/replace', methods=['POST'])
 def replace():
