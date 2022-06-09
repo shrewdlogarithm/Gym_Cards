@@ -1,5 +1,4 @@
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from datetime import datetime,timedelta
 
 dateform = '%Y-%m-%d' # the format Chrome requires...
 def formdate(dt):
@@ -8,14 +7,14 @@ def formdate(dt):
 def getnow():
     return datetime.now().date()
 
-def getnowform(of=relativedelta(seconds=0)):
+def getnowform(of=timedelta(day=0)):
     return formdate(getnow()+of)
 
 def getdate(dtstr):
     return datetime.strptime(dtstr,dateform).date()
 
 def getrenew(dt=datetime.now()):
-    return dt+relativedelta(months=1)
+    return dt+timedelta(month=1)
 
 def getrenewform(dt=datetime.now()):
     return formdate(getrenew(dt))
