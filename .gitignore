@@ -23,6 +23,9 @@ site/tablesorter/*
 data/*.json
 logs/*.log
 
+*.tar 
+*.bak 
+
 __pycache__/
 *.py[cod]
 *$py.class

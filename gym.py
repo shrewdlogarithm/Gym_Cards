@@ -1,4 +1,4 @@
-import os,json,time,base64
+import os,json,time,base64,shutil
 from datetime import timedelta
 from queue import Queue
 from playsound import playsound
@@ -9,8 +9,10 @@ sysactive = True
 
 ## Database
 dbname = "data/cards.json"
+backdbname = dbname + ".bak"
 carddb = {}
 def savedb():
+    shutil.copy2(dbname,backdbname)
     with open(dbname, 'w') as json_file:
         json.dump(carddb, json_file, indent=4,default=str)        
 
@@ -20,7 +22,14 @@ try:
             carddb = json.load(json_file)
 except Exception as e:
     log.addlog("LoadingDB",excep=e)
-    carddb = {}
+    try: 
+        if os.path.exists(backdbname):
+            with open(backdbname) as json_file:
+                carddb = json.load(json_file)
+        log.addlog("LoadingDB",excep=e)
+    except Exception as e:
+        log.addlog("LoadingBackDB",excep=e)
+        carddb = {}
 
 #Handle Cards
 def addcard(card,staff=False):
