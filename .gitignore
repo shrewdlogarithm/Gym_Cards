@@ -16,13 +16,12 @@ README.txt
 
 dev/*
 install/*
+images/*
 
 site/tablesorter/*
 
 data/*.json
 logs/*.log
-
-webcam.*
 
 __pycache__/
 *.py[cod]
