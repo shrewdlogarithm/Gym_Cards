@@ -33,6 +33,7 @@ def countmember(card=""):
             del memdb[memno]
         else:
             memdb[memno] = True  
+    print(len(memdb))
     return len(memdb)
 def memberin(card):
     return card in memdb;

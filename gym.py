@@ -62,11 +62,9 @@ def calc_expiry(card):
     else:
         return utils.getrenewform()
 def cardvisit(card):
-    log.addlog("MemberInOut",card)
     sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
     carddb[card]["lastseen"] = utils.getnowform()
     savedb()
-    sse.add_message(f'##Active Members {log.countmember(card)}')
 def renewcard(card):
     carddb[card]["expires"] = calc_expiry(card)
     log.addlog("CardRenew",card)
@@ -184,6 +182,8 @@ def handle_card(card):
                 sse.add_message("Ready to Add/Renew <BR> Swipe again to cancel")
             else:
                 cardvisit(card)
+                log.addlog("MemberInOut",card)
+                sse.add_message(f'##Active Members {log.countmember(card)}')
         else:
             sse.add_message("Unrecognized Card")
     else:
@@ -246,8 +246,12 @@ def getq():
     return cseq  
 
 def kto(tt=0):
-    if len(qq) and tt > 2:
-        sse.add_message("Ready for Card!!")
+    if len(qq):
+        if  tt > 2:
+            sse.add_message("Ready for Card!!")
+        elif getq()[0] == "M":
+            log.addlog("MemberInOut",qq[0]["cd"])
+            sse.add_message(f'##Active Members {log.countmember(qq[0]["cd"])}')
     clearq()
 def handlecard(card):
     if len(carddb) == 0:
@@ -311,6 +315,8 @@ def handlecard(card):
             to = 5
         elif cq == "MK":
             cardvisit(qq[1]["cd"])
+            log.addlog("MemberInOut",qq[1]["cd"])
+            sse.add_message(f'##Active Members {log.countmember(qq[1]["cd"])}')
             clearq()
         elif cq == "MU" or cq == "U":
             sse.add_message("Unknown Card")
@@ -318,6 +324,8 @@ def handlecard(card):
         elif len(cq) == 1:
             cardvisit(qq[0]["cd"])
             if cq[0] == "K":
+                log.addlog("MemberInOut",qq[0]["cd"])
+                sse.add_message(f'##Active Members {log.countmember(qq[0]["cd"])}')
                 clearq()
             else:
                 to = 2
