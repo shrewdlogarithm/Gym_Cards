@@ -35,6 +35,14 @@
                 filter: false
               },
               6 : {
+                extractor: "inputs",
+                sorter : "shortdate",
+                filter: false
+              },
+              7 : {
+                filter: false
+              },
+              8 : {
                 filter: false
               }
             },
@@ -95,13 +103,13 @@
               <input type="checkbox" name="staff" {{ 'checked' if carddb[card]['staff'] else '' }}>
             </td>
             <td>
-              <input type="submit" value="Save">
+              <input type="submit" value="Save Changes">
             </td>
           </form>
-          <form action=replace method="POST">
+          <form action=replace target="status" method="POST">
             <td>
               <input type=hidden name="card" value="{{ card }}">
-              <input type=hidden name="memno" value="{{ carddb[card]['memno'] }}">
+              <input type=hidden name="memno" v2alue="{{ carddb[card]['memno'] }}">
               <input type=submit value="Replace Card">
             </td>
           </form>

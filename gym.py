@@ -12,8 +12,10 @@ dbname = "data/cards.json"
 backdbname = dbname + ".bak"
 carddb = {}
 def savedb():
-    # TODO might not exist...
-    # shutil.copy2(dbname,backdbname)
+    try:
+        shutil.copy2(dbname,backdbname)
+    except:
+        pass # doesn't exist first run
     with open(dbname, 'w') as json_file:
         json.dump(carddb, json_file, indent=4,default=str)        
 
@@ -162,56 +164,6 @@ def eventinput():
 threads.start_thread(eventinput)
 
 ## Process Cards
-mode = 0
-lastcard = {"card": -1}
-adhits = 0
-def handle_card(card):
-    global mode,lastcard,adhits
-    if (lastcard["card"] in carddb and utils.getnow()-lastcard["dt"] < timedelta(seconds=5) and card in carddb and carddb[lastcard["card"]]["staff"] and carddb[card]["staff"]):
-        adhits += 1
-    else:
-        adhits = 0
-    lastcard = {"card": card,"dt": utils.getnow()}
-    if (len(carddb) == 0):
-        addcard(card,True)
-        sse.add_message("Master Card Created")
-    elif (mode == 0):
-        if (card in carddb):
-            if (carddb[card]["staff"]):
-                mode = 1
-                sse.add_message("Ready to Add/Renew <BR> Swipe again to cancel")
-            else:
-                cardvisit(card)
-                log.addlog("MemberInOut",card)
-                sse.add_message(f'##Active Members {log.countmember(card)}')
-        else:
-            sse.add_message("Unrecognized Card")
-    else:
-        if (replcard != ""): 
-            if (card not in carddb):
-                replacecard(card)
-            else:
-                sse.add_message("Card already in use")
-                return
-        elif (card in carddb): 
-            if (not carddb[card]["staff"]): 
-                renewcard(card)
-                sse.add_message(f'Member { membername(card) } <BR> { get_remain(card) } days left')
-            else:
-                sse.add_message("Cancelled")
-        else: 
-            memno = addcard(card)
-            sse.add_message(f'Member { memno } Created')
-        mode = 0
-    if adhits == 5:
-        sse.add_message("Swipe TWICE more to Shutdown")
-    elif adhits == 6:
-        sse.add_message("Swipe ONCE more to Shutdown")
-    elif adhits == 7:
-        sse.add_message("Shutting Down <BR>Power Off when Card Reader Light out")
-        threads.stop_threads()
-        return
-
 qq=[]
 def clearq():
     global qq
@@ -256,22 +208,27 @@ def kto(tt=0):
 def handlecard(card):
     if len(carddb) == 0:
         addcard(card,True)
-        sse.add_message("Master Card Created")
+        sse.add_message("Staff Card Created")
     else:
         to = 0
         addq(card)
         cq=getq()
         if cq == "MMMMMM":
             sse.add_message("Shutdown")
+            threads.stop_threads()
+            try:
+                os.remove("gymactive")
+            except:
+                pass
         elif cq == "MMMMM":
             sse.add_message("Swipe ONE more time to Shutdown")
-            to = 5
+            to = 2
         elif cq == "MMMM":
             sse.add_message("Swipe TWO more times to Shutdown")
-            to = 5
+            to = 2
         elif cq == "MMM": # special case for shutdown only - we want to NOT clear but put screen back to normal??
             sse.add_message("Swipe THREE more times to Shutdown")
-            to = 5
+            to = 2
         elif cq == "MMKM":
             card = qq[2]["cd"]
             renewcard(card)
@@ -281,8 +238,8 @@ def handlecard(card):
             sse.add_message("Cancelled")
             clearq()
         elif cq == "MMK":
-            sse.add_message("Swipe Master to Renew <BR> Any other card will cancel")
-            to = 5
+            sse.add_message("Swipe Staff Card to Renew <BR> Any other to cancel")
+            to = 10
         elif cq == "MMUM":
             memno = addcard(qq[2]["cd"])
             sse.add_message(f'Member { memno } Created')
@@ -291,12 +248,12 @@ def handlecard(card):
             sse.add_message("Cancelled")
             clearq()
         elif cq == "MMU":
-            sse.add_message("Swipe Master to Add - any other card to cancel")
-            to = 5
+            sse.add_message("Swipe Staff Card to Add <BR> Any other to cancel")
+            to = 10
         elif cq == "MMQ":
             if qq[2]["cd"] in carddb:
                 sse.add_message(f'Swipe card to replace for { membername(qq[2]["cd"]) }')
-                to = 5
+                to = 10
             else:
                 sse.add_message("Invalid Card - cannot replace")
                 clearq()
@@ -377,7 +334,7 @@ def update():
                 try: 
                     carddb[card]["staff"] = request.form.get("staff").lower()=="on"
                 except:
-                    pass # if not checked we get Nonetype so catch that...
+                    carddb[card]["staff"] = False
                 log.addlog("UpdateAfter",card)
                 savedb()
             except Exception as e:
@@ -402,10 +359,11 @@ def savepic():
 def replace():
     global replcard, mode
     if sysactive:
-        replcard = request.form.get("card")
-        mode = 1
+        qq.append({"cd": "1","dt": utils.getnow()}) 
+        qq.append({"cd": "1","dt": utils.getnow()}) 
+        qq.append({"cd": request.form.get("card"),"repl": True,"dt": utils.getnow()}) 
         sse.add_message(f'Scan Replacement Card for Member {request.form.get("memno")}')
-        return render_template('replace.html')
+        return "OK"
     else:
         return "System Shutting Down"
 
