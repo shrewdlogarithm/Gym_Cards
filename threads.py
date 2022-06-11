@@ -15,3 +15,13 @@ def stop_threads():
             t.join()
         except:
             pass # self closing the test thread will fail
+t = 0
+def reset_timeout(to,ktofn):
+    global t
+    if t:
+        try:
+            t.cancel()
+        except:
+            pass
+    t = threading.Timer(to,ktofn,[to])
+    t.start()

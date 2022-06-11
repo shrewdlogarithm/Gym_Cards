@@ -12,7 +12,8 @@ dbname = "data/cards.json"
 backdbname = dbname + ".bak"
 carddb = {}
 def savedb():
-    shutil.copy2(dbname,backdbname)
+    # TODO might not exist...
+    # shutil.copy2(dbname,backdbname)
     with open(dbname, 'w') as json_file:
         json.dump(carddb, json_file, indent=4,default=str)        
 
@@ -98,7 +99,7 @@ def membername(card):
     else:
         return "Member" + str(carddb[card]["memno"])
 def membergreet(card):
-    if card in carddb:
+    if card in carddb and not carddb[card]["staff"]:
         if log.memberin(card):
             return ("Goodbye")
         else:
@@ -219,9 +220,7 @@ def addq(c):
     global qq
     #if len(qq) > 0 and utils.getnow()-qq[0]["dt"] > timedelta(seconds=5):
     #    clearq()        
-    if c == "qq":
-        clearq()
-    elif c[0:1] == "r":
+    if c[0:1] == "r":
         rcd = c[1:]
         qq.append({"cd": "1","dt": utils.getnow()}) 
         qq.append({"cd": "1","dt": utils.getnow()}) 
@@ -246,22 +245,29 @@ def getq():
         cseq += nc
     return cseq  
 
+def kto(tt=0):
+    if len(qq) and tt > 2:
+        sse.add_message("Ready for Card!!")
+    clearq()
 def handlecard(card):
     if len(carddb) == 0:
         addcard(card,True)
         sse.add_message("Master Card Created")
     else:
+        to = 0
         addq(card)
         cq=getq()
         if cq == "MMMMMM":
             sse.add_message("Shutdown")
-            clearq()
         elif cq == "MMMMM":
             sse.add_message("Swipe ONE more time to Shutdown")
+            to = 5
         elif cq == "MMMM":
             sse.add_message("Swipe TWO more times to Shutdown")
+            to = 5
         elif cq == "MMM": # special case for shutdown only - we want to NOT clear but put screen back to normal??
             sse.add_message("Swipe THREE more times to Shutdown")
+            to = 5
         elif cq == "MMKM":
             card = qq[2]["cd"]
             renewcard(card)
@@ -272,6 +278,7 @@ def handlecard(card):
             clearq()
         elif cq == "MMK":
             sse.add_message("Swipe Master to Renew <BR> Any other card will cancel")
+            to = 5
         elif cq == "MMUM":
             memno = addcard(qq[2]["cd"])
             sse.add_message(f'Member { memno } Created')
@@ -281,9 +288,11 @@ def handlecard(card):
             clearq()
         elif cq == "MMU":
             sse.add_message("Swipe Master to Add - any other card to cancel")
+            to = 5
         elif cq == "MMQ":
             if qq[2]["cd"] in carddb:
                 sse.add_message(f'Swipe card to replace for { membername(qq[2]["cd"]) }')
+                to = 5
             else:
                 sse.add_message("Invalid Card - cannot replace")
                 clearq()
@@ -299,6 +308,7 @@ def handlecard(card):
             clearq()
         elif cq == "MM":
             sse.add_message("Add or Renew a Card")
+            to = 5
         elif cq == "MK":
             cardvisit(qq[1]["cd"])
             clearq()
@@ -309,9 +319,15 @@ def handlecard(card):
             cardvisit(qq[0]["cd"])
             if cq[0] == "K":
                 clearq()
+            else:
+                to = 2
         else:
             sse.add_message("Ready for Card")
             clearq()
+
+        if to:
+            threads.reset_timeout(to,kto)
+
 
 def process_cards():
     while sysactive:
