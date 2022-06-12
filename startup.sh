@@ -1,0 +1,1 @@
+echo "On" > ~/Gym_Cards/active

@@ -1,0 +1,2 @@
+@reboot ~/Gym_Cards/startup.sh > ~Gym_Cards/logs/system.log 2> & 1
+* * * * * ~/Gym_Cards/backup.sh > ~Gym_Cards/logs/system.log 2> & 1

@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Gym
+Exec=lxterminal -e "/usr/bin/python3 $HOME/Gym_Cards/gym.py;exec bash"
