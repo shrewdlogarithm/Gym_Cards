@@ -65,13 +65,17 @@ def addcard(card,staff=False):
 
 from datetime import datetime,timedelta
 
-testdays = 900
+testdays = 90
 today = datetime.now().date()
 adddate = datetime.now().date() - timedelta(days=testdays)
 while adddate < today:
     cn = randrange(100000,999999)
+    print(1)
     addcard(cn)
+    print(2)
     carddb[cn]["name"] = "Hello"
+    print(3)
     savedb()
+    print(4)
     adddate += timedelta(days=1)
     print(adddate)
