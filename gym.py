@@ -52,7 +52,7 @@ def addcard(card,staff=False):
             "papermemno": "",
             "name": ""
         }
-        log.addlog("CardCreate",card)
+        log.addlog("CardCreate",card,db=carddb[card])
         savedb()
         return memno
     else:
@@ -64,27 +64,25 @@ def calc_expiry(card):
     else:
         return utils.getrenewform()
 def cardvisit(card):
-    sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
     carddb[card]["lastseen"] = utils.getnowform()
+    log.addlog("MemberInOut",card,db=carddb[card])
+    sse.add_message(f'##Active Members {log.countmember(card)}')
+
     savedb()
 def renewcard(card):
     carddb[card]["expires"] = calc_expiry(card)
-    log.addlog("CardRenew",card)
+    log.addlog("CardRenew",card,db=carddb[card])
     savedb()
 def get_remain(card):
     if card in carddb:
         return max(0,(utils.getdate(carddb[card]["expires"])-utils.getnow()).days+1,0)
     else:
         return ""
-replcard=""
-def replacecard(card):
-    global replcard
-    log.addlog("CardReplacedOld",replcard)
+def replacecard(replcard,card):
+    log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
     carddb[card] = carddb[replcard]
-    sse.sse.add_message(f'##Replaced Card OK!')
-    log.addlog("CardReplacedNew",card)
     del carddb[replcard]
-    replcard = ""
+    log.addlog("CardReplacedNew",card,db=carddb[card])
     sse.add_message('Card Replaced')
     savedb()
 
@@ -155,7 +153,7 @@ def eventinput():
                                 log.addlog("evdev_keyevent_exception",excep=e)
             except Exception as e:
                     log.addlog("evdev_device_exception",excep=e)
-    except Exception as e: # evdev n/a on Windows so we use Input() instead
+    except: # evdev n/a on Windows so we use Input() instead
         while sysactive:
             try:
                 cards.put(input())
@@ -200,10 +198,9 @@ def getq():
 def kto(tt=0):
     if len(qq):
         if  tt > 2:
-            sse.add_message("Ready for Card!!")
-        elif getq()[0] == "M":
-            log.addlog("MemberInOut",qq[0]["cd"])
-            sse.add_message(f'##Active Members {log.countmember(qq[0]["cd"])}')
+            sse.add_message("Welcome!")
+        elif getq()[0] == "M": # deferred staff 'in out'
+            cardvisit(qq[0]["cd"])
     clearq()
 def handlecard(card):
     if len(carddb) == 0:
@@ -259,11 +256,7 @@ def handlecard(card):
                 clearq()
         elif cq[0:3] == "MMQ" and len(cq) > 3:
             if cq == "MMQU":
-                ccd = qq[2]["cd"]
-                rcd = qq[3]["cd"]
-                sse.add_message(f'Replaced Card for { membername(ccd) }')
-                carddb[rcd] = carddb[ccd]
-                del carddb[ccd]
+                replacecard(qq[2]["cd"],qq[3]["cd"])
             else:
                 sse.add_message("Card already in use <BR> Replacement cancelled")
             clearq()
@@ -271,23 +264,23 @@ def handlecard(card):
             sse.add_message("Add or Renew a Card")
             to = 5
         elif cq == "MK":
-            cardvisit(qq[1]["cd"])
-            log.addlog("MemberInOut",qq[1]["cd"])
-            sse.add_message(f'##Active Members {log.countmember(qq[1]["cd"])}')
+            card = qq[1]["cd"]
+            sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            cardvisit(card)
             clearq()
         elif cq == "MU" or cq == "U":
             sse.add_message("Unknown Card")
             clearq()
         elif len(cq) == 1:
-            cardvisit(qq[0]["cd"])
+            card = qq[0]["cd"]
+            sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             if cq[0] == "K":
-                log.addlog("MemberInOut",qq[0]["cd"])
-                sse.add_message(f'##Active Members {log.countmember(qq[0]["cd"])}')
+                cardvisit(card)
                 clearq()
             else:
                 to = 2
         else:
-            sse.add_message("Ready for Card")
+            sse.add_message("Welcome!")
             clearq()
 
         if to:
@@ -327,7 +320,7 @@ def update():
         card = request.form.get("card")
         if (card in carddb):
             try:
-                log.addlog("UpdateBefore",card) 
+                log.addlog("UpdateBefore",card,db=carddb[card]) 
                 carddb[card]["name"] = request.form.get("name")
                 carddb[card]["papermemno"] = request.form.get("papermemno")
                 carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
@@ -335,10 +328,10 @@ def update():
                     carddb[card]["staff"] = request.form.get("staff").lower()=="on"
                 except:
                     carddb[card]["staff"] = False
-                log.addlog("UpdateAfter",card)
+                log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()
             except Exception as e:
-                print(e)
+                log.addlog("Update_exception",excep=e)
         return "Updated Successfully"
     else:
         return "System Shutting Down"
@@ -348,7 +341,7 @@ def savepic():
     global carddb
     if sysactive:
         card = request.form.get("image")
-        with open("imageToSave.png", "wb") as fh:
+        with open("images/imageToSave.png", "wb") as fh:
             imagedata = request.form.get("image")
             imagedata = imagedata.replace("data:image/png;base64,","")
             b64data = base64.b64decode(imagedata)
