@@ -1,13 +1,17 @@
-now=$(date +"%Y_%m_%d")
+echo "Backup running"
+date
+
+now=$(date +"%H")
 
 cd ~/Gym_Cards
 
-tar cvzf "backups/backup.$now.tar.gz" data/* images/* logs/*
-ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . "~/Gym_Cards/backups/backup.$now.tar.gz"
-status=$?
-if [ $? -eq 0 ]; then
+# We don't backup the current database to avoid collisions
+tar cvzf "backups/backup.$now.tar.gz" data/*.bak images/* logs/*
+
+ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . ~/Gym_Cards/backups/*.gz
+if [ $? -eq 0 ]
 then
-	echo "Worked"
+	rm backups/*.gz
 fi
 
 if [ ! -f ~/Gym_Cards/active ]
