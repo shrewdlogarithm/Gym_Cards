@@ -1,2 +1,2 @@
 @reboot bash ~/Gym_Cards/system/startup.sh >>~/Gym_Cards/logs/system.log 3>&1
-* * * * * bash ~/Gym_Cards/system/backup.sh >>~/Gym_Cards/logs/system.log 2>&1
+0 * * * * bash ~/Gym_Cards/system/backup.sh >>~/Gym_Cards/logs/system.log 2>&1

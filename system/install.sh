@@ -7,9 +7,13 @@ cd
 
 sudo apt install python3-gst-1.0
 pip3 install playsound
+
 pip3 install python_dateutil
 
-cp autostart/* ~/.config/autostart
-cp lxsession/LXDE-pi/* ~/config/lxsession/LXDE-pi
+cp -R autostart ~/.config/
+cp -R lxsession/* ~/config/
 
-##crontab
+sudo apt-get install ncftp
+
+crontab -u admin -e
+
