@@ -66,7 +66,7 @@ def calc_expiry(card):
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowform()
     log.addlog("MemberInOut",card,db=carddb[card])
-    sse.add_message(f'##Active Members {log.countmember(card)}')
+    sse.add_message(f'##Active Members {log.countcard(card)}')
 
     savedb()
 def renewcard(card):
@@ -364,7 +364,7 @@ def replace():
 def stream():
     def stream():
         messages = sse.announcer.listen()  
-        sse.add_message(f'##Active Members {log.countmember()}')
+        sse.add_message(f'##Active Members {log.membercount()}')
         while sysactive:
             msg = messages.get()  
             yield msg

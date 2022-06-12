@@ -26,16 +26,16 @@ def addlog(ev,card="",db={},excep=""):
     except Exception as e:
         print(f'Log Writing exception {e}')
 memdb = {}
-def countmember(card=""):
-    if (card != ""):
-        memno = card
-        if memno in memdb:
-            del memdb[memno]
-        else:
-            memdb[memno] = True  
+def membercount():
     return len(memdb)
+def countcard(card):
+    if card in memdb:
+        del memdb[card]
+    else:
+        memdb[card] = True  
+    return membercount()
 def memberin(card):
-    return card in memdb;
+    return card in memdb
 
 try:
     if os.path.exists(logname()):
@@ -46,5 +46,5 @@ except Exception as e:
     addlog("LoadingLogs",excep=e)
     logs = []
 for log in logs:
-    if ("card" in log):
-        countmember(log["card"])
+    if log["event"] == "MemberInOut":
+        countcard(log["card"])
