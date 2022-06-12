@@ -33,28 +33,28 @@ except Exception as e:
     except Exception as e:
         log.addlog("LoadingBackDB",excep=e)
         carddb = {}
+nmemno = 0
+for c in carddb:
+    if (int(carddb[c]["memno"]) > nmemno):
+        nmemno = int(carddb[c]["memno"])
 
 #Handle Cards
 def addcard(card,staff=False):
-    global carddb
+    global carddb,nmemno
     if (card not in carddb):
-        memno = 0
-        for c in carddb:
-            if (int(carddb[c]["memno"]) > memno):
-                memno = int(carddb[c]["memno"])
-        memno += 1
+        nmemno += 1
         carddb[card] = {
             "staff": staff,
             "created": utils.getnowform(),
             "lastseen": "",
             "expires": utils.getrenewform(),
-            "memno": memno,
+            "memno": nmemno,
             "papermemno": "",
             "name": ""
         }
         log.addlog("CardCreate",card,db=carddb[card])
         savedb()
-        return memno
+        return nmemno
     else:
         return -1 # this should really never happen...
 def calc_expiry(card):
@@ -238,8 +238,8 @@ def handlecard(card):
             sse.add_message("Swipe Staff Card to Renew <BR> Any other to cancel")
             to = 10
         elif cq == "MMUM":
-            memno = addcard(qq[2]["cd"])
-            sse.add_message(f'Member { memno } Created')
+            mn = addcard(qq[2]["cd"])
+            sse.add_message(f'Member { mn } Created')
             clearq()
         elif cq[0:3] == "MMU" and len(cq) > 3:
             sse.add_message("Cancelled")
