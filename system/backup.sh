@@ -16,5 +16,5 @@ fi
 
 if [ ! -f ~/Gym_Cards/active ]
 then
-	echo "SHUTDOWN STARTING"
+	echo sudo shutdown now
 fi

@@ -1,4 +1,4 @@
-import threading
+import threading,os
 
 ## Threads
 thr = []
@@ -15,6 +15,7 @@ def stop_threads():
             t.join()
         except:
             pass # self closing the test thread will fail
+    os.remove("~/Gym_Cards/active")
 t = 0
 def reset_timeout(to,ktofn):
     global t
