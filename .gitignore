@@ -15,6 +15,7 @@ README.txt
 .vscode/*
 
 dev/*
+images/*
 
 site/tablesorter/*
 
