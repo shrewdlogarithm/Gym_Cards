@@ -1,0 +1,16 @@
+<head>
+  {% include 'head.j2' %}
+  <link rel="stylesheet" href="webcam.css">
+  <script src="webcam.js"></script>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+<body>
+  {% include 'toplayout.j2' %}
+  <div class="camera">
+    <video id="video">Video stream not available.</video>
+    <button id="startbutton">Take photo</button>
+  </div>
+  <canvas id="canvas">
+  </canvas>
+{% include 'bottomlayout.j2' %}
+</body>

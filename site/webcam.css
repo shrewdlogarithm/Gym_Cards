@@ -3,12 +3,11 @@
   box-shadow: 2px 2px 3px black;
   width:640px;
   height:360px;
-  transform: translateY(-100%) rotate(270deg);
+  transform: translateX(58%) translateY(-75%) rotate(90deg);
   transform-origin: top left;
 }
 
 #photo {
-  display:none;
   border: 1px solid black;
   box-shadow: 2px 2px 3px black;
   width:640px;
@@ -16,7 +15,8 @@
 }
 
 #canvas {
-  background-color:red;
+  width: 360px;
+  height: 640px;
 }
 
 .camera {

@@ -66,8 +66,7 @@ def calc_expiry(card):
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowform()
     log.addlog("MemberInOut",card,db=carddb[card])
-    sse.add_message(f'##Active Members {log.countcard(card)}')
-
+    sse.add_message(f'##Active Members {log.countcard(card)}')    
     savedb()
 def renewcard(card):
     carddb[card]["expires"] = calc_expiry(card)
@@ -310,6 +309,13 @@ def root():
 def showcards():
     if sysactive:
         return render_template('showcards.html',carddb=carddb)
+    else:
+        return "System Shutting Down"
+
+@app.route('/webcam')
+def webcam():
+    if sysactive:
+        return render_template('webcam.html')
     else:
         return "System Shutting Down"
 

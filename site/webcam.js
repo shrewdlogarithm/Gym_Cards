@@ -16,13 +16,11 @@
 
   var video = null;
   var canvas = null;
-  var photo = null;
   var startbutton = null;
 
   function startup() {
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
-    photo = document.getElementById('photo');
     startbutton = document.getElementById('startbutton');
 
     navigator.mediaDevices.getUserMedia(
@@ -62,7 +60,6 @@
       ev.preventDefault();
     }, false);
 
-    clearphoto();
   }
 
   // Fill the photo with an indication that none has been
@@ -74,7 +71,6 @@
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     var data = canvas.toDataURL('image/png');
-    photo.setAttribute('src', data);
   }
 
   // Capture a photo by fetching the current contents of the video
@@ -93,9 +89,7 @@
       context.translate(-video.width * 0.5, -video.height * 0.5);
       context.drawImage(video, 0,0,width,height);      
       var data = canvas.toDataURL('image/png');
-      photo.setAttribute('src', data);
     } else {
-      clearphoto();
     }
     imagedata = canvas.toDataURL()
     $.ajax({
