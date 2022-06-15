@@ -170,10 +170,7 @@ def addq(c):
     #if len(qq) > 0 and utils.getnow()-qq[0]["dt"] > timedelta(seconds=5):
     #    clearq()        
     if c[0:1] == "r":
-        rcd = c[1:]
-        qq.append({"cd": "1","dt": utils.getnow()}) 
-        qq.append({"cd": "1","dt": utils.getnow()}) 
-        qq.append({"cd": rcd,"repl": True,"dt": utils.getnow()}) 
+        qq.append({"cd": c[1:],"repl": True,"dt": utils.getnow()}) 
     else:
         qq.append({"cd": c,"dt": utils.getnow()}) 
 def getq():
@@ -240,7 +237,7 @@ def handlecard(card):
             clearq()
         elif cq == "MMK":
             sse.add_message("Swipe Staff Card to Renew <BR> Any other to cancel")
-            to = 10
+            to = 5
         elif cq == "MMUM":
             mn = addcard(qq[2]["cd"])
             sse.add_message(f'Member { mn } Created')
@@ -363,10 +360,10 @@ def savepic():
 def replace():
     global replcard, mode
     if sysactive:
-        qq.append({"cd": "1","dt": utils.getnow()}) 
-        qq.append({"cd": "1","dt": utils.getnow()}) 
-        qq.append({"cd": request.form.get("card"),"repl": True,"dt": utils.getnow()}) 
-        sse.add_message(f'Scan Replacement Card for Member {request.form.get("memno")}')
+        clearq()
+        handlecard("1") # TODO this is cheating really...
+        handlecard("1")
+        handlecard("r"+request.form.get("card"))
         return "OK"
     else:
         return "System Shutting Down"
