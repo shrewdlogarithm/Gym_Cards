@@ -169,8 +169,8 @@ def addq(c):
     global qq
     #if len(qq) > 0 and utils.getnow()-qq[0]["dt"] > timedelta(seconds=5):
     #    clearq()        
-    if c[0:1] == "r":
-        qq.append({"cd": c[1:],"repl": True,"dt": utils.getnow()}) 
+    if c[0:2] == "@r":
+        qq.append({"cd": c[2:],"repl": True,"dt": utils.getnow()}) 
     else:
         qq.append({"cd": c,"dt": utils.getnow()}) 
 def getq():
@@ -361,9 +361,9 @@ def replace():
     global replcard, mode
     if sysactive:
         clearq()
-        handlecard("1") # TODO this is cheating really...
+        handlecard("1") # TODO if member 1 is NOT staff, this won't work!>
         handlecard("1")
-        handlecard("r"+request.form.get("card"))
+        handlecard("@r"+request.form.get("card")) # TODO r might not be enough - maybe @@ or something like that?
         return "OK"
     else:
         return "System Shutting Down"
