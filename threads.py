@@ -12,10 +12,11 @@ def stop_threads():
     sysactive = False
     for t in thr:
         try:
+            print(t)
             t.join()
         except:
             pass # self closing the test thread will fail
-    os.remove("~/Gym_Cards/active")
+    print("stopped")
 t = 0
 def reset_timeout(to,ktofn):
     global t
