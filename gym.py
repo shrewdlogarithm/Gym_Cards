@@ -211,10 +211,14 @@ def handlecard(card):
         cq=getq()
         if cq == "MMMMMM":
             sse.add_message("Shutdown")
-            threads.stop_threads()
             try:
-                subprocess.call('~/Gym_Cards/system/backup.sh $(date +"%Y_%m_%d_%H") SHUTDOWN')
+                threads.stop_threads()
+                print("Starting Final Backup")
             except:
+                try:
+                    subprocess.call('~/Gym_Cards/system/backup.sh $(date +"%Y_%m_%d_%H") SHUTDOWN')
+                except:
+                    pass
                 pass
         elif cq == "MMMMM":
             sse.add_message("Swipe ONE more time to Shutdown")
