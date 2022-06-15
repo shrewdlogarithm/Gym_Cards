@@ -11,3 +11,8 @@ if [ $? -eq 0 ]
 then
         rm backups/*.gz
 fi
+
+if [ $2 = "SHUTDOWN" ]
+then
+		sudo shutdown now
+fi

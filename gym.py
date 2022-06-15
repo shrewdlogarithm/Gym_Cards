@@ -1,4 +1,4 @@
-import os,json,time,base64,shutil
+import os,json,time,base64,shutil,subprocess
 from datetime import timedelta
 from queue import Queue
 from playsound import playsound
@@ -213,7 +213,7 @@ def handlecard(card):
             sse.add_message("Shutdown")
             threads.stop_threads()
             try:
-                os.remove("~/Gym_Cards/active")
+                subprocess.call('~/Gym_Cards/system/backup.sh $(date +"%Y_%m_%d_%H") SHUTDOWN')
             except:
                 pass
         elif cq == "MMMMM":
