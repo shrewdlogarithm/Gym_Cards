@@ -14,5 +14,5 @@ fi
 
 if [ $2 = "SHUTDOWN" ]
 then
-		sudo shutdown now
+        sudo shutdown now
 fi
