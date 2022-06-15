@@ -8,8 +8,6 @@ def start_thread(fn):
     thr.append(t)
 # TODO not currently used?
 def stop_threads():
-    global sysactive
-    sysactive = False
     for t in thr:
         try:
             print(t)

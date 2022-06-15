@@ -202,6 +202,7 @@ def kto(tt=0):
             cardvisit(qq[0]["cd"])
     clearq()
 def handlecard(card):
+    global sysactive
     if len(carddb) == 0:
         addcard(card,True)
         sse.add_message("Staff Card Created")
@@ -212,6 +213,7 @@ def handlecard(card):
         if cq == "MMMMMM":
             sse.add_message("Shutdown")
             try:
+                sysactive = False
                 threads.stop_threads()
                 print("Starting Final Backup")
             except:
