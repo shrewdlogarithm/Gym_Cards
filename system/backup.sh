@@ -12,7 +12,7 @@ then
         rm backups/*.gz
 fi
 
-if [ $2 = "SHUTDOWN" ]
+if [ $1 = "shutdown" ]
 then
         sudo shutdown now
 fi
