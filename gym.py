@@ -217,7 +217,7 @@ def handlecard(card):
                 threads.stop_threads()
                 print("Starting Final Backup")
                 try:
-                    subprocess.call(['bash','system/backup.sh','$(date +"%Y_%m_%d_%H") SHUTDOWN'])
+                    subprocess.call(['bash','system/backup.sh','$(date +"%Y_%m_%d_%H")','SHUTDOWN'])
                 except:
                     pass
             except:
