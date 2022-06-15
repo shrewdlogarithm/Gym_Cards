@@ -10,11 +10,9 @@ def start_thread(fn):
 def stop_threads():
     for t in thr:
         try:
-            print(t)
             t.join()
         except:
             pass # self closing the test thread will fail
-    print("stopped")
 t = 0
 def reset_timeout(to,ktofn):
     global t

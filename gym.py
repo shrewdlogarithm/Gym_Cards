@@ -133,7 +133,7 @@ def eventinput():
         devices = {dev.fd: dev for dev in devices}
         while sysactive:
             try:
-                r, w, x = select(devices,[],[])
+                r, w, x = select(devices,[],[],0.2)
                 for fd in r:
                     for event in devices[fd].read():                            
                         if event.type == evdev.ecodes.EV_KEY:
@@ -215,7 +215,6 @@ def handlecard(card):
             try:
                 sysactive = False
                 threads.stop_threads()
-                print("Starting Final Backup")
                 try:
                     subprocess.call(['bash','system/backup.sh','shutdown'])
                 except:
