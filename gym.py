@@ -213,7 +213,7 @@ def handlecard(card):
             sse.add_message("Shutdown")
             threads.stop_threads()
             try:
-                os.remove("gymactive")
+                os.remove("~/Gym_Cards/active")
             except:
                 pass
         elif cq == "MMMMM":
