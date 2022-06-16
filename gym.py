@@ -64,7 +64,7 @@ def calc_expiry(card):
     else:
         return utils.getrenewform()
 def cardvisit(card):
-    carddb[card]["lastseen"] = utils.getnowform()
+    carddb[card]["lastseen"] = utils.getnowformlong()
     log.addlog("MemberInOut",card,db=carddb[card])
     sse.add_message(f'##Active Members {log.countcard(card)}')    
     savedb()
