@@ -41,6 +41,8 @@ body {
 .modal__header {
     background: #592E83;
     font-size: 66px;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 .modal__content,.modal_content * {
     background: #331E4D;
@@ -51,6 +53,8 @@ body {
 .modal__footer {
     background: #9984D4;
     font-size: 22px;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
 .modal__footer p {
