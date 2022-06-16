@@ -361,9 +361,17 @@ def replace():
     global replcard, mode
     if sysactive:
         clearq()
-        handlecard("1") # TODO if member 1 is NOT staff, this won't work!>
-        handlecard("1")
-        handlecard("@r"+request.form.get("card")) # TODO r might not be enough - maybe @@ or something like that?
+        stm = 0
+        for card in carddb:
+            if carddb[card]["staff"]:
+                stm = card
+                break
+        if stm:
+            handlecard(stm) # TODO if member 1 is NOT staff, this won't work!>
+            handlecard(stm)
+            handlecard("@r"+request.form.get("card")) # TODO r might not be enough - maybe @@ or something like that?
+        else:
+            print("ERROR: Cannot find staff member")
         return "OK"
     else:
         return "System Shutting Down"
