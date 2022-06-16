@@ -66,7 +66,7 @@ def calc_expiry(card):
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowformlong()
     log.addlog("MemberInOut",card,db=carddb[card])
-    sse.add_message(f'##Active Members {log.countcard(card)}')    
+    sse.add_message(f'##Active Members {log.countcard(carddb[card]["memno"])}')    
     savedb()
 def renewcard(card):
     carddb[card]["expires"] = calc_expiry(card)
@@ -167,12 +167,10 @@ def clearq():
     qq = []
 def addq(c):
     global qq
-    #if len(qq) > 0 and utils.getnow()-qq[0]["dt"] > timedelta(seconds=5):
-    #    clearq()        
     if c[0:2] == "@r":
-        qq.append({"cd": c[2:],"repl": True,"dt": utils.getnow()}) 
+        qq.append({"cd": c[2:],"repl": True}) 
     else:
-        qq.append({"cd": c,"dt": utils.getnow()}) 
+        qq.append({"cd": c}) 
 def getq():
     cseq = ""
     for q in qq:
@@ -192,10 +190,9 @@ def getq():
     return cseq  
 
 def kto(tt=0):
+    sse.add_message("Welcome!")
     if len(qq):
-        if  tt > 2:
-            sse.add_message("Welcome!")
-        elif getq()[0] == "M": # deferred staff 'in out'
+        if getq()[0] == "M": # deferred staff 'in out'
             cardvisit(qq[0]["cd"])
     clearq()
 def handlecard(card):
@@ -232,9 +229,11 @@ def handlecard(card):
             renewcard(card)
             sse.add_message(f'Member { membername(card) } <BR> { get_remain(card) } days left')
             clearq()
+            to = 10
         elif cq[0:3] == "MMK" and len(cq) > 3:
             sse.add_message("Cancelled")
-            clearq()
+            clearq()            
+            to = 10
         elif cq == "MMK":
             sse.add_message("Swipe Staff Card to Renew <BR> Any other to cancel")
             to = 5
@@ -242,25 +241,28 @@ def handlecard(card):
             mn = addcard(qq[2]["cd"])
             sse.add_message(f'Member { mn } Created')
             clearq()
+            to = 10
         elif cq[0:3] == "MMU" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()
+            to = 10
         elif cq == "MMU":
             sse.add_message("Swipe Staff Card to Add <BR> Any other to cancel")
             to = 10
-        elif cq == "MMQ":
-            if qq[2]["cd"] in carddb:
-                sse.add_message(f'Swipe card to replace for { membername(qq[2]["cd"]) }')
-                to = 10
+        elif cq == "Q":
+            if qq[0]["cd"] in carddb:
+                sse.add_message(f'Swipe card to replace for { membername(qq[0]["cd"]) }')
             else:
                 sse.add_message("Invalid Card - cannot replace")
                 clearq()
-        elif cq[0:3] == "MMQ" and len(cq) > 3:
-            if cq == "MMQU":
-                replacecard(qq[2]["cd"],qq[3]["cd"])
+            to = 10
+        elif cq[0] == "Q" and len(cq) > 1:
+            if cq == "QU":
+                replacecard(qq[0]["cd"],qq[1]["cd"])
             else:
                 sse.add_message("Card already in use <BR> Replacement cancelled")
             clearq()
+            to = 10
         elif cq == "MM":
             sse.add_message("Add or Renew a Card")
             to = 5
@@ -269,15 +271,18 @@ def handlecard(card):
             sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             cardvisit(card)
             clearq()
+            to = 5
         elif cq == "MU" or cq == "U":
             sse.add_message("Unknown Card")
             clearq()
+            to = 10
         elif len(cq) == 1:
             card = qq[0]["cd"]
             sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             if cq[0] == "K":
                 cardvisit(card)
                 clearq()
+                to = 10
             else:
                 to = 2
         else:
@@ -310,7 +315,7 @@ def root():
 @app.route('/showcards')
 def showcards():
     if sysactive:
-        return render_template('showcards.html',carddb=carddb)
+        return render_template('showcards.html',carddb=carddb,memdb=log.memdb)
     else:
         return "System Shutting Down"
 
@@ -333,7 +338,7 @@ def update():
                 carddb[card]["papermemno"] = request.form.get("papermemno")
                 carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
                 try: 
-                    carddb[card]["staff"] = request.form.get("staff").lower()=="on"
+                    carddb[card]["staff"] = request.form.get("staff").lower()=="on" # should be yes once showcards updated
                 except:
                     carddb[card]["staff"] = False
                 log.addlog("UpdateAfter",card,db=carddb[card])
@@ -361,17 +366,7 @@ def replace():
     global replcard, mode
     if sysactive:
         clearq()
-        stm = 0
-        for card in carddb:
-            if carddb[card]["staff"]:
-                stm = card
-                break
-        if stm:
-            handlecard(stm) # TODO if member 1 is NOT staff, this won't work!>
-            handlecard(stm)
-            handlecard("@r"+request.form.get("card")) # TODO r might not be enough - maybe @@ or something like that?
-        else:
-            print("ERROR: Cannot find staff member")
+        handlecard("@r"+request.form.get("card")) # TODO r might not be enough - maybe @@ or something like that?
         return "OK"
     else:
         return "System Shutting Down"
@@ -385,6 +380,10 @@ def stream():
             msg = messages.get()  
             yield msg
     return Response(stream(), mimetype='text/event-stream')
+
+@app.context_processor
+def handle_context():
+    return dict(os=os)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)
