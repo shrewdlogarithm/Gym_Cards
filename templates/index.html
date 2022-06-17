@@ -14,20 +14,18 @@
             class: "centerbox " + vals[1]
           }).html(vals[0])
         )
+        $(".camera").hide()
+        $(".photo").hide()
       }
       if (e.data.startsWith("##ShowCap")) {
         $(".camera").show()
-      } else {
-        $(".camera").hide()
       }
       if (e.data.startsWith("##MakeCap")) {
         takepicture(e.data.substring(9))
       }
       if (e.data.startsWith("##MemImg")) {
-        $("#canvas").attr("src","images/" + e.data.substring(8) + ".png")
-        $("#canvas").show()
-      } else if (!e.data.startsWith("##")) {
-        $("#canvas").hide()
+        $(".photo").attr("src","images/" + e.data.substring(8) + ".png")
+        $(".photo").show()
       }
     }
   }

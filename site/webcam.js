@@ -6,7 +6,7 @@ var canvas = null;
 
 function startup() {
   video = document.getElementById('video');
-  canvas = document.getElementById('canvas');
+  canvas = document.createElement("CANVAS")
 
   navigator.mediaDevices.getUserMedia(
     {
