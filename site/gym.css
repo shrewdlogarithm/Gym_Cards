@@ -36,17 +36,19 @@
 }
 
 body {
+    background: #331E4D;
     color: white;
 }
 
 .modal__header {
-    background: #592E83;
+    background: #9984D4;
     font-size: 66px;
     padding-left: 50px;
     padding-right: 50px;
+    z-index: 1;
+    position: relative;
 }
 .modal__content,.modal_content * {
-    background: #331E4D;
     font-size: 99px;
     text-align: center;
 }
@@ -54,6 +56,7 @@ body {
 .modal__footer {
     background: #9984D4;
     font-size: 22px;
+    z-index: 1;
 }
 
 .modal__footer p {

@@ -40,9 +40,18 @@
                 filter: false
               },
               7 : {
-                filter: false
+                sorter: "select-text"
               },
               8 : {
+                filter: false
+              },
+              9 : {
+                
+              },
+              10 : {
+                
+              },
+              11 : {
                 filter: false
               }
             },
@@ -70,6 +79,9 @@
       <th>Last Seen</th>
       <th>Expires</th>
       <th>Staff</th>
+      <th></th>
+      <th>Active</th>
+      <th>Photo</th>
       <th></th>
       </tr>
     </thead>
@@ -100,10 +112,33 @@
               <input type="date" name="expires" value="{{ carddb[card]['expires'] }}">
             </td>
             <td>                            
-              <input type="checkbox" name="staff" {{ 'checked' if carddb[card]['staff'] else '' }}>
+              <select name="staff">
+              {% if carddb[card]["staff"] %}
+                <option selected>Yes</option>
+                <option>No</option>
+              {% else %}
+                <option>Yes</option>
+                <option selected>No</option>
+              {% endif %}
+              </select>
             </td>
             <td>
               <input type="submit" value="Save Changes">
+            </td>
+          </form>
+          <form action="signout" target="status" method="POST">
+            <td>                            
+              {% if carddb[card]["memno"] in memdb %}
+                <input name="card" type="hidden" value="{{ card }}">
+                Yes <input type="submit" value="X">
+              {% endif %}
+            </td>
+          </form>
+          <form action="addphoto" target="status" method="POST">
+            <td>                            
+              {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}
+              Yes <input type="submit" value="Update">
+              {% endif %}
             </td>
           </form>
           <form action=replace target="status" method="POST">

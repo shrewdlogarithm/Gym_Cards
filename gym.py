@@ -97,7 +97,7 @@ def membername(card):
         return "Member" + str(carddb[card]["memno"])
 def membergreet(card):
     if card in carddb and not carddb[card]["staff"]:
-        if log.memberin(card):
+        if log.memberin(carddb[card]["memno"]):
             return ("Goodbye")
         else:
             return ("Welcome")
@@ -239,6 +239,7 @@ def handlecard(card):
             to = 5
         elif cq == "MMUM":
             mn = addcard(qq[2]["cd"])
+            sse.add_message("##MakeCap" + str(mn))
             sse.add_message(f'Member { mn } Created')
             clearq()
             to = 10
@@ -248,6 +249,7 @@ def handlecard(card):
             to = 10
         elif cq == "MMU":
             sse.add_message("Swipe Staff Card to Add <BR> Any other to cancel")
+            sse.add_message("##ShowCap")
             to = 10
         elif cq == "Q":
             if qq[0]["cd"] in carddb:
@@ -269,6 +271,8 @@ def handlecard(card):
         elif cq == "MK":
             card = qq[1]["cd"]
             sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            if (os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
+                sse.add_message("##MemImg" + str(carddb[card]["memno"]))
             cardvisit(card)
             clearq()
             to = 5
@@ -279,6 +283,8 @@ def handlecard(card):
         elif len(cq) == 1:
             card = qq[0]["cd"]
             sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            if (os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
+                sse.add_message("##MemImg" + str(carddb[card]["memno"]))
             if cq[0] == "K":
                 cardvisit(card)
                 clearq()
@@ -338,7 +344,7 @@ def update():
                 carddb[card]["papermemno"] = request.form.get("papermemno")
                 carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
                 try: 
-                    carddb[card]["staff"] = request.form.get("staff").lower()=="on" # should be yes once showcards updated
+                    carddb[card]["staff"] = request.form.get("staff").lower()=="yes"
                 except:
                     carddb[card]["staff"] = False
                 log.addlog("UpdateAfter",card,db=carddb[card])
@@ -354,7 +360,7 @@ def savepic():
     global carddb
     if sysactive:
         card = request.form.get("image")
-        with open("images/imageToSave.png", "wb") as fh:
+        with open("site/images/" + request.form.get("memno") + ".png", "wb") as fh:
             imagedata = request.form.get("image")
             imagedata = imagedata.replace("data:image/png;base64,","")
             b64data = base64.b64decode(imagedata)

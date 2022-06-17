@@ -1,5 +1,7 @@
 <head>
   {% include 'head.j2' %}
+  <script src="webcam.js"></script>
+  <link rel="stylesheet" href="webcam.css">
   <script>
   if (!!window.EventSource) {
     var source = new EventSource('/stream');
@@ -13,12 +15,26 @@
           }).html(vals[0])
         )
       }
+      if (e.data.startsWith("##ShowCap")) {
+        $(".camera").show()
+      } else {
+        $(".camera").hide()
+      }
+      if (e.data.startsWith("##MakeCap")) {
+        takepicture(e.data.substring(9))
+      }
+      if (e.data.startsWith("##MemImg")) {
+        $("#canvas").attr("src","images/" + e.data.substring(8) + ".png")
+        $("#canvas").show()
+      } else if (!e.data.startsWith("##")) {
+        $("#canvas").hide()
+      }
     }
   }
   </script>
 </head>
 <body>
     {% include 'toplayout.j2' %}
-    <div class="centerbox">Ready!</div>
+    <div class="centerbox">Ready!</div>  
     {% include 'bottomlayout.j2' %}
 </body>
