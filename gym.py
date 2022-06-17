@@ -3,7 +3,7 @@ from datetime import timedelta
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils # our own libraries
+import sse,log,threads,utils 
 
 sysactive = True
 
@@ -15,7 +15,7 @@ def savedb():
     try:
         shutil.copy2(dbname,backdbname)
     except:
-        pass # doesn't exist first run
+        pass # will fail on first run
     with open(dbname, 'w') as json_file:
         json.dump(carddb, json_file, indent=4,default=str)        
 
@@ -56,7 +56,7 @@ def addcard(card,staff=False):
         savedb()
         return nmemno
     else:
-        return -1 # this should really never happen...
+        return -1 # this should never happen
 def calc_expiry(card):
     expdate = utils.getdate(carddb[card]["expires"])
     if expdate-utils.getnow() >= timedelta(days=-7):
@@ -109,13 +109,13 @@ def memberstatus(card):
         try:
             playsound('sounds/expired.mp3')
         except:
-            pass
+            pass # doesn't work on Windows
         return "expired"
     elif (gr < 8):
         try:
             playsound('sounds/renew.mp3')
         except:
-            pass
+            pass # doesn't work on Windows
         return "renew"
     else:
         return ""
@@ -177,7 +177,7 @@ def getq():
         if "repl" in q:
             nc = "Q"
         elif q["cd"] in carddb:
-            if carddb[q["cd"]]["staff"]: # is a master card
+            if carddb[q["cd"]]["staff"]: 
                 if cseq[0:1] == "M" and q["cd"] != qq[0]["cd"]: # master cards other than the first seen aren't masters here
                     nc = "K"
                 else:
@@ -199,7 +199,7 @@ def handlecard(card):
     global sysactive
     if len(carddb) == 0:
         addcard(card,True)
-        sse.add_message("Staff Card Created")
+        sse.add_message("Staff Member 1 Created")
     else:
         to = 0
         addq(card)
@@ -209,19 +209,16 @@ def handlecard(card):
             try:
                 sysactive = False
                 threads.stop_threads()
-                try:
-                    subprocess.call(['bash','system/backup.sh','shutdown'])
-                except:
-                    pass
-            except:
-                pass
+                subprocess.call(['bash','system/backup.sh','shutdown'])
+            except Exception as e:
+                log.addlog("ShutdownFail",excep=e) 
         elif cq == "MMMMM":
             sse.add_message("Swipe ONE more time to Shutdown")
             to = 2
         elif cq == "MMMM":
             sse.add_message("Swipe TWO more times to Shutdown")
             to = 2
-        elif cq == "MMM": # special case for shutdown only - we want to NOT clear but put screen back to normal??
+        elif cq == "MMM": 
             sse.add_message("Swipe THREE more times to Shutdown")
             to = 2
         elif cq == "MMKM":
@@ -301,7 +298,7 @@ def handlecard(card):
 
 def process_cards():
     while sysactive:
-        time.sleep(.2) # this avoids thrashing 1 core constantly...
+        time.sleep(.2) 
         while (not cards.empty()):
             handlecard(cards.get())
 threads.start_thread(process_cards)
@@ -372,7 +369,7 @@ def replace():
     global replcard, mode
     if sysactive:
         clearq()
-        handlecard("@r"+request.form.get("card")) # TODO r might not be enough - maybe @@ or something like that?
+        handlecard("@r"+request.form.get("card")) 
         return "OK"
     else:
         return "System Shutting Down"
