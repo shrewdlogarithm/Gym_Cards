@@ -102,7 +102,7 @@ def membergreet(card):
         else:
             return ("Welcome")
     else:
-        return ""
+        return "Staff: "
 def memberstatus(card):
     gr = get_remain(card)
     if (gr < 1):
@@ -230,11 +230,11 @@ def handlecard(card):
             renewcard(card)
             sse.add_message(f'Member { membername(card) } <BR> { get_remain(card) } days left')
             clearq()
-            to = 10
+            to = 5
         elif cq[0:3] == "MMK" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()            
-            to = 10
+            to = 5
         elif cq == "MMK":
             sse.add_message("Swipe Staff Card to Renew <BR> Any other to cancel")
             to = 5
@@ -243,11 +243,11 @@ def handlecard(card):
             sse.add_message("##MakeCap" + str(mn))
             sse.add_message(f'Member { mn } Created')
             clearq()
-            to = 10
+            to = 5
         elif cq[0:3] == "MMU" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()
-            to = 10
+            to = 5
         elif cq == "MMU":
             sse.add_message("Swipe Staff Card to Add <BR> Any other to cancel")
             sse.add_message("##ShowCap")
@@ -258,8 +258,8 @@ def handlecard(card):
                 sse.add_message("Updated")
             else:
                 sse.add_message("Cancelled")
-            clearq()
             to = 5
+            clearq()            
         elif cq == "P":
             sse.add_message("Swipe Staff Card to Update Photo")
             sse.add_message("##ShowCap")            
@@ -270,7 +270,7 @@ def handlecard(card):
             else:
                 sse.add_message("Card already in use <BR> Replacement cancelled")
             clearq()
-            to = 10
+            to = 5
         elif cq == "Q":
             if qq[0]["cd"] in carddb:
                 sse.add_message(f'Swipe card to replace for { membername(qq[0]["cd"]) }')
@@ -292,7 +292,7 @@ def handlecard(card):
         elif cq == "MU" or cq == "U":
             sse.add_message("Unknown Card")
             clearq()
-            to = 10
+            to = 5
         elif len(cq) == 1:
             card = qq[0]["cd"]
             sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
@@ -301,7 +301,7 @@ def handlecard(card):
             if cq[0] == "K":
                 cardvisit(card)
                 clearq()
-                to = 10
+                to = 5
             else:
                 to = 2
         else:
@@ -310,6 +310,7 @@ def handlecard(card):
 
         if to:
             threads.reset_timeout(to,kto)
+            sse.add_message("##Timer" + str(to))
 
 
 def process_cards():

@@ -92,6 +92,15 @@ body {
     border: 40px dashed red;
 }
 
+#timerbar {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 0px;
+    height: 3px;
+    background-color: red;
+}
+
 #footleft {
     float: left;
 }
