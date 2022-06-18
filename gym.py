@@ -169,6 +169,8 @@ def addq(c):
     global qq
     if c[0:2] == "@r":
         qq.append({"cd": c[2:],"repl": True}) 
+    elif c[0:2] == "@p":
+        qq.append({"cd": c[2:],"photo": True}) 
     else:
         qq.append({"cd": c}) 
 def getq():
@@ -176,6 +178,8 @@ def getq():
     for q in qq:
         if "repl" in q:
             nc = "Q"
+        elif "photo" in q:
+            nc = "P"
         elif q["cd"] in carddb:
             if carddb[q["cd"]]["staff"]: 
                 if cseq[0:1] == "M" and q["cd"] != qq[0]["cd"]: # master cards other than the first seen aren't masters here
@@ -248,12 +252,17 @@ def handlecard(card):
             sse.add_message("Swipe Staff Card to Add <BR> Any other to cancel")
             sse.add_message("##ShowCap")
             to = 10
-        elif cq == "Q":
-            if qq[0]["cd"] in carddb:
-                sse.add_message(f'Swipe card to replace for { membername(qq[0]["cd"]) }')
+        elif cq[0] == "P" and len(cq) > 1:
+            if cq == "PM":
+                sse.add_message("##MakeCap" + str(carddb[qq[0]["cd"]]["memno"]))
+                sse.add_message("Updated")
             else:
-                sse.add_message("Invalid Card - cannot replace")
-                clearq()
+                sse.add_message("Cancelled")
+            clearq()
+            to = 5
+        elif cq == "P":
+            sse.add_message("Swipe Staff Card to Update Photo")
+            sse.add_message("##ShowCap")            
             to = 10
         elif cq[0] == "Q" and len(cq) > 1:
             if cq == "QU":
@@ -261,6 +270,13 @@ def handlecard(card):
             else:
                 sse.add_message("Card already in use <BR> Replacement cancelled")
             clearq()
+            to = 10
+        elif cq == "Q":
+            if qq[0]["cd"] in carddb:
+                sse.add_message(f'Swipe card to replace for { membername(qq[0]["cd"]) }')
+            else:
+                sse.add_message("Invalid Card - cannot replace")
+                clearq()
             to = 10
         elif cq == "MM":
             sse.add_message("Add or Renew a Card")
@@ -322,13 +338,6 @@ def showcards():
     else:
         return "System Shutting Down"
 
-@app.route('/webcam')
-def webcam():
-    if sysactive:
-        return render_template('webcam.html')
-    else:
-        return "System Shutting Down"
-
 @app.route('/update', methods=['POST'])
 def update():
     global carddb
@@ -352,6 +361,18 @@ def update():
     else:
         return "System Shutting Down"
 
+@app.route('/takephoto', methods=['POST'])
+def takephoto():
+    if sysactive:
+        card = request.form.get("card")
+        if card in carddb:
+            clearq()
+            handlecard("@p" + card)
+        return "OK"
+    else:
+        return "System Shutting Down"
+    return("OK")
+
 @app.route('/savepic', methods=['POST'])
 def savepic():
     global carddb
@@ -362,7 +383,23 @@ def savepic():
             imagedata = imagedata.replace("data:image/png;base64,","")
             b64data = base64.b64decode(imagedata)
             fh.write(b64data)
+        return "OK"
+    else:
+        return "System Shutting Down"
     return("OK")
+
+@app.route('/swipe', methods=['POST'])
+def swipe():
+    if sysactive:
+        clearq()
+        card = request.form.get("card")
+        if card in carddb:
+            handlecard(card)
+            return "OK"
+        else:
+            return "Not Found"
+    else:
+        return "System Shutting Down"
 
 @app.route('/replace', methods=['POST'])
 def replace():

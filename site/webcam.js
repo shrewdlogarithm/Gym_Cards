@@ -43,7 +43,7 @@ function takepicture(memno) {
     canvas.width = video.height;
     canvas.height = video.width;
     context.translate(canvas.width * 0.5, canvas.height * 0.5);
-    context.rotate(Math.PI/180*90);
+    context.rotate(Math.PI/180*270);
     context.translate(-video.width * 0.5, -video.height * 0.5);
     context.drawImage(video, 0,0,width,height);      
     var data = canvas.toDataURL('image/png');
