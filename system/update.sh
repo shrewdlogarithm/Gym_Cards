@@ -1,4 +1,4 @@
-cd ..
+cd ~
 dt=$(date +"%Y_%m_%d")
 tar cvzf preupdate$dt.gz Gym_Cards/*
 cd Gym_Cards
