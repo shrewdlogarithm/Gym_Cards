@@ -28,7 +28,7 @@ def addlog(ev,card="",db={},excep=""):
 memdb = {}
 def membercount():
     return len(memdb)
-def countcard(memno):
+def countmem(memno):
     if memno in memdb:
         del memdb[memno]
     else:
@@ -47,4 +47,4 @@ except Exception as e:
     logs = []
 for log in logs:
     if log["event"] == "MemberInOut":
-        countcard(log["db"]["memno"])
+        countmem(log["db"]["memno"])

@@ -16,10 +16,11 @@ def stop_threads():
 t = 0
 def reset_timeout(to,ktofn):
     global t
-    if t:
+    if t or to == 0:
         try:
             t.cancel()
         except:
             pass
-    t = threading.Timer(to,ktofn,[to])
-    t.start()
+    if to != 0:
+        t = threading.Timer(to,ktofn,[to])
+        t.start()

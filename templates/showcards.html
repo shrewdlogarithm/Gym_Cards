@@ -4,6 +4,10 @@
   <script src="tablesorter/js/jquery.tablesorter.js"></script>
   <script src="tablesorter/js/jquery.tablesorter.widgets.js"></script>
   <script src="tablesorter/js/parsers/parser-input-select.js"></script>
+  <style>
+    td {white-space: nowrap;}
+    form {margin: 0px;}
+  </style>
   <script>
       $(document).ready(function(){
           $(".showphoto").mouseover(function() {
@@ -13,7 +17,6 @@
             $(".photo").hide()
           })
           $(".bswipe").mousedown(function() {
-            // console.log($($(this).closest("TR").find("TD")[0]).text())
             if ($(this).val() == "Present") {
               $(this).val("Away")
             } else {
@@ -58,20 +61,10 @@
               },
               8 : {
                 filter: false
-              },
-              9 : {
-
-              },
-              10 : {
-                
-              },
-              11 : {
-                filter: false
               }
             },
             textExtraction: {
               9: function(node,table,cellIndex) {
-                console.log($(node).find("input[type=submit]").val())
                 return $(node).find("input[type=submit]").val()
               }
             },
@@ -102,78 +95,74 @@
       <th></th>
       <th>Active</th>
       <th>Photo</th>
-      <th></th>
       </tr>
     </thead>
     <tbody>
     {% for card in carddb %}
       <tr>                      
-          <form action="update" target="status" method="POST">
-            <td>
-              {{ carddb[card]["memno"] }}
-            </td>
-            <td>
-              {{ card }}
-              <input name="card" type="hidden" value="{{ card }}">
-            </td>
-            <td>
-              <input name="name" type="text" value='{{carddb[card]["name"]}}'>
-            </td>
-            <td>
-              <input name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
-            </td>
-            <td>                            
-              {{ carddb[card]['created'] }}
-            </td>
-            <td>                            
-              {{ carddb[card]['lastseen'] }}
-            </td>
-            <td>                            
-              <input type="date" name="expires" value="{{ carddb[card]['expires'] }}">
-            </td>
-            <td>                            
-              <select name="staff">
-              {% if carddb[card]["staff"] %}
-                <option selected>Yes</option>
-                <option>No</option>
-              {% else %}
-                <option>Yes</option>
-                <option selected>No</option>
-              {% endif %}
-              </select>
-            </td>
-            <td>
-              <input type="submit" value="Save Changes">
-            </td>
-          </form>
-          <form action="swipe" target="status" method="POST">
-            <td>
-              <input name="card" type="hidden" value="{{ card }}">                            
-              {% if carddb[card]["memno"] in memdb %}              
-                <input class=bswipe type="submit" value="Present">
-              {% else %}
-                <input class=bswipe type="submit" value="Away">
-              {% endif %}
-            </td>
-          </form>
-          <form action="takephoto" target="status" method="POST">
-            <td>                            
-              <input name="card" type="hidden" value="{{ card }}">
-              {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
-              <div class=showphoto data-memno="{{ carddb[card]['memno'] }}">Yes <input type="submit" value="Update"></div>
-              {% else %}
-              <input type="submit" value="Add">
-              {% endif %}
-            </td>
-          </form>
+        <td>
+          {{ carddb[card]["memno"] }}
+        </td>
+        <td>
           <form action=replace target="status" method="POST">
-            <td>
-              <input type=hidden name="card" value="{{ card }}">
-              <input type=hidden name="memno" v2alue="{{ carddb[card]['memno'] }}">
-              <input type=submit value="Replace Card">
-            </td>
+            {{ card }}
+            <input type=hidden name="card" value="{{ card }}">
+            <input type=submit value="X">
           </form>
-        </tr>
+        </td>
+        <form action="update" target="status" method="POST">
+          <input name="card" type="hidden" value="{{ card }}">
+          <td>
+            <input name="name" type="text" value='{{carddb[card]["name"]}}'>
+          </td>
+          <td>
+            <input name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
+          </td>
+          <td>                            
+            {{ carddb[card]['created'] }}
+          </td>
+          <td>                            
+            {{ carddb[card]['lastseen'] }}
+          </td>
+          <td>                            
+            <input type="date" name="expires" value="{{ carddb[card]['expires'] }}">
+          </td>
+          <td>                            
+            <select name="staff">
+            {% if carddb[card]["staff"] %}
+              <option selected>Yes</option>
+              <option>No</option>
+            {% else %}
+              <option>Yes</option>
+              <option selected>No</option>
+            {% endif %}
+            </select>
+          </td>
+          <td>
+            <input type="submit" value="Save Changes">
+          </td>
+        </form>
+        <form action="swipe" target="status" method="POST">
+          <td>
+            <input name="card" type="hidden" value="{{ card }}">                            
+            {% if carddb[card]["memno"] in memdb %}              
+              <input class=bswipe type="submit" value="Present">
+            {% else %}
+              <input class=bswipe type="submit" value="Away">
+            {% endif %}
+          </td>
+        </form>
+        <form action="takephoto" target="status" method="POST">
+          <td>                            
+            <input name="card" type="hidden" value="{{ card }}">
+            {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
+            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}">Yes <input type="submit" value="Update"></div>
+            {% else %}
+            <input type="submit" value="Take">
+            {% endif %}
+          </td>
+        </form>
+      </tr>
     {% endfor %}
     </tbody>
     </table>        

@@ -66,7 +66,7 @@ def calc_expiry(card):
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowformlong()
     log.addlog("MemberInOut",card,db=carddb[card])
-    sse.add_message(f'##Active Members {log.countcard(carddb[card]["memno"])}')    
+    sse.add_message(f'##Active Members {log.countmem(carddb[card]["memno"])}')    
     savedb()
 def renewcard(card):
     carddb[card]["expires"] = calc_expiry(card)
@@ -80,6 +80,10 @@ def get_remain(card):
 def replacecard(replcard,card):
     log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
     carddb[card] = carddb[replcard]
+    if log.memberin(carddb[replcard]["memno"]): # how are they in but have no card - who knows? :)
+        log.countmem(carddb[replcard]["memno"])
+    if replcard in log.memdb: # signed in TODO hacky??
+        del(log.memdb[replcard])
     del carddb[replcard]
     log.addlog("CardReplacedNew",card,db=carddb[card])
     sse.add_message('Card Replaced')
@@ -92,17 +96,17 @@ def membername(card):
     elif (carddb[card]["papermemno"] != ""):
         return carddb[card]["papermemno"]
     elif (carddb[card]["staff"]):
-        return "StaffMember" + str(carddb[card]["memno"])
+        return "Staff-" + str(carddb[card]["memno"])
     else:
-        return "Member" + str(carddb[card]["memno"])
+        return "Member-" + str(carddb[card]["memno"])
 def membergreet(card):
-    if card in carddb and not carddb[card]["staff"]:
+    if card in carddb:
         if log.memberin(carddb[card]["memno"]):
             return ("Goodbye")
         else:
             return ("Welcome")
     else:
-        return "Staff: "
+        return "Unknown Member"
 def memberstatus(card):
     gr = get_remain(card)
     if (gr < 1):
@@ -193,17 +197,26 @@ def getq():
         cseq += nc
     return cseq  
 
+def showpic(card):
+    if (not log.memberin(carddb[card]["memno"]) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
+        sse.add_message("##MemImg" + str(carddb[card]["memno"]))
 def kto(tt=0):
     sse.add_message("Welcome!")
     if len(qq):
-        if getq()[0] == "M": # deferred staff 'in out'
-            cardvisit(qq[0]["cd"])
+        if getq() == "M": # deferred staff 'in out'
+            card = qq[0]["cd"]
+            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            showpic(card)
+            cardvisit(card)
+            sse.add_message("##Timer" + str(3))
+            threads.reset_timeout(3,kto)
+
     clearq()
 def handlecard(card):
     global sysactive
     if len(carddb) == 0:
         addcard(card,True)
-        sse.add_message("Staff Member 1 Created")
+        sse.add_message("Staff-1 Created")
     else:
         to = 0
         addq(card)
@@ -217,26 +230,28 @@ def handlecard(card):
             except Exception as e:
                 log.addlog("ShutdownFail",excep=e) 
         elif cq == "MMMMM":
-            sse.add_message("Swipe ONE more time to Shutdown")
+            sse.add_message("1 More to Shutdown")
             to = 2
         elif cq == "MMMM":
-            sse.add_message("Swipe TWO more times to Shutdown")
+            sse.add_message("2 More to Shutdown")
             to = 2
         elif cq == "MMM": 
-            sse.add_message("Swipe THREE more times to Shutdown")
+            sse.add_message("3 More to Shutdown")
             to = 2
         elif cq == "MMKM":
             card = qq[2]["cd"]
             renewcard(card)
-            sse.add_message(f'Member { membername(card) } <BR> { get_remain(card) } days left')
+            sse.add_message(f'{membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            showpic(card)
             clearq()
             to = 5
         elif cq[0:3] == "MMK" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()            
-            to = 5
+            to = 2
         elif cq == "MMK":
-            sse.add_message("Swipe Staff Card to Renew <BR> Any other to cancel")
+            sse.add_message("Swipe Staff to Renew <BR> Other to cancel")
+            showpic(card)
             to = 5
         elif cq == "MMUM":
             mn = addcard(qq[2]["cd"])
@@ -247,21 +262,22 @@ def handlecard(card):
         elif cq[0:3] == "MMU" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()
-            to = 5
+            to = 2
         elif cq == "MMU":
-            sse.add_message("Swipe Staff Card to Add <BR> Any other to cancel")
+            sse.add_message("Swipe Staff to Add <BR> Other to cancel")
             sse.add_message("##ShowCap")
-            to = 10
+            to = 0
         elif cq[0] == "P" and len(cq) > 1:
             if cq == "PM":
                 sse.add_message("##MakeCap" + str(carddb[qq[0]["cd"]]["memno"]))
-                sse.add_message("Updated")
+                sse.add_message("Photo Saved")
+                to = 5
             else:
                 sse.add_message("Cancelled")
-            to = 5
+                to = 2
             clearq()            
         elif cq == "P":
-            sse.add_message("Swipe Staff Card to Update Photo")
+            sse.add_message("Swipe Staff to Save <BR> Other to cancel")
             sse.add_message("##ShowCap")            
             to = 10
         elif cq[0] == "Q" and len(cq) > 1:
@@ -273,19 +289,18 @@ def handlecard(card):
             to = 5
         elif cq == "Q":
             if qq[0]["cd"] in carddb:
-                sse.add_message(f'Swipe card to replace for { membername(qq[0]["cd"]) }')
+                sse.add_message(f'Swipe New Card for <BR> { membername(qq[0]["cd"]) }')
             else:
-                sse.add_message("Invalid Card - cannot replace")
+                sse.add_message("Invalid Card - Cancelled") # this is driven from showcards so shouldn't happen
                 clearq()
             to = 10
         elif cq == "MM":
-            sse.add_message("Add or Renew a Card")
+            sse.add_message("Swipe Blank to Add <BR> Swipe Existing to Renew")
             to = 5
-        elif cq == "MK":
+        elif cq == "MK": # special case - member arrives before staff sign-in expires
             card = qq[1]["cd"]
-            sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
-            if (os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
-                sse.add_message("##MemImg" + str(carddb[card]["memno"]))
+            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            showpic(card)
             cardvisit(card)
             clearq()
             to = 5
@@ -295,23 +310,21 @@ def handlecard(card):
             to = 5
         elif len(cq) == 1:
             card = qq[0]["cd"]
-            sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
-            if (os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
-                sse.add_message("##MemImg" + str(carddb[card]["memno"]))
             if cq[0] == "K":
+                sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+                showpic(card)
                 cardvisit(card)
                 clearq()
                 to = 5
             else:
+                sse.add_message(f'{ membername(card) }')
                 to = 2
         else:
             sse.add_message("Welcome!")
             clearq()
 
-        if to:
-            threads.reset_timeout(to,kto)
-            sse.add_message("##Timer" + str(to))
-
+        sse.add_message("##Timer" + str(to))
+        threads.reset_timeout(to,kto)            
 
 def process_cards():
     while sysactive:

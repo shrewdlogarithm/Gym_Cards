@@ -26,18 +26,21 @@ tbti = 0;
 cti = 0;
 tto=0
 function timerbar(ti) {
-  tbti = ti-1;
-  $("#timerbar").css("width","100%")
-  cti = tbti
   if (tto != 0) {
     clearTimeout(tto)
   }
-  tto = setTimeout(updbar,100)
+  if (ti != 0) {
+    tbti = ti-1;
+    $("#timerbar").css("width","100%")
+    cti = tbti    
+    tto = setTimeout(updbar,100)
+  } else {
+    $("#timerbar").css("width","0%")
+  }
 }
 
 function updbar() {
   cti -= .1;
-  console.log(cti)
   $("#timerbar").css("width",(100/tbti*cti) + "%")
   if (cti > 0) {
     tto = setTimeout(updbar,100)
