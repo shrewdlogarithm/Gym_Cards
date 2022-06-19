@@ -1,12 +1,21 @@
 <head>
   {% include 'head.j2' %}
-  <link rel="stylesheet" href="tablesorter/css/theme.default.css">
+  <link rel="stylesheet" href="tablesorter/css/theme.grey.css">
   <script src="tablesorter/js/jquery.tablesorter.js"></script>
   <script src="tablesorter/js/jquery.tablesorter.widgets.js"></script>
   <script src="tablesorter/js/parsers/parser-input-select.js"></script>
   <style>
     td {white-space: nowrap;}
     form {margin: 0px;}
+    table,table * {
+      font-size: 19px;      
+    }
+    input,select {
+      background-color:#9984d4;
+    }
+    input[type=submit] {
+      background-color: darkgreen !important;      
+    }
   </style>
   <script>
       $(document).ready(function(){
@@ -17,15 +26,20 @@
             $(".photo").hide()
           })
           $(".bswipe").mousedown(function() {
-            if ($(this).val() == "Present") {
-              $(this).val("Away")
+            if ($(this).val() == "In") {
+              $(this).val("Out")
             } else {
-              $(this).val("Present")
+              $(this).val("In")
             }
           })
+          $("input:submit").mousedown(function() {
+            setTimeout(function() {
+              $('#membertable').trigger('update')
+            },500)
+          })
           $("#membertable").tablesorter({ 
-            theme: "default",
             sortList: [[0,0]],
+            theme: "grey",
             headers: {
               0 : {
                 sorter: "digit"
@@ -93,7 +107,7 @@
       <th>Expires</th>
       <th>Staff</th>
       <th></th>
-      <th>Active</th>
+      <th></th>
       <th>Photo</th>
       </tr>
     </thead>
@@ -107,16 +121,16 @@
           <form action=replace target="status" method="POST">
             {{ card }}
             <input type=hidden name="card" value="{{ card }}">
-            <input type=submit value="X">
+            <input type=submit value="Repl">
           </form>
         </td>
         <form action="update" target="status" method="POST">
           <input name="card" type="hidden" value="{{ card }}">
           <td>
-            <input name="name" type="text" value='{{carddb[card]["name"]}}'>
+            <input size=10 name="name" type="text" value='{{carddb[card]["name"]}}'>
           </td>
           <td>
-            <input name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
+            <input size=6 name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
           </td>
           <td>                            
             {{ carddb[card]['created'] }}
@@ -127,28 +141,32 @@
           <td>                            
             <input type="date" name="expires" value="{{ carddb[card]['expires'] }}">
           </td>
-          <td>                            
-            <select name="staff">
-            {% if carddb[card]["staff"] %}
-              <option selected>Yes</option>
-              <option>No</option>
+          <td>
+            {% if carddb[card]["memno"] != 1 %}                           
+              <select name="staff">
+              {% if carddb[card]["staff"] %}
+                <option selected>Yes</option>
+                <option>No</option>
+              {% else %}
+                <option>Yes</option>
+                <option selected>No</option>
+              {% endif %}
+              </select>
             {% else %}
-              <option>Yes</option>
-              <option selected>No</option>
+              Yes
             {% endif %}
-            </select>
           </td>
           <td>
-            <input type="submit" value="Save Changes">
+            <input class=savechanges type="submit" value="Save Changes">
           </td>
         </form>
         <form action="swipe" target="status" method="POST">
           <td>
             <input name="card" type="hidden" value="{{ card }}">                            
             {% if carddb[card]["memno"] in memdb %}              
-              <input class=bswipe type="submit" value="Present">
+              <input class=bswipe type="submit" value="In">
             {% else %}
-              <input class=bswipe type="submit" value="Away">
+              <input class=bswipe type="submit" value="Out">
             {% endif %}
           </td>
         </form>
@@ -158,7 +176,7 @@
             {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
             <div class=showphoto data-memno="{{ carddb[card]['memno'] }}">Yes <input type="submit" value="Update"></div>
             {% else %}
-            <input type="submit" value="Take">
+            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}">No <input type="submit" value="Take"></div>
             {% endif %}
           </td>
         </form>
