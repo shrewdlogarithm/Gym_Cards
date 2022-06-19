@@ -363,10 +363,11 @@ def update():
                 carddb[card]["name"] = request.form.get("name")
                 carddb[card]["papermemno"] = request.form.get("papermemno")
                 carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
-                try: 
-                    carddb[card]["staff"] = request.form.get("staff").lower()=="yes"
-                except:
-                    carddb[card]["staff"] = False
+                if carddb[card]["memno"] != 1:
+                    try: 
+                        carddb[card]["staff"] = request.form.get("staff").lower()=="yes"
+                    except:
+                        carddb[card]["staff"] = False
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()
             except Exception as e:
