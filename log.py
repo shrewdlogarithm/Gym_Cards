@@ -7,14 +7,13 @@ memdb = {}
 def logname():
     return f'logs/gym-{utils.getnowform()}.log'
 def getmemdb():
-    if utils.getnowform() in memdb:
-        return memdb[utils.getnowform()]
-    else:
-        return {}
+    if not utils.getnowform() in memdb:
+        memdb[utils.getnowform()] = {}
+    return memdb[utils.getnowform()]
 def memberin(memno):
     return memno in getmemdb()
 def addlog(ev,card="",db={},excep=""):
-    global logs,memdb
+    global logs
     newlog = {
         "event": ev,       
         "dt": utils.getnowlong(),
@@ -38,11 +37,9 @@ def membercount():
     return len(getmemdb())
 def countmem(memno):
     if memberin(memno):
-        del memdb[utils.getnowform()][memno]
+        del getmemdb()[memno]
     else:
-        if not utils.getnowform() in memdb:
-            memdb[utils.getnowform()] = {}
-        memdb[utils.getnowform()][memno] = True  
+        getmemdb()[memno] = True  
     return membercount()
 try:
     if os.path.exists(logname()):
