@@ -440,5 +440,7 @@ def stream():
 def handle_context():
     return dict(os=os)
 
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # disables caching for static files
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)
