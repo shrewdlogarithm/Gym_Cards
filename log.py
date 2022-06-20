@@ -1,14 +1,23 @@
 import os,json
+import utils
 from datetime import datetime
 ## Logs
 logs = []
+memdb = {}
 def logname():
-    return f'logs/gym-{datetime.now().strftime("%Y%m%d")}.log'
+    return f'logs/gym-{utils.getnowformlong()}.log'
+def getmemdb():
+    if utils.getnowform() in memdb:
+        return memdb[utils.getnowform()]
+    else:
+        return {}
+def memberin(memno):
+    return memno in getmemdb()
 def addlog(ev,card="",db={},excep=""):
-    global logs
+    global logs,memdb
     newlog = {
         "event": ev,       
-        "dt": datetime.now(),
+        "dt": utils.getnowlong(),
         "card": card,
         "db": db,
         "excep": excep
@@ -25,18 +34,16 @@ def addlog(ev,card="",db={},excep=""):
             lf.write(json.dumps(newlog,default=str) + ",\n")
     except Exception as e:
         print(f'Log Writing exception {e}')
-memdb = {}
 def membercount():
-    return len(memdb)
+    return len(getmemdb())
 def countmem(memno):
-    if memno in memdb:
-        del memdb[memno]
+    if memberin(memno):
+        del memdb[utils.getnowform()][memno]
     else:
-        memdb[memno] = True  
+        if not utils.getnowform() in memdb:
+            memdb[utils.getnowform()] = {}
+        memdb[utils.getnowform()][memno] = True  
     return membercount()
-def memberin(memno):
-    return memno in memdb
-
 try:
     if os.path.exists(logname()):
         with open(logname()) as lf:

@@ -82,8 +82,8 @@ def replacecard(replcard,card):
     carddb[card] = carddb[replcard]
     if log.memberin(carddb[replcard]["memno"]): # how are they in but have no card - who knows? :)
         log.countmem(carddb[replcard]["memno"])
-    if replcard in log.memdb: # signed in TODO hacky??
-        del(log.memdb[replcard])
+    if log.memberin(carddb[replcard]["memno"]): # card signed-in
+        cardvisit(replcard) # sign-out old card
     del carddb[replcard]
     log.addlog("CardReplacedNew",card,db=carddb[card])
     sse.add_message('Card Replaced')
@@ -348,7 +348,7 @@ def root():
 @app.route('/showcards')
 def showcards():
     if sysactive:
-        return render_template('showcards.html',carddb=carddb,memdb=log.memdb)
+        return render_template('showcards.html',carddb=carddb,memdb=log.getmemdb())
     else:
         return "System Shutting Down"
 
