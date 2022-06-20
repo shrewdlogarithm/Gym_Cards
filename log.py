@@ -5,7 +5,7 @@ from datetime import datetime
 logs = []
 memdb = {}
 def logname():
-    return f'logs/gym-{utils.getnowformlong()}.log'
+    return f'logs/gym-{utils.getnowform()}.log'
 def getmemdb():
     if utils.getnowform() in memdb:
         return memdb[utils.getnowform()]
