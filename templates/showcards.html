@@ -16,11 +16,17 @@
     input[type=submit] {
       background-color: darkgreen !important;      
     }
+    .tablesorter  td:nth-child(10),
+    .tablesorter  td:nth-child(11) {
+      width : 70px !important;
+    }
   </style>
   <script>
       $(document).ready(function(){
           $(".showphoto").mouseover(function() {
-            $(".photo").attr("src","images/" + $(this).attr("data-memno") + ".png").show()
+            if ($(this).find("input").val() == "New") {
+              $(".photo").attr("src","images/" + $(this).attr("data-memno") + ".png").show()
+            }
           })
           $(".showphoto").mouseout(function() {
             $(".photo").hide()
@@ -74,11 +80,15 @@
                 sorter: "select-text"
               },
               8 : {
-                filter: false
+                filter: false,
+                sorter: false
               }
             },
             textExtraction: {
               9: function(node,table,cellIndex) {
+                return $(node).find("input[type=submit]").val()
+              },
+              10: function(node,table,cellIndex) {
                 return $(node).find("input[type=submit]").val()
               }
             },
@@ -107,7 +117,7 @@
       <th>Expires</th>
       <th>Staff</th>
       <th></th>
-      <th></th>
+      <th>In/Out</th>
       <th>Photo</th>
       </tr>
     </thead>
@@ -174,9 +184,9 @@
           <td>                            
             <input name="card" type="hidden" value="{{ card }}">
             {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
-            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}">Yes <input type="submit" value="Update"></div>
+            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}"><input type="submit" value="New"></div>
             {% else %}
-            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}">No <input type="submit" value="Take"></div>
+            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}"><input type="submit" value="Add"></div>
             {% endif %}
           </td>
         </form>
