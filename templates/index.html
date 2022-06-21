@@ -7,24 +7,20 @@
     source.onmessage = function(e) {
       if (!e.data.startsWith("##")) {
         vals = e.data.split(":::")
-        $(".modal__content").html(
-          $("<div>",{
-            id: "showdata",
-            class: "centerbox " + vals[1]
-          }).html(vals[0])
-        )
-        $(".camera").hide()
-        $(".photo").hide()
+        $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
+        $(".photoframe").hide()
       }
       if (e.data.startsWith("##ShowCap")) {
-        $(".camera").show()
+        $(".video").show()
+        $(".photoframe").show()
       }
       if (e.data.startsWith("##MakeCap")) {
+        $(".video").hide()
         takepicture(e.data.substring(9))
       }
       if (e.data.startsWith("##MemImg")) {
-        $(".photo").attr("src","images/" + e.data.substring(8) + ".png")
-        $(".photo").show()
+        $(".photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random())
+        $(".photoframe").show()
       }
     }
   }
@@ -32,6 +28,6 @@
 </head>
 <body>
     {% include 'toplayout.j2' %}
-    <div class="centerbox">Ready!</div>  
+    <div id="centerbox">Ready!</div>  
     {% include 'bottomlayout.j2' %}
 </body>

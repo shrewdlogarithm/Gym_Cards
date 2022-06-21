@@ -31,11 +31,11 @@ function timerbar(ti) {
   }
   if (ti != 0) {
     tbti = ti-1;
-    $("#timerbar").css("width","100%")
+    $("#timerbar").show().css("width","100%")
     cti = tbti    
     tto = setTimeout(updbar,100)
   } else {
-    $("#timerbar").css("width","0%")
+    $("#timerbar").hide().css("width","0%")
   }
 }
 

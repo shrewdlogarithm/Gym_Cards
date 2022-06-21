@@ -71,7 +71,7 @@ body {
     padding-right: 50px;
 }
 
-.centerbox {
+#centerbox {
     margin: 0;
     position: absolute;
     top: 50%;
@@ -93,6 +93,7 @@ body {
 }
 
 #timerbar {
+    display: none;
     position: relative;
     top: 0px;
     left: 0px;
@@ -109,13 +110,7 @@ body {
     float: right;
 }
 
-.camera {
-    display: none;
-    position:absolute;
-    left :50px;
-  }
-  
-  #video {
+#video {
     width:750px;
     height:400px;
     /* transform: translateX(360px) rotate(90deg); */
@@ -123,18 +118,21 @@ body {
     transform-origin: top left;    
     position: absolute;
     left: 0px;
-  }
-  
-  .photo {
+}
+
+.photoframe {
     display: none;
     position: absolute;
-    width: 400px;
-    height: 750px;
-    top: 100px;
+    top: 0;
+    bottom:0;
     left: 50px;
     z-index:1;
-  }
+}
 
-  .status {
+.photo {
+    height: 100%;
+}
+
+.status {
     display:none;
-  }
+}
