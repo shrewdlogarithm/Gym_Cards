@@ -1,5 +1,4 @@
 !.gitkeep
-!site/images/1.png
 
 .gitconfig
 .bash*
@@ -16,7 +15,8 @@ README.txt
 .vscode/*
 
 dev/*
-*.png
+site/images/*.png
+!site/images/1.png
 
 site/tablesorter/*
 
