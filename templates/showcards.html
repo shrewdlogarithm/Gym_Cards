@@ -16,9 +16,14 @@
     input[type=submit] {
       background-color: darkgreen !important;      
     }
+    .tablesorter  td:nth-child(1),
     .tablesorter  td:nth-child(10),
     .tablesorter  td:nth-child(11) {
       width : 70px !important;
+    }
+    .tablesorter  td:nth-child(4),
+    .tablesorter  td:nth-child(5) {
+      width: 120px !important;
     }
   </style>
   <script>
@@ -137,10 +142,10 @@
         <form action="update" target="status" method="POST">
           <input name="card" type="hidden" value="{{ card }}">
           <td>
-            <input size=10 name="name" type="text" value='{{carddb[card]["name"]}}'>
+            <input size=40 name="name" type="text" value='{{carddb[card]["name"]}}'>
           </td>
           <td>
-            <input size=6 name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
+            <input size=5 name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
           </td>
           <td>                            
             {{ carddb[card]['created'] }}
