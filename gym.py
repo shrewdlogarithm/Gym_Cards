@@ -232,7 +232,7 @@ def kto(tt=0):
     if len(qq):
         if getq() == "M": # deferred staff 'in out'
             card = qq[0]["cd"]
-            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
             sse.add_message("##Timer" + str(3))
@@ -326,7 +326,7 @@ def handlecard(card):
             to = 5
         elif cq == "MK": # special case - member arrives before staff sign-in expires
             card = qq[1]["cd"]
-            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
             clearq()
@@ -338,7 +338,7 @@ def handlecard(card):
         elif len(cq) == 1:
             card = qq[0]["cd"]
             if cq[0] == "K":
-                sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+                sse.add_message(f'{membergreet(card) } { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
                 showpic(card)
                 cardvisit(card)
                 clearq()
