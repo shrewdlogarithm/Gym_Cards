@@ -27,8 +27,12 @@ if os.path.exists(stname):
         sett = json.load(json_file)        
 else:
     savesett()
-def getdelay(dl):
-    return int(sett["d"+dl])
+def getdelay(dl): # TODO use this
+    try:
+        rv = int(sett["d"+dl])
+    except:
+        rv = 0
+    return rv
 
 ## Database
 dbname = "data/cards.json"
