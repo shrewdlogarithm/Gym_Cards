@@ -49,9 +49,6 @@ body {
     z-index: 2;
     position: relative;
 }
-#centerbox {
-    font-size: 99px;    
-}
 
 .modal__footer {
     background: #9984D4;
@@ -82,6 +79,7 @@ body {
     white-space: nowrap;
     z-index: 4;
     text-shadow: 5px 5px black;
+    font-size: 99px;    
 }
 
 .renew {
@@ -134,7 +132,7 @@ body {
     display:none;
 }
 
-#adv1, #adv2 {
+.ads {
     display:block;
     position: absolute;
     left: 50px;
