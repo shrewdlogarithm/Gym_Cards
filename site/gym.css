@@ -111,17 +111,14 @@ body {
 }
 
 #video {
-    width:750px;
-    height:400px;
-    /* transform: translateX(360px) rotate(90deg); */
-    transform: translateY(775px) rotate(270deg);
+    /* transform: translateX(100%) rotate(90deg); */
+    transform: translateY(120%) translateX(-10%) rotate(270deg);
     transform-origin: top left;    
-    position: absolute;
-    left: 0px;
+    width: 100vh;
+    display: none;
 }
 
-.photoframe {
-    display: none;
+#photoframe {
     position: absolute;
     top: 0;
     bottom:0;
@@ -129,7 +126,7 @@ body {
     z-index:1;
 }
 
-.photo {
+#photo {
     height: 100%;
 }
 

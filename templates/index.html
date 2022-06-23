@@ -8,19 +8,19 @@
       if (!e.data.startsWith("##")) {
         vals = e.data.split(":::")
         $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
-        $(".photoframe").hide()
+        $("#video").hide()
+        $("#photo").hide()
       }
       if (e.data.startsWith("##ShowCap")) {
-        $(".video").show()
-        $(".photoframe").show()
+        $("#photo").hide()
+        $("#video").show()
       }
       if (e.data.startsWith("##MakeCap")) {
-        $(".video").hide()
         takepicture(e.data.substring(9))
       }
       if (e.data.startsWith("##MemImg")) {
-        $(".photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random())
-        $(".photoframe").show()
+        $("#video").hide()
+        $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
       }
     }
   }
