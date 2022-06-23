@@ -29,6 +29,7 @@
     bottom: 45px;
     top: 100px;
     overflow-y: auto;
+    text-align: center;
 }
 
 .modal__footer {
@@ -48,9 +49,8 @@ body {
     z-index: 2;
     position: relative;
 }
-.modal__content,.modal_content * {
-    font-size: 99px;
-    text-align: center;
+#centerbox {
+    font-size: 99px;    
 }
 
 .modal__footer {
@@ -132,4 +132,18 @@ body {
 
 .status {
     display:none;
+}
+
+#adv1, #adv2 {
+    display:block;
+    position: absolute;
+    left: 50px;
+    right: 50px;
+    font-size: 77px;
+}
+#adv1 {
+    top: 80px;
+}
+#adv2 {
+    bottom: 80px;
 }

@@ -7,6 +7,29 @@ import sse,log,threads,utils
 
 sysactive = True
 
+##Settings
+stname = "data/settings.json"
+sett = {
+    "ad1": "",
+    "ad1col": "#ffffff",
+    "ad2": "",
+    "ad2col": "#ffffff",
+    "dshort": "2",
+    "dmedium": "5",
+    "dlong": "0"
+}
+def savesett():
+    with open(stname, 'w') as json_file:
+        json.dump(sett, json_file, indent=4,default=str)        
+
+if os.path.exists(stname):
+    with open(stname) as json_file:
+        sett = json.load(json_file)        
+else:
+    savesett()
+def getdelay(dl):
+    return int(sett["d"+dl])
+
 ## Database
 dbname = "data/cards.json"
 backdbname = dbname + ".bak"
@@ -279,7 +302,7 @@ def handlecard(card):
         elif cq == "P":
             sse.add_message("Swipe Staff to Save <BR> Other to cancel")
             sse.add_message("##ShowCap")            
-            to = 10
+            to = 0
         elif cq[0] == "Q" and len(cq) > 1:
             if cq == "QU":
                 replacecard(qq[0]["cd"],qq[1]["cd"])
@@ -341,7 +364,7 @@ app = Flask(__name__,
 @app.route('/')
 def root():
     if sysactive:
-        return render_template('index.html')
+        return render_template('index.html',sett=sett)
     else:
         return "System Shutting Down"
 
@@ -349,6 +372,13 @@ def root():
 def showcards():
     if sysactive:
         return render_template('showcards.html',carddb=carddb,memdb=log.getmemdb())
+    else:
+        return "System Shutting Down"
+
+@app.route('/settings')
+def settings():
+    if sysactive:
+        return render_template('settings.html',sett=sett)
     else:
         return "System Shutting Down"
 
@@ -373,6 +403,25 @@ def update():
             except Exception as e:
                 log.addlog("Update_exception",excep=e)
         return "Updated Successfully"
+    else:
+        return "System Shutting Down"
+
+@app.route('/savesettings', methods=['POST'])
+def savesettings():
+    global sett
+    if sysactive:
+        try:
+            log.addlog("Settings Before",0,db=sett) 
+            for st in sett:
+                try:
+                    sett[st] = request.form[st]
+                except:
+                    pass
+            log.addlog("Settings After",0,db=sett)
+            savesett()
+        except Exception as e:
+            log.addlog("Settings Exception",excep=e)
+        return "Settings Updated Successfully"
     else:
         return "System Shutting Down"
 

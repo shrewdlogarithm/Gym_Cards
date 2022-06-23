@@ -28,6 +28,8 @@
 </head>
 <body>
     {% include 'toplayout.j2' %}
+    <div id="adv1" style='color:{{ sett["ad1col"] }}'>{{ sett["ad1"]|safe }}</div>
     <div id="centerbox">Ready!</div>  
+    <div id="adv2" style='color:{{ sett["ad2col"] }}'>{{ sett["ad2"]|safe }}</div>
     {% include 'bottomlayout.j2' %}
 </body>
