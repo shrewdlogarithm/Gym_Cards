@@ -27,9 +27,21 @@
     }
   </style>
   <script>
+    function findform(subm) { 
+      ff = $(subm).closest("FORM")
+      if (ff.length == 0) {        
+        $(subm).parents().each(function() {
+          ff = $(this).children("FORM")
+          if (ff.length != 0) {
+            return false
+          }            
+        })
+      }
+      return ff
+    }
       $(document).ready(function(){
           $(".showphoto").mouseover(function() {
-            if ($(this).find("input").val() == "New") {
+            if ($(this).attr("data-image")) {
               $("#photo").attr("src","images/" + $(this).attr("data-memno") + ".png?" + Math.random())
               $("#photoframe").show()
             }
@@ -37,17 +49,20 @@
           $(".showphoto").mouseout(function() {
             $("#photoframe").hide()
           })
-          $(".bswipe").mousedown(function() {
+          $("input:submit").click(function() {
+            $(this).prop("disabled",true)
+            setTimeout(() => { $('#membertable').trigger('update') },500)
+            setTimeout(() => { $(this).prop("disabled",false) },1000)
+            ff = findform(this)
+            if (ff != null)
+              $(ff).submit()
             if ($(this).val() == "In") {
               $(this).val("Out")
-            } else {
+            } else if ($(this).val() == "Out") {
               $(this).val("In")
+            } else if ($(this).val() == "Yes" || $(this).val() == "No") {
+              $(this).val("??")
             }
-          })
-          $("input:submit").mousedown(function() {
-            setTimeout(function() {
-              $('#membertable').trigger('update')
-            },500)
           })
           $("#membertable").tablesorter({ 
             sortList: [[0,0]],
@@ -133,7 +148,7 @@
           {{ carddb[card]["memno"] }}
         </td>
         <td>
-          <form action=replace target="status" method="POST">
+          <form action="replace" target="status" method="POST">
             {{ card }}
             <input type=hidden name="card" value="{{ card }}">
             <input type=submit value="Repl">
@@ -172,29 +187,29 @@
             {% endif %}
           </td>
           <td>
-            <input class=savechanges type="submit" value="Save Changes">
+            <input type="submit" value="Save Changes">
           </td>
         </form>
-        <form action="swipe" target="status" method="POST">
           <td>
-            <input name="card" type="hidden" value="{{ card }}">                            
-            {% if carddb[card]["memno"] in memdb %}              
-              <input class=bswipe type="submit" value="In">
-            {% else %}
-              <input class=bswipe type="submit" value="Out">
-            {% endif %}
-          </td>
-        </form>
-        <form action="takephoto" target="status" method="POST">
+            <form action="swipe" target="status" method="POST">
+              <input name="card" type="hidden" value="{{ card }}">                            
+              {% if carddb[card]["memno"] in memdb %}              
+                <input type="submit" value="In">
+              {% else %}
+                <input type="submit" value="Out">
+              {% endif %}
+            </form>
+        </td>
           <td>                            
-            <input name="card" type="hidden" value="{{ card }}">
-            {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
-            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}"><input type="submit" value="New"></div>
-            {% else %}
-            <div class=showphoto data-memno="{{ carddb[card]['memno'] }}"><input type="submit" value="Add"></div>
-            {% endif %}
-          </td>
-        </form>
+            <form action="takephoto" target="status" method="POST">
+              <input name="card" type="hidden" value="{{ card }}">
+              {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
+                <div class=showphoto data-memno="{{ carddb[card]['memno'] }}" data-image="Y"><input type="submit" value="Yes"></div>
+              {% else %}
+                <div class=showphoto data-memno="{{ carddb[card]['memno'] }}"><input type="submit" value="No"></div>
+              {% endif %}
+          </form>
+        </td>
       </tr>
     {% endfor %}
     </tbody>
