@@ -47,18 +47,20 @@ function takepicture(memno) {
     context.translate(-video.width * 0.5, -video.height * 0.5);
     context.drawImage(video, 0,0,width,height);      
     var data = canvas.toDataURL('image/png');
+    imagedata = canvas.toDataURL()
+    $.ajax({
+      type: "POST",
+      url: "/savepic",
+      data: { 
+          memno: memno,
+          image: imagedata
+      }
+    }).done(function(o) {
+      console.log('saved'); 
+    });
+  } else {
+    /* no camera - nothing saved */
   }
-  imagedata = canvas.toDataURL()
-  $.ajax({
-    type: "POST",
-    url: "/savepic",
-    data: { 
-        memno: memno,
-        image: imagedata
-    }
-  }).done(function(o) {
-    console.log('saved'); 
-  });
 }
 
 window.addEventListener('load', startup, false);
