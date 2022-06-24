@@ -1,3 +1,15 @@
+@font-face {
+    font-family: 'Bunken Tech Sans Pro SeBd';
+    src: url('fonts/BunkenTechSansPro-SeBd.eot');
+    src: local('fonts/Bunken Tech Sans Pro SeBd'), local('BunkenTechSansPro-SeBd'),
+        url('fonts/BunkenTechSansPro-SeBd.eot?#iefix') format('embedded-opentype'),
+        url('fonts/BunkenTechSansPro-SeBd.woff2') format('woff2'),
+        url('fonts/BunkenTechSansPro-SeBd.woff') format('woff'),
+        url('fonts/BunkenTechSansPro-SeBd.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
 .modal {
   display: none;
   height: 100%;
@@ -5,6 +17,7 @@
   position: fixed;
   top: 0;
   width: 100%;
+  font-family: 'Bunken Tech Sans Pro SeBd'
 }
 
 .modal.open {
@@ -23,6 +36,7 @@
 .modal__footer {
     position: absolute;
     width: 100%;
+    margin: 0;
 }
 
 .modal__content {
@@ -30,6 +44,7 @@
     top: 100px;
     overflow-y: auto;
     text-align: center;
+    text-shadow: 5px 5px black;
 }
 
 .modal__footer {
@@ -37,12 +52,14 @@
 }
 
 body {
-    background: #331E4D;
+    background: black;
     color: white;
 }
 
 .modal__header {
-    background: #9984D4;
+    background: #333333;
+    color: #acf310;
+    text-shadow: 2px 2px black;
     font-size: 66px;
     padding-left: 50px;
     padding-right: 50px;
@@ -51,12 +68,14 @@ body {
 }
 
 .modal__footer {
-    background: #9984D4;
+    background: #acf310;
     font-size: 22px;
     z-index: 2;
+    color: rgb(77, 77, 77);
 }
 
 .modal__footer p {
+    color: grey;
     margin: 10px;
 }
 
@@ -77,8 +96,7 @@ body {
     transform: translate(-50%, -50%);
     padding: 50px;
     white-space: nowrap;
-    z-index: 4;
-    text-shadow: 5px 5px black;
+    z-index: 4;    
     font-size: 99px;    
 }
 
@@ -132,16 +150,25 @@ body {
     display:none;
 }
 
-.ads {
-    display:block;
-    position: absolute;
-    left: 50px;
-    right: 50px;
+#ads {
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    width:100%;
+    height: 100%;
     font-size: 77px;
 }
 #adv1 {
-    top: 80px;
+    position: absolute;
+    top: 40px;
 }
 #adv2 {
-    bottom: 80px;
+    position: absolute;
+    bottom: 40px;
+}
+
+#adpic {
+    display:none;
+    min-height: 60%;
+    max-height:90%;
 }

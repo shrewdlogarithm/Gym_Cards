@@ -1,14 +1,11 @@
 <head>
   {% include 'head.j2' %}
   <style>
-    form, form * {
+    form, form input {
       left: 50px;
       background-color: transparent;
       color: white;
-    }
-    #ads * {
-      display: block;
-      font-size: 44px;
+      font-size: 22px;
     }
   </style>
   <script>
@@ -25,18 +22,16 @@
 <body>
   {% include 'toplayout.j2' %}
   <form action=savesettings target="status" method="POST">
-    <div id="ads">
     <div>Advert 1</div><input size=60 id="ad1" name="ad1" type="text" value='{{ sett["ad1"] }}'>
     <input type=color id="ad1col" name="ad1col" value="{{ sett["ad1col"] }}"><br>
     <div>Advert 2</div><input size=60 id="ad2" name="ad2" type="text" value='{{ sett["ad2"] }}'>
     <input type=color id="ad2col" name="ad2col" value="{{ sett["ad2col"] }}"><br>
-    </div>
-    <!-- <div id="delays">
+    <div id="delays">
     Short Delay <input min=1 max=5 type="number" name="dshort" value={{ sett["dshort"] }}>
     Medium Delay <input min=5 max=10 type="number" name="dmedium" value={{ sett["dmedium"] }}>
     Long Delay <input min=0 max=90 type="number" name="dlong" value={{ sett["dlong"] }}>
-    </div> -->
+    </div>
     <br><input type="submit" value="Save Changes">
-  </form>
+</form>
   {% include 'bottomlayout.j2' %}
 </body>
