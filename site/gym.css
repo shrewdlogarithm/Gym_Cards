@@ -126,8 +126,13 @@
 .status {
     display:none;
 }
-
-#ads {
+#settings {
+    background: #00000055;
+}
+#ads,#settings {
+    position: absolute;
+    top:0;
+    left:0;
     display: flex; 
     align-items: center; 
     justify-content: center;
@@ -145,7 +150,6 @@
 }
 
 #adpic {
-    display:none;
     min-height: 60%;
     max-height:90%;
 }

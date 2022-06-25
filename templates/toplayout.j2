@@ -2,6 +2,15 @@
 <div class="modal open">
     <div class="modal__header">Welcome to <span style="letter-spacing:0.1em;"><i>LJ'<span style="font-size:70%;vertical-align:super">s</span></span>GYM</i></div>
     <div class="modal__content">
+      {% if sett: %}
+        <div id="ads">
+          <div id="adv1" style='color:{{ sett["ad1col"] }}'>{{ sett["ad1"]|safe }}</div>
+          <div id="adv2" style='color:{{ sett["ad2col"] }}'>{{ sett["ad2"]|safe }}</div>
+          {% if "adpic" in sett and os.path.exists(sett["adpic"]): %}
+            <img id="adpic" src="{{ sett["adpic"] }}">
+          {% endif %}
+        </div>
+      {% endif %}
       <div id="photoframe">
         <video id="video">Video stream not available.</video>
         <img id="photo">
