@@ -10,13 +10,10 @@ sysactive = True
 ##Settings
 stname = "data/settings.json"
 sett = {
-    "ad1": "",
-    "ad1col": "#ffffff",
-    "ad2": "",
-    "ad2col": "#ffffff",
-    "dshort": "2",
-    "dmedium": "5",
-    "dlong": "0"
+    "theme0": "#000000","theme1": "#ffffff","theme2": "#333333","theme3": "#acf310",
+    "ad1": "","ad2": "",
+    "ad1col": "#ffffff","ad2col": "#ffffff",
+    "dshort": "2","dmedium": "5","dlong": "0"
 }
 def savesett():
     with open(stname, 'w') as json_file:
@@ -24,7 +21,7 @@ def savesett():
 
 if os.path.exists(stname):
     with open(stname) as json_file:
-        sett = json.load(json_file)        
+        sett = {**json.load(json_file),**sett}
 else:
     savesett()
 def getdelay(dl): # TODO use this
@@ -364,6 +361,10 @@ threads.start_thread(process_cards)
 app = Flask(__name__,
             static_url_path='', 
             static_folder='site')
+
+@app.route('/theme.css')
+def css():
+    return render_template('theme.css',sett=sett)
 
 @app.route('/')
 def root():

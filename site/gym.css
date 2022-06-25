@@ -26,6 +26,11 @@
 
 .modal__header {
     height: 100px;
+    font-size: 66px;
+    padding-left: 50px;
+    padding-right: 50px;
+    z-index: 2;
+    position: relative;
 }
 
 .modal__footer {
@@ -49,42 +54,22 @@
 
 .modal__footer {
     bottom: 0;
-}
-
-body {
-    background: black;
-    color: white;
-}
-
-.modal__header {
-    background: #333333;
-    color: #acf310;
-    text-shadow: 2px 2px black;
-    font-size: 66px;
-    padding-left: 50px;
-    padding-right: 50px;
-    z-index: 2;
-    position: relative;
-}
-
-.modal__footer {
-    background: #acf310;
     font-size: 22px;
     z-index: 2;
-    color: rgb(77, 77, 77);
 }
 
 .modal__footer p {
-    color: grey;
     margin: 10px;
 }
 
 #footleft {
     padding-left:50px;
+    float: left;
 }
 
 #footright {
     padding-right: 50px;
+    float: right;
 }
 
 #centerbox {
@@ -116,14 +101,6 @@ body {
     width: 0px;
     height: 3px;
     background-color: red;
-}
-
-#footleft {
-    float: left;
-}
-
-#footright {
-    float: right;
 }
 
 #video {
@@ -171,4 +148,15 @@ body {
     display:none;
     min-height: 60%;
     max-height:90%;
+}
+
+table * {
+    font-family: "Arial";
+}
+
+form, form input {
+    background-color: transparent;
+    left: 50px;
+    font-size: 22px;
+    margin: 0px;    
 }

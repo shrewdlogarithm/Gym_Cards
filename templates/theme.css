@@ -1,0 +1,29 @@
+body {
+    background: {{ sett.theme0 }};
+    color: {{ sett.theme1 }};
+}
+
+.modal__header {
+    background: {{ sett.theme2 }};
+    color: {{ sett.theme3 }};
+    text-shadow: 2px 2px {{ sett.theme0 }};
+}
+
+.modal__footer {
+    background: {{ sett.theme3 }};
+    color: {{ sett.theme2 }};
+}
+
+form, form input {
+    color: {{sett.theme1 }};
+}
+
+input,select {
+    background-color: {{ sett.theme0 }};
+    color: {{ sett.theme3 }};
+;
+  }
+  input[type=submit] {
+    background-color: {{ sett.theme3 }} !important;      
+    color: {{ sett.theme2 }}!important;
+  }
