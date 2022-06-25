@@ -429,9 +429,18 @@ def savesettings():
         try:
             if "image" in request.files:
                 file = request.files["image"]
-                adpic = "images/ad" +os.path.splitext(file.filename)[1]
-                sett["adpic"] = adpic
-                file.save("site/" + adpic)
+                if file.filename:
+                    adpic = "images/ad" +os.path.splitext(file.filename)[1]
+                    sett["adpic"] = adpic
+                    file.save("site/" + adpic)
+                    savesett()
+            if "delpic" in request.form and request.form["delpic"] == "on":
+                try:
+                    os.path.os.remove("site/" + sett["adpic"])
+                except:
+                    pass
+                if "adpic" in sett:
+                    del(sett["adpic"])
                 savesett()
             log.addlog("Settings Before",0,db=sett) 
             for st in sett:

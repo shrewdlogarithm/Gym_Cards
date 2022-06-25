@@ -2,14 +2,30 @@
   {% include 'head.j2' %}
   <script>
     $(document).ready(function(){
+      $("#ad1").on("keyup",function() {
+        $("#adv1").html($("#ad1").val())
+      })
+      $("#ad2").on("keyup",function() {
+        $("#adv2").html($("#ad2").val())
+      })
       $("#ad1col").on("input",function() {
-        $("#ad1").css("color",$("#ad1col").val())
+        $("#ad1,#adv1").css("color",$("#ad1col").val())
       }).trigger("input")
       $("#ad2col").on("input",function() {
-        $("#ad2").css("color",$("#ad2col").val())
+        $("#ad2,#adv2").css("color",$("#ad2col").val())
       }).trigger("input")
       $("#uploadbutton").click(function() {
         $("#upload").click()
+        $("#delpic").prop("checked",false)
+      })
+      $("#deletebutton").click(function() {
+        $("#adpic").attr("src","")
+        $("#delpic").prop("checked",true)
+      })
+      $("#settform").on("submit",function(e) {
+        setTimeout(function() {
+          $("#upload").val(null); 
+        },500)
       })
     })
       
@@ -22,7 +38,7 @@
 <body>
   {% include 'toplayout.j2' %}
   <div id=settings>
-    <form action=savesettings enctype=multipart/form-data target="status" method="POST">
+    <form id="settform" action=savesettings enctype=multipart/form-data target="status" method="POST">
       <P> Ad Settings</P>
       <div>Advert 1</div>
       <input size=60 id="ad1" name="ad1" type="text" value='{{ sett["ad1"] }}'>
@@ -33,6 +49,8 @@
       <div>Advert Image</div>
       <input id="upload" type="file" accept="image/gif, image/jpeg, image/png" onchange="loadFile(event)" name="image" id="file" style="display:none;">
       <input id="uploadbutton" type="button" value="Upload Ad Image">
+      <input id="delpic" name="delpic" type=checkbox style="display:none">
+      <input id="deletebutton" type="button" value="Delete Ad Image">
       <!-- <P> Theme Settings</P>
       Background <input type=color id="theme0" name="theme0" value="{{ sett["theme0"] }}">
       Message <input type=color id="theme1" name="theme1" value="{{ sett["theme1"] }}">
