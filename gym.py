@@ -184,17 +184,7 @@ def eventinput():
         while sysactive:
             try:
                 ip = input()
-                if ip.startswith("##"):
-                    try:
-                        mn = int(ip[2:])
-                        for card in carddb:
-                            if carddb[card]["memno"] == int(mn):
-                                cards.put(card)
-                                break
-                    except:
-                        pass
-                else:
-                    cards.put(ip)
+                cards.put(ip)
             except Exception as e:
                 log.addlog("KeyInput_exception",excep=e)
 threads.start_thread(eventinput)
@@ -210,6 +200,12 @@ def addq(c):
         qq.append({"cd": c[2:],"repl": True}) 
     elif c[0:2] == "@p":
         qq.append({"cd": c[2:],"photo": True}) 
+    elif c[0:2] == "@m":
+        mn = c[2:]
+        for card in carddb:
+            if carddb[card]["memno"] == int(mn):
+                qq.append({"cd": card})
+                break
     else:
         qq.append({"cd": c}) 
 def getq():
