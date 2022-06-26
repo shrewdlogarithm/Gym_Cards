@@ -104,15 +104,18 @@
 }
 
 #video {
-    /* transform: translateX(100%) rotate(90deg); */
-    transform: translateY(120%) translateX(-10%) rotate(270deg);
-    transform-origin: top left;    
-    width: 100vh;
+    transform: rotate(270deg);
+    transform-origin: center;   
+    left: -150px;
+    width: 900px;
+    height: 100%;
+    position: absolute;
     display: none;
 }
 
 #photoframe {
     position: absolute;
+    height: 100%;
     top: 0;
     bottom:0;
     left: 50px;
@@ -156,6 +159,19 @@
 
 table * {
     font-family: "Arial";
+}
+
+td {
+    vertical-align: middle !important;
+}
+td * {
+    white-space: nowrap;
+    display: inline;
+}
+
+.danger {
+    background-color: red !important;
+    display: none;
 }
 
 form, form input {

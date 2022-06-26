@@ -24,6 +24,6 @@ input,select {
 ;
   }
   input[type=submit],input[type=button] {
-    background-color: {{ sett.theme3 }} !important;      
-    color: {{ sett.theme2 }}!important;
+    background-color: {{ sett.theme3 }};      
+    color: {{ sett.theme2 }};
   }

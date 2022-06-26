@@ -41,6 +41,9 @@ def countmem(memno):
     else:
         getmemdb()[memno] = True  
     return membercount()
+def delmem(memno):
+    if memberin(memno):
+        del getmemdb()[memno]
 try:
     if os.path.exists(logname()):
         with open(logname()) as lf:

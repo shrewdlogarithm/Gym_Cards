@@ -197,10 +197,13 @@ def clearq():
 def addq(c):
     global qq
     if c[0:2] == "@r":
+        clearq()
         qq.append({"cd": c[2:],"repl": True}) 
     elif c[0:2] == "@p":
+        clearq()
         qq.append({"cd": c[2:],"photo": True}) 
     elif c[0:2] == "@m":
+        clearq()
         mn = c[2:]
         for card in carddb:
             if carddb[card]["memno"] == int(mn):
@@ -308,7 +311,7 @@ def handlecard(card):
                 to = 2
             clearq()            
         elif cq == "P":
-            sse.add_message("Swipe Staff to Save <BR> Other to cancel")
+            sse.add_message("Swipe Staff to Take <BR> Other to cancel")
             sse.add_message("##ShowCap")            
             to = 0
         elif cq[0] == "Q" and len(cq) > 1:
@@ -498,6 +501,33 @@ def replace():
     if sysactive:
         clearq()
         handlecard("@r"+request.form.get("card")) 
+        return "OK"
+    else:
+        return "System Shutting Down"
+
+@app.route('/delphoto', methods=['POST'])
+def delphoto():
+    global replcard, mode
+    if sysactive:
+        card = request.form.get("card")
+        if card in carddb:
+            try:
+                os.remove("site/images/" + str(carddb[card]["memno"]) + ".png")
+            except Exception as e:
+                log.addlog("DelPhoto",excep=e)
+        return "OK"
+    else:
+        return "System Shutting Down"
+
+@app.route('/delmember', methods=['POST'])
+def delmem():
+    global replcard, mode
+    if sysactive:
+        card = request.form.get("card")
+        if card in carddb:
+            log.delmem(carddb[card]["memno"])
+            del carddb[card]
+            savedb()
         return "OK"
     else:
         return "System Shutting Down"

@@ -15,7 +15,7 @@
     .tablesorter  td:nth-child(1),
     .tablesorter  td:nth-child(10),
     .tablesorter  td:nth-child(11) {
-      width : 70px !important;
+      width : 90px !important;
     }
     .tablesorter  td:nth-child(4),
     .tablesorter  td:nth-child(5) {
@@ -36,6 +36,9 @@
       return ff
     }
       $(document).ready(function(){
+        if (window.location.href.indexOf("?DEL") >= 0) {
+          $(".danger").show()
+        }
           $(".showphoto").mouseover(function() {
             if ($(this).attr("data-image")) {
               $("#photo").attr("src","images/" + $(this).attr("data-memno") + ".png?" + Math.random())
@@ -141,7 +144,13 @@
     {% for card in carddb %}
       <tr>                      
         <td>
-          {{ carddb[card]["memno"] }}
+          <form action="delmember" target="status" method="POST"> 
+            <input name="card" type="hidden" value="{{ card }}">
+            {{ carddb[card]["memno"] }} 
+            {% if carddb[card]["memno"] != 1 %}                           
+              <input type=submit class="danger" value="X">
+            {% endif %}
+          </form>
         </td>
         <td>
           <form action="replace" target="status" method="POST">
@@ -196,14 +205,18 @@
               {% endif %}
             </form>
         </td>
-          <td>                            
-            <form action="takephoto" target="status" method="POST">
-              <input name="card" type="hidden" value="{{ card }}">
-              {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
-                <div class=showphoto data-memno="{{ carddb[card]['memno'] }}" data-image="Y"><input type="submit" value="Yes"></div>
-              {% else %}
-                <div class=showphoto data-memno="{{ carddb[card]['memno'] }}"><input type="submit" value="No"></div>
-              {% endif %}
+        <td>                            
+          <form action="takephoto" target="status" method="POST">
+            <input name="card" type="hidden" value="{{ card }}">
+            {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
+              <div class=showphoto data-memno="{{ carddb[card]['memno'] }}" data-image="Y"><input type="submit" value="Yes"></div>
+            {% else %}
+              <div class=showphoto data-memno="{{ carddb[card]['memno'] }}"><input type="submit" value="No"></div>
+            {% endif %}
+          </form>
+          <form action="delphoto" target="status" method="POST">
+            <input name="card" type="hidden" value="{{ card }}"> 
+            <input type=submit class="danger" value="X">
           </form>
         </td>
       </tr>
