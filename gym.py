@@ -5,6 +5,8 @@ from playsound import playsound
 from flask import Flask, Response, request, render_template
 import sse,log,threads,utils 
 
+log.addlog("GymStart")
+
 sysactive = True
 
 ##Settings

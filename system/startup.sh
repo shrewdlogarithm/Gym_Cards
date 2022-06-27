@@ -1,0 +1,2 @@
+echo "Startup"
+date
