@@ -15,19 +15,23 @@ def getnowlong():
 def getnow():
     return getnowlong().date()
 
-def getnowform(of=timedelta(days=0)):
-    return formdate(getnow()+of)
+def getnowform():
+    return formdate(getnow())
 
-def getnowformlong(of=timedelta(days=0)):
-    return formdatelong(getnowlong()+of)
+def getnowformlong():
+    return formdatelong(getnowlong())
 
 def getdate(dtstr):
     return datetime.strptime(dtstr,dateform).date()
 
-def getrenew(dt=getnowlong()):
+def getrenew(dt=0):
+    if dt == 0:
+        dt = getnowlong()
     return dt+relativedelta(months=1)
 
-def getrenewform(dt=getnowlong()):
+def getrenewform(dt=0):
+    if dt == 0:
+        dt = getnowlong()
     return formdate(getrenew(dt))
 
 def check_date(newdate,fbdate):
