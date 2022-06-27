@@ -169,6 +169,10 @@ td * {
     display: inline;
 }
 
+.tablesorter input {
+    color-scheme: dark;
+}
+
 .danger {
     background-color: red !important;
     display: none;
@@ -178,5 +182,5 @@ form, form input {
     background-color: transparent;
     left: 50px;
     font-size: 22px;
-    margin: 0px;    
+    margin: 0px;        
 }
