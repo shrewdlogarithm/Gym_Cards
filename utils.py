@@ -40,3 +40,10 @@ def check_date(newdate,fbdate):
         return ndate
     except:
         return fbdate
+
+def calc_expiry(expdate):
+    expdate = getdate(expdate)
+    if expdate-getnow() >= timedelta(days=-7):
+        return getrenewform(expdate)
+    else:
+        return getrenewform()

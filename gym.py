@@ -1,5 +1,4 @@
 import os,json,time,base64,shutil,subprocess
-from datetime import timedelta
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
@@ -83,19 +82,13 @@ def addcard(card,staff=False):
         return nmemno
     else:
         return -1 # this should never happen
-def calc_expiry(card):
-    expdate = utils.getdate(carddb[card]["expires"])
-    if expdate-utils.getnow() >= timedelta(days=-7):
-        return utils.getrenewform(expdate)
-    else:
-        return utils.getrenewform()
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowformlong()
     log.addlog("MemberInOut",card,db=carddb[card])
     sse.add_message(f'##Active Members {log.countmem(carddb[card]["memno"])}')    
     savedb()
 def renewcard(card):
-    carddb[card]["expires"] = calc_expiry(card)
+    carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
     log.addlog("CardRenew",card,db=carddb[card])
     savedb()
 def get_remain(card):

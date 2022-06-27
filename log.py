@@ -1,11 +1,11 @@
 import os,json
 import utils
-from datetime import datetime
+
 ## Logs
 logs = []
 memdb = {}
 def logname():
-    return f'logs/gym-{datetime.now().strftime("%Y%m%d")}.log'
+    return f'logs/gym-{utils.getnowlong().strftime("%Y%m%d")}.log'
 def getmemdb():
     if not utils.getnowform() in memdb:
         memdb[utils.getnowform()] = {}
