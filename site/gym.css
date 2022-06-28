@@ -157,20 +157,12 @@
     max-height:90%;
 }
 
-table * {
-    font-family: "Arial";
-}
-
-td {
-    vertical-align: middle !important;
-}
-td * {
-    white-space: nowrap;
-    display: inline;
-}
-
 .tablesorter input {
     color-scheme: dark;
+}
+
+.tablesorter input:disabled {
+    background-color: grey;
 }
 
 .danger {
@@ -178,9 +170,24 @@ td * {
     display: none;
 }
 
-form, form input {
+#settings {
     background-color: transparent;
     left: 50px;
-    font-size: 22px;
+    font-size: 18px;
     margin: 0px;        
+}
+
+table, table * {
+    font-family: "Arial";
+    font-size: 17px;      
+    text-shadow: none;
+}
+
+td {
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+
+td * {
+    display: inline;
 }

@@ -75,7 +75,8 @@ def addcard(card,staff=False):
             "expires": utils.getrenewform(),
             "memno": nmemno,
             "papermemno": "",
-            "name": ""
+            "name": "",
+            "vip": False
         }
         log.addlog("CardCreate",card,db=carddb[card])
         savedb()
@@ -408,6 +409,10 @@ def update():
                         carddb[card]["staff"] = request.form.get("staff").lower()=="yes"
                     except:
                         carddb[card]["staff"] = False
+                try: 
+                    carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
+                except:
+                    carddb[card]["vip"] = False
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()
             except Exception as e:
