@@ -72,12 +72,13 @@ def addcard(card,staff=False):
             "staff": staff,
             "created": utils.getnowform(),
             "lastseen": "",
-            "expires": utils.getrenewform(),
+            "expires": utils.getnowform(),
             "memno": nmemno,
             "papermemno": "",
             "name": "",
             "vip": False
         }
+        carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
         log.addlog("CardCreate",card,db=carddb[card])
         savedb()
         return nmemno
@@ -199,7 +200,6 @@ def addq(c):
         clearq()
         qq.append({"cd": c[2:],"photo": True}) 
     elif c[0:2] == "@m":
-        clearq()
         mn = c[2:]
         for card in carddb:
             if carddb[card]["memno"] == int(mn):
