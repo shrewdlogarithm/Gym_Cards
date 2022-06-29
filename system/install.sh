@@ -13,6 +13,7 @@ cd
 pip3 install python_dateutil
 sudo apt install python3-gst-1.0
 pip3 install playsound
+pip3 install Chinese-RFID-Access-Control-Library
 pip3 install evdev
 
 sudo apt-get install ncftp

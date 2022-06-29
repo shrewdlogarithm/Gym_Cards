@@ -63,6 +63,30 @@ for c in carddb:
     if (int(carddb[c]["memno"]) > nmemno):
         nmemno = int(carddb[c]["memno"])
 
+# Handle Lock
+client = False
+ip_address = "192.168.1.143"
+controller_serial = 123209978
+try:
+    from rfid import RFIDClient
+    client = RFIDClient(ip_address, controller_serial)
+except: 
+    pass
+
+def updatelock(card):
+    try:
+        ccard = int(card)
+        if client:
+            if carddb[card]["vip"]:
+                log.addlog("LockAdd",card)
+                client.add_user(ccard, [1]) 
+            else:
+                log.addlog("LockRemove",card)
+                client.remove_user(ccard)
+    except Exception as e:
+        log.addlog("LockExcept",excep=e)
+
+
 #Handle Cards
 def addcard(card,staff=False):
     global carddb,nmemno
@@ -413,6 +437,7 @@ def update():
                     carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
                 except:
                     carddb[card]["vip"] = False
+                updatelock(card)
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()
             except Exception as e:
