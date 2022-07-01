@@ -38,8 +38,8 @@ if (!!window.EventSource) {
 }
 
 function updateTime() {
-  /// Increment serverTime by 1 second and update the html for '#time'
-  $('#footleft').html(serverTime.toLocaleString());
+  serverTime += 1000;
+  $('#footleft').html(Date(serverTime).replace(/ GMT.*/,""));
 }
 $(document).ready(function(){
     updateTime();
