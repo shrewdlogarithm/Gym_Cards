@@ -559,6 +559,7 @@ def delmem():
 
 @app.route('/stream')
 def stream():
+    sse.add_message("##Timeset" + utils.getnowformlong())
     def stream():
         messages = sse.announcer.listen()  
         sse.add_message(f'##Active Members {log.membercount()}')

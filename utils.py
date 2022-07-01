@@ -2,7 +2,7 @@ from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta # needed for 'month' addition
 
 dateform = '%Y-%m-%d' # the format Chrome requires...
-dateformlong = '%Y-%m-%d-%H:%M:%S' # the format Chrome requires...
+dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 def formdate(dt):
     return dt.strftime(dateform)
 
