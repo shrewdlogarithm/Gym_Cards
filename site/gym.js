@@ -22,7 +22,7 @@ function updbar() {
     tto = setTimeout(updbar,100)
   }
 }
-var serverTime = new Date();
+var serverTime = 0;
 if (!!window.EventSource) {
   var source = new EventSource('/stream');
   source.onmessage = function(e) {
@@ -38,8 +38,11 @@ if (!!window.EventSource) {
 }
 
 function updateTime() {
-  serverTime += 1000;
-  $('#footleft').html(Date(serverTime).replace(/ GMT.*/,""));
+  if (serverTime > 0) {
+    serverTime += 1000;
+    ndate = new Date(serverTime)
+    $('#footleft').html(ndate.toString().replace(/ GMT.*/,""));
+  }
 }
 $(document).ready(function(){
     updateTime();
