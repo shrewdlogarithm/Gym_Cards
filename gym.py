@@ -12,8 +12,8 @@ sysactive = True
 stname = "data/settings.json"
 sett = {
     "theme0": "#000000","theme1": "#ffffff","theme2": "#333333","theme3": "#acf310",
-    "ad1": "","ad2": "",
-    "ad1col": "#ffffff","ad2col": "#ffffff",
+    "ad1": "","ad2": "", "adpic": "",
+    "ad1col": "#ffffff","ad2col": "#ffffff","ad3col": "#ffffff",
     "dshort": "2","dmedium": "5","dlong": "0"
 }
 def savesett():
@@ -22,7 +22,7 @@ def savesett():
 
 if os.path.exists(stname):
     with open(stname) as json_file:
-        sett = {**json.load(json_file),**sett}
+        sett = {**sett,**json.load(json_file)}
 else:
     savesett()
 def getdelay(dl): # TODO use this
@@ -439,7 +439,7 @@ def update():
                     carddb[card]["vip"] = False
                 updatelock(card)
                 log.addlog("UpdateAfter",card,db=carddb[card])
-                savedb()
+                savedb()                
             except Exception as e:
                 log.addlog("Update_exception",excep=e)
         return "Updated Successfully"
@@ -474,6 +474,7 @@ def savesettings():
                     pass
             log.addlog("Settings After",0,db=sett)
             savesett()
+            sse.add_message("##Refresh")
         except Exception as e:
             log.addlog("Settings Exception",excep=e)
         return "Settings Updated Successfully"

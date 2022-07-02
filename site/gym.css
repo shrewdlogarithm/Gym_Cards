@@ -130,10 +130,16 @@
     display:none;
 }
 #settings {
-    background: #00000055;
+    background-color: transparent;
+    font-size: 18px;
+    width:45%;
+    margin-left: 55% !important;
+    z-index:1;
 }
-#ads,#settings {
+#ads {
+    z-index:-1;
     position: absolute;
+    pointer-events:none;
     top:0;
     left:0;
     display: flex; 
@@ -148,6 +154,9 @@
     top: 40px;
 }
 #adv2 {
+    position:absolute;
+}
+#adv3 {
     position: absolute;
     bottom: 40px;
 }
@@ -168,13 +177,6 @@
 .danger {
     background-color: red !important;
     display: none;
-}
-
-#settings {
-    background-color: transparent;
-    left: 50px;
-    font-size: 18px;
-    margin: 0px;        
 }
 
 table, table * {
