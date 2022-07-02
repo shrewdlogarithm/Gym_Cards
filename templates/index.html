@@ -1,7 +1,16 @@
 <head>
   {% include 'head.j2' %}
   <script src="webcam.js"></script>
-  <script>
+  <script>    
+  bop=0
+  function fade(dir) {
+    if (bop) {
+      clearInterval(bop)
+    }
+    bop = setInterval(function() {
+      $("#ads").css("opacity",parseFloat($("#ads").css("opacity")) + dir)
+    },100)
+  }
   if (!!window.EventSource) {
     var source = new EventSource('/stream');
     source.onmessage = function(e) {
@@ -10,12 +19,12 @@
         $("#photo").hide()
         vals = e.data.split(":::")
         if (vals[0] == "Welcome!") {
-          $("#ads").show()
+          fade(.25)
           $("#centerbox").html("")
         } else {
-          $("#ads").hide()
+          fade(-.35)
           $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
-        }
+        }        
         
       }
       if (e.data.startsWith("##ShowCap")) {
