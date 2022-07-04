@@ -20,7 +20,7 @@
         vals = e.data.split(":::")
         if (vals[0] == "Welcome!") {
           fade(.25)
-          $("#centerbox").removeclass().html("")
+          $("#centerbox").removeClass().html("")
         } else {
           fade(-.35)
           $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
