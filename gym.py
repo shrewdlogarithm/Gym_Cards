@@ -2,7 +2,7 @@ import os,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils 
+import sse,log,threads,utils,door
 
 log.addlog("GymStart")
 
@@ -62,30 +62,6 @@ nmemno = 0
 for c in carddb:
     if (int(carddb[c]["memno"]) > nmemno):
         nmemno = int(carddb[c]["memno"])
-
-# Handle Lock
-client = False
-ip_address = "192.168.1.143"
-controller_serial = 123209978
-try:
-    from rfid import RFIDClient
-    client = RFIDClient(ip_address, controller_serial)
-except: 
-    pass
-
-def updatelock(card):
-    try:
-        ccard = int(card)
-        if client:
-            if carddb[card]["vip"]:
-                log.addlog("LockAdd",card)
-                client.add_user(ccard, [1]) 
-            else:
-                log.addlog("LockRemove",card)
-                client.remove_user(ccard)
-    except Exception as e:
-        log.addlog("LockExcept",excep=e)
-
 
 #Handle Cards
 def addcard(card,staff=False):
@@ -437,9 +413,19 @@ def update():
                     carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
                 except:
                     carddb[card]["vip"] = False
-                updatelock(card)
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
+                
+                try:
+                    if carddb[card]["vip"]:
+                        log.addlog("LockAdd",card)
+                        door.addlock(card)
+                    else:
+                        log.addlog("LockRemove",card)
+                        door.remlock(card)
+                except Exception as e:
+                    log.addlog("LockExcept",excep=e)
+
             except Exception as e:
                 log.addlog("Update_exception",excep=e)
         return "Updated Successfully"
