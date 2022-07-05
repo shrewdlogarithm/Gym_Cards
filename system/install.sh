@@ -1,7 +1,7 @@
 # In Raspi-config ensure you have
 # Set machine name, enables Wifi, disable screen-blanking and enable SSH
 
-#git clone https://shrewdlogarithm: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@github.com/shrewdlogarithm/Gym_Cards.git
+#git clone https://shrewdlogarithm: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@github.com/shrewdlogarithm/Gym_Cards.git
 
 sudo apt-get update
 sudo apt-get upgrade
