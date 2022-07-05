@@ -19,10 +19,12 @@
         $("#photo").hide()
         vals = e.data.split(":::")
         if (vals[0] == "Welcome!") {
+          $("#ads div").show()
           fade(.25)
           $("#centerbox").removeClass().html("")
         } else {
-          fade(-.35)
+          fade(-1)
+          $("#ads div").hide()
           $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
         }        
         
@@ -39,7 +41,7 @@
         $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
       }
       if (e.data == "##Refresh") {
-        location.reload()
+        location.reload(true)
       }
     }
   }
