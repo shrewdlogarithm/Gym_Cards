@@ -57,6 +57,8 @@
               $(this).val("In")
             } else if ($(this).val() == "Yes" || $(this).val() == "No") {
               $(this).val("??")
+            } else if ($(this).attr("id") == "delmember") {
+              $(this).parents("tr").remove()
             }
           })
           $("#membertable").tablesorter({ 
@@ -148,7 +150,7 @@
             <input name="card" type="hidden" value="{{ card }}">
             {{ carddb[card]["memno"] }} 
             {% if carddb[card]["memno"] != 1 %}                           
-              <input type=submit class="danger" value="X">
+              <input id="delmember" type=submit class="danger" value="X">
             {% endif %}
           </form>
         </td>
