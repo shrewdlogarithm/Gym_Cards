@@ -3,12 +3,12 @@ ip_address = "192.168.1.143"
 controller_serial = 123209978
 try:
     from rfid import RFIDClient
-    client = RFIDClient(ip_address, controller_serial)
 except: 
     pass
 
 def addlock(card):
     try:
+        client = RFIDClient(ip_address, controller_serial)
         if client:
             client.add_user(int(card), [1]) 
         else:
@@ -18,6 +18,7 @@ def addlock(card):
 
 def remlock(card):
     try:
+        client = RFIDClient(ip_address, controller_serial)
         if client:
             client.remove_user(int(card))
         else:
