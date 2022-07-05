@@ -1,4 +1,4 @@
-import os,json,time,base64,shutil,subprocess
+import os,json,time,base64,shutil,subprocess,threading
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
@@ -63,6 +63,23 @@ for c in carddb:
     if (int(carddb[c]["memno"]) > nmemno):
         nmemno = int(carddb[c]["memno"])
 
+def background(f):
+    def backgrnd_func(*a, **kw):
+        threading.Thread(target=f, args=a, kwargs=kw).start()
+    return backgrnd_func
+
+@background
+def handlelock(card,add):
+    try:
+        if add:
+            log.addlog("LockAdd",card)
+            door.addlock(card)
+        else:
+            log.addlog("LockRemove",card)
+            door.remlock(card)
+    except Exception as e:
+        log.addlog("LockExcept",excep=e)
+
 #Handle Cards
 def addcard(card,staff=False):
     global carddb,nmemno
@@ -100,9 +117,10 @@ def get_remain(card):
         return ""
 def replacecard(replcard,card):
     log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
+    handlelock(replcard,False) 
     carddb[card] = carddb[replcard]
-    if log.memberin(carddb[replcard]["memno"]): # how are they in but have no card - who knows? :)
-        log.countmem(carddb[replcard]["memno"])
+    if carddb[card]["vip"]:
+        handlelock(card,True) 
     if log.memberin(carddb[replcard]["memno"]): # card signed-in
         cardvisit(replcard) # sign-out old card
     del carddb[replcard]
@@ -413,19 +431,9 @@ def update():
                     carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
                 except:
                     carddb[card]["vip"] = False
+                handlelock(card,carddb[card]["vip"])
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
-                
-                try:
-                    if carddb[card]["vip"]:
-                        log.addlog("LockAdd",card)
-                        door.addlock(card)
-                    else:
-                        log.addlog("LockRemove",card)
-                        door.remlock(card)
-                except Exception as e:
-                    log.addlog("LockExcept",excep=e)
-
             except Exception as e:
                 log.addlog("Update_exception",excep=e)
         return "Updated Successfully"
@@ -532,11 +540,12 @@ def delphoto():
         return "System Shutting Down"
 
 @app.route('/delmember', methods=['POST'])
-def delmem():
+def delmember():
     global replcard, mode
     if sysactive:
         card = request.form.get("card")
         if card in carddb:
+            handlelock(card,False)
             log.delmem(carddb[card]["memno"])
             del carddb[card]
             savedb()

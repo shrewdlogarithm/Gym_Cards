@@ -1,4 +1,3 @@
-client = False
 ip_address = "192.168.1.143"
 controller_serial = 123209978
 try:
@@ -22,7 +21,6 @@ def remlock(card):
 
 from datetime import datetime
 from pyquery import PyQuery
-import re,json
 import requests
 
 lockavail = True
