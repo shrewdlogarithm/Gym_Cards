@@ -1,4 +1,4 @@
-import os,json,time,base64,shutil,subprocess,threading
+import os,random,math,json,time,base64,shutil,subprocess,threading
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
@@ -567,7 +567,7 @@ def stream():
 
 @app.context_processor
 def handle_context():
-    return dict(os=os)
+    return dict(os=os,random=random)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)

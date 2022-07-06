@@ -8,7 +8,7 @@
           <div id="adv2" style='color:{{ sett["ad2col"] }}'>{{ sett["ad2"]|safe }}</div>
           <div id="adv3" style='color:{{ sett["ad3col"] }}'>{{ sett["ad3"]|safe }}</div>
           {% if "adpic" in sett and os.path.exists("site/" + sett["adpic"]): %}
-            <img id="adpic" src="{{ sett["adpic"] }}">
+            <img id="adpic" src="{{ sett["adpic"] }}?{{ random.randrange(0,1000) }}">
           {% else %}
             <img id="adpic">
           {% endif %}
