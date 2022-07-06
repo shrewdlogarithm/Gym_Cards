@@ -1,6 +1,7 @@
-import os,json
+import os,json,threading
 import utils
 
+lock = threading.Lock()
 ## Logs
 logs = []
 memdb = {}
@@ -14,6 +15,7 @@ def memberin(memno):
     return memno in getmemdb()
 def addlog(ev,card="",db={},excep=""):
     global logs
+    lock.acquire()
     newlog = {
         "event": ev,       
         "dt": utils.getnowlong(),
@@ -33,6 +35,7 @@ def addlog(ev,card="",db={},excep=""):
             lf.write(json.dumps(newlog,default=str) + ",\n")
     except Exception as e:
         print(f'Log Writing exception {e}')
+    lock.release()
 def membercount():
     return len(getmemdb())
 def countmem(memno):

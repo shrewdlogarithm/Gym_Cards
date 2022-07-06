@@ -54,7 +54,6 @@ except Exception as e:
         if os.path.exists(backdbname):
             with open(backdbname) as json_file:
                 carddb = json.load(json_file)
-        log.addlog("LoadingDB",excep=e)
     except Exception as e:
         log.addlog("LoadingBackDB",excep=e)
         carddb = {}
@@ -72,7 +71,7 @@ def background(f):
 def handlelock(card,add):
     try:
         if add:
-            log.addlog("LockAdd",card)
+            log.addlog("LockAdd",card) 
             door.addlock(card)
         else:
             log.addlog("LockRemove",card)
@@ -533,6 +532,7 @@ def delphoto():
         if card in carddb:
             try:
                 os.remove("site/images/" + str(carddb[card]["memno"]) + ".png")
+                log.addlog("DelPhoto",card)
             except Exception as e:
                 log.addlog("DelPhoto",excep=e)
         return "OK"
@@ -547,6 +547,7 @@ def delmember():
         if card in carddb:
             handlelock(card,False)
             log.delmem(carddb[card]["memno"])
+            log.addlog("DelMember",card,db=carddb[card])
             del carddb[card]
             savedb()
         return "OK"
