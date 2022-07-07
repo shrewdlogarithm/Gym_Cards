@@ -1,7 +1,10 @@
 # In Raspi-config ensure you have
-# Set machine name, enables Wifi, disable screen-blanking and enable SSH
+# Set machine name, enables Wifi, disable screen-blanking etc.
 
-#git clone https://shrewdlogarithm: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@github.com/shrewdlogarithm/Gym_Cards.git
+# Then run
+# git clone https://shrewdlogarithm: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@github.com/shrewdlogarithm/Gym_Cards.git
+
+# maybe run the following manually - just to ensure everything works as expected?
 
 sudo apt-get update
 sudo apt-get upgrade
@@ -19,7 +22,8 @@ pip3 install evdev
 
 sudo apt-get install ncftp
 
+# if we're in an Argon Case
 curl https://download.argon40.com/argon1.sh | bash
 
-cd~/Gym_Cards/system
-bash update.sh
+cd ~/Gym_Cards
+bash system/update.sh
