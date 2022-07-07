@@ -1,3 +1,5 @@
+import utils,log,threads,time
+
 ip_address = "192.168.1.143"
 controller_serial = 123209978
 try:
@@ -23,27 +25,29 @@ from datetime import datetime
 from pyquery import PyQuery
 import requests
 
-lockavail = True
-def getpage(file,path,vars={}):
+def getpage(path,vars={}):
     global lockavail
-    if lockavail:
-        try:
-            return requests.post(lock + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars).text
-        except:
-            lockavail = False
-    if not lockavail:
-        #return datetime.now()
-        return("<table><tr></tr><tr></tr><tr></tr><tr></tr><tr><td></td><td>2022-07-07 20:05:00</td></tr></table>")
+    try:
+        page = requests.post("http://" + ip_address + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars, timeout=3).text
+        return page
+    except Exception as e:
+        raise e
 
 def getlocktime():
-    page = getpage("act5.html","ACT_ID_21",{"s5": "Configure"})
-    pq = PyQuery(bytes(bytearray(page, encoding='utf-8')))
-
-    # find door time and check it's offset
-    d = pq("table:last tr:nth-of-type(5) td:nth-of-type(2)")
-    dd = datetime.strptime(d[0].text,'%Y-%m-%d %H:%M:%S')
-    dn = datetime.now()
-    if dn < dd:    
-        print("Lock time is ahead by " + str(dd-dn))
-
-getlocktime()
+    timefound = False
+    while not timefound:
+        try:
+            page = getpage("ACT_ID_21",{"s5": "Configure"})
+            pq = PyQuery(bytes(bytearray(page, encoding='utf-8')))
+            d = pq("table:last tr:nth-of-type(5) td:nth-of-type(2)")
+            dd = utils.getdatelong(d[0].text)
+            dn = utils.getnowlong()
+            if dn < dd: 
+                log.addlog("Datetime: Using Lock time " + utils.formdatelong(dd))        
+                utils.setnow(dd)
+            else:
+                log.addlog("Datetime: Using local time " + utils.formdatelong(dn))
+            timefound = True
+        except:
+            time.sleep(5)
+threads.start_thread(getlocktime)
