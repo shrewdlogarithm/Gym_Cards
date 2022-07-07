@@ -1,4 +1,4 @@
-import os,json,threading
+import os,json,threading,socket
 import utils
 
 lock = threading.Lock()
@@ -6,7 +6,7 @@ lock = threading.Lock()
 logs = []
 memdb = {}
 def logname():
-    return f'logs/gym-{utils.getnowlong().strftime("%Y%m%d")}.log'
+    return f'logs/{socket.gethostname()}-{utils.getnowlong().strftime("%Y%m%d")}.log'
 def getmemdb():
     if not utils.getnowform() in memdb:
         memdb[utils.getnowform()] = {}
