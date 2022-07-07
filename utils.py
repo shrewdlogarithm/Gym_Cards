@@ -13,6 +13,7 @@ def formdate(dt):
     return dt.strftime(dateform)
 
 def setnow(dt):
+    global localtime
     localtime = dt
 
 def getnowlong():    
