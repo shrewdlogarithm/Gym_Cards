@@ -48,6 +48,7 @@ def getlocktime():
             else:
                 log.addlog("Datetime: Using local time " + utils.formdatelong(dn))
             timefound = True
-        except:
-            time.sleep(5)
+        except Exception as e:
+            log.addlog("DatetimeExcept",excep=e)
+            time.sleep(15)
 threads.start_thread(getlocktime)
