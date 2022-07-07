@@ -1,4 +1,4 @@
-import os,random,math,json,time,base64,shutil,subprocess,threading
+import os,random,json,time,base64,shutil,subprocess,threading
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
@@ -26,8 +26,9 @@ if os.path.exists(stname):
 else:
     savesett()
 def getdelay(dl): # TODO use this
+    delays = ["short","medium","long"]
     try:
-        rv = int(sett["d"+dl])
+        rv = int(sett["d"+delays[dl]])
     except:
         rv = 0
     return rv
@@ -278,83 +279,83 @@ def handlecard(card):
                 log.addlog("ShutdownFail",excep=e) 
         elif cq == "MMMMM":
             sse.add_message("1 More to Shutdown")
-            to = 2
+            to = getdelay(0)
         elif cq == "MMMM":
             sse.add_message("2 More to Shutdown")
-            to = 2
+            to = getdelay(0)
         elif cq == "MMM": 
             sse.add_message("3 More to Shutdown")
-            to = 2
+            to = getdelay(0)
         elif cq == "MMKM":
             card = qq[2]["cd"]
             renewcard(card)
             sse.add_message(f'{membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             clearq()
-            to = 5
+            to = getdelay(1)
         elif cq[0:3] == "MMK" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()            
-            to = 2
+            to = getdelay(0)
         elif cq == "MMK":
             sse.add_message("Swipe Staff to Renew <BR> Other to cancel")
             showpic(card)
-            to = 5
+            to = getdelay(1)
         elif cq == "MMUM":
             mn = addcard(qq[2]["cd"])
             sse.add_message("##MakeCap" + str(mn))
             sse.add_message(f'Member { mn } Created')
             clearq()
-            to = 5
+            to = getdelay(1)
         elif cq[0:3] == "MMU" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()
-            to = 2
+            to = getdelay(0)
         elif cq == "MMU":
             sse.add_message("Swipe Staff to Add <BR> Other to cancel")
             sse.add_message("##ShowCap")
-            to = 0
+            to = getdelay(2)
         elif cq[0] == "P" and len(cq) > 1:
             if cq == "PM":
                 sse.add_message("##MakeCap" + str(carddb[qq[0]["cd"]]["memno"]))
                 sse.add_message("Photo Saved")
-                to = 5
+                to = getdelay(1)
             else:
                 sse.add_message("Cancelled")
-                to = 2
+                to = getdelay(0)
             clearq()            
         elif cq == "P":
             sse.add_message("Swipe Staff to Take <BR> Other to cancel")
             sse.add_message("##ShowCap")            
-            to = 0
+            to = getdelay(2)
         elif cq[0] == "Q" and len(cq) > 1:
             if cq == "QU":
                 replacecard(qq[0]["cd"],qq[1]["cd"])
             else:
                 sse.add_message("Card already in use <BR> Replacement cancelled")
             clearq()
-            to = 5
+            to = getdelay(1)
         elif cq == "Q":
             if qq[0]["cd"] in carddb:
                 sse.add_message(f'Swipe New Card for <BR> { membername(qq[0]["cd"]) }')
             else:
                 sse.add_message("Invalid Card - Cancelled") # this is driven from showcards so shouldn't happen
                 clearq()
-            to = 10
+            to = getdelay(2)
         elif cq == "MM":
             sse.add_message("Swipe Blank to Add <BR> Swipe Existing to Renew")
-            to = 5
+            to = getdelay(1)
         elif cq == "MK": # special case - member arrives before staff sign-in expires
             card = qq[1]["cd"]
             sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
             clearq()
-            to = 5
+            to = getdelay(1)
         elif cq == "MU" or cq == "U":
             sse.add_message("Unknown Card")
             clearq()
-            to = 5
+            to = getdelay(1)
         elif len(cq) == 1:
             card = qq[0]["cd"]
             if cq[0] == "K":
@@ -362,10 +363,10 @@ def handlecard(card):
                 showpic(card)
                 cardvisit(card)
                 clearq()
-                to = 5
+                to = getdelay(1)
             else:
                 sse.add_message(f'{ membername(card) }')
-                to = 2
+                to = getdelay(0)
         else:
             sse.add_message("Welcome!")
             clearq()
@@ -556,7 +557,7 @@ def delmember():
 
 @app.route('/stream')
 def stream():
-    sse.add_message("##Timeset" + utils.getnowformlong())
+    sse.add_message("##Timeset" + utils.getnowformlong()) # this ensures every stream gets a time update 
     def stream():
         messages = sse.announcer.listen()  
         sse.add_message(f'##Active Members {log.membercount()}')
