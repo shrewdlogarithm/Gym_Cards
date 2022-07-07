@@ -1,9 +1,8 @@
 from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta # needed for 'month' addition
+import sse
 
-localtime = datetime.now()
-
-dateform = '%Y-%m-%d' # the format Chrome requires...
+dateform = '%Y-%m-%d' # the format Chrome requires..
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 
 def formdatelong(dt):
@@ -11,10 +10,6 @@ def formdatelong(dt):
 
 def formdate(dt):
     return dt.strftime(dateform)
-
-def setnow(dt):
-    global localtime
-    localtime = dt
 
 def getnowlong():    
     return localtime
@@ -57,4 +52,10 @@ def calc_expiry(expdate):
         return getrenewform(expdate)
     else:
         return getrenewform()
-        
+
+localtime = 0
+def setnow(dt):
+    global localtime
+    localtime = dt
+    sse.add_message("##Timeset" + getnowformlong())
+setnow(datetime.now())
