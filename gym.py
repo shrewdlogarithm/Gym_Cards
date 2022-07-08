@@ -38,6 +38,11 @@ for c in carddb:
     if (int(carddb[c]["memno"]) > nmemno):
         nmemno = int(carddb[c]["memno"])
 
+## Show images
+def showpic(card):
+    if (not log.memberin(carddb[card]["memno"]) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
+        sse.add_message("##MemImg" + str(carddb[card]["memno"]))
+
 #Handle Cards
 def addcard(card,staff=False):
     global carddb,nmemno
@@ -203,9 +208,7 @@ def getq():
         cseq += nc
     return cseq  
 
-def showpic(card):
-    if (not log.memberin(carddb[card]["memno"]) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
-        sse.add_message("##MemImg" + str(carddb[card]["memno"]))
+## Handle card queue
 def kto(tt=0):
     sse.add_message("Welcome!")
     if len(qq):
@@ -332,6 +335,7 @@ def handlecard(card):
         sse.add_message("##Timer" + str(to))
         threads.reset_timeout(to,kto)            
 
+## Handle Inputs
 def process_cards():
     while sysactive:
         time.sleep(.2) 
