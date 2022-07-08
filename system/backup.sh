@@ -3,7 +3,7 @@ date
 
 cd ~/Gym_Cards
 
-tar cvzf "backups/backup$1.tar.gz" data/* images/* logs/*
+tar cvzf "backups/$HOSTNAME-backup$1.tar.gz" data/* images/* logs/*
 
 ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . ~/Gym_Cards/backups/*.gz
 if [ $? -eq 0 ]
