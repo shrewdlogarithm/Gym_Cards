@@ -19,7 +19,7 @@ site/images/*
 
 site/tablesorter/*
 
-backup/*
+backups/*
 data/*.json
 logs/*.log
 
