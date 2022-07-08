@@ -1,9 +1,9 @@
-import time
+import time,threading,json,os
 from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta # needed for 'month' addition
 from pyquery import PyQuery
 import requests
-import sse,threads,log
+import sse,log
 
 try:
     from rfid import RFIDClient
@@ -15,6 +15,31 @@ dateform = '%Y-%m-%d' # the format Chrome requires..
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 ip_address = "192.168.1.143"
 controller_serial = 123209978
+
+##Settings
+stname = "data/settings.json"
+sett = {
+    "theme0": "#000000","theme1": "#ffffff","theme2": "#333333","theme3": "#acf310",
+    "ad1": "","ad2": "", "adpic": "",
+    "ad1col": "#ffffff","ad2col": "#ffffff","ad3col": "#ffffff",
+    "dshort": "2","dmedium": "5","dlong": "0"
+}
+def savesett():
+    with open(stname, 'w') as json_file:
+        json.dump(sett, json_file, indent=4,default=str)        
+
+if os.path.exists(stname):
+    with open(stname) as json_file:
+        sett = {**sett,**json.load(json_file)}
+else:
+    savesett()
+def getdelay(dl): 
+    delays = ["short","medium","long"]
+    try:
+        rv = int(sett["d"+delays[dl]])
+    except:
+        rv = 0
+    return rv
 
 def formdatelong(dt):
     return dt.strftime(dateformlong)
@@ -83,6 +108,23 @@ def remlock(card):
     except Exception as e:
         raise e
 
+def background(f):
+    def backgrnd_func(*a, **kw):
+        threading.Thread(target=f, args=a, kwargs=kw).start()
+    return backgrnd_func
+
+@background
+def handlelock(card,add):
+    try:
+        if add:
+            log.addlog("LockAdd",card) 
+            addlock(card)
+        else:
+            log.addlog("LockRemove",card)
+            remlock(card)
+    except Exception as e:
+        log.addlog("LockExcept",excep=e)
+
 def getpage(path,vars={}):
     global lockavail
     try:
@@ -91,6 +133,7 @@ def getpage(path,vars={}):
     except Exception as e:
         raise e
 
+@background
 def getlocktime():
     timefound = False
     while not timefound:
@@ -101,12 +144,12 @@ def getlocktime():
             dd = getdatelong(d[0].text)
             dn = getnowlong()
             if dn < dd: 
-                log.addlog("Datetime: Using Lock time " + utils.formdatelong(dd))        
+                log.addlog("Datetime: Using Lock time " + formdatelong(dd))        
                 setnow(dd)
             else:
-                log.addlog("Datetime: Using local time " + utils.formdatelong(dn))
+                log.addlog("Datetime: Using local time " + formdatelong(dn))
             timefound = True
         except Exception as e:
             log.addlog("DatetimeExcept",excep=e)
             time.sleep(15)
-threads.start_thread(getlocktime)
+getlocktime()
