@@ -15,7 +15,7 @@ if [ -z $1 ]
 then
         echo "Backup Complete"
 else
-        if [$1 = "shutdown" ]
+        if [ $1 = "shutdown" ]
         then    
                 echo "Shutdown Commencing"
                 sudo shutdown now
