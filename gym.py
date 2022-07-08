@@ -1,4 +1,4 @@
-import os,random,json,time,base64,shutil,subprocess,threading
+import os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
@@ -7,31 +7,6 @@ import sse,log,threads,utils
 log.addlog("GymStart")
 
 sysactive = True
-
-##Settings
-stname = "data/settings.json"
-sett = {
-    "theme0": "#000000","theme1": "#ffffff","theme2": "#333333","theme3": "#acf310",
-    "ad1": "","ad2": "", "adpic": "",
-    "ad1col": "#ffffff","ad2col": "#ffffff","ad3col": "#ffffff",
-    "dshort": "2","dmedium": "5","dlong": "0"
-}
-def savesett():
-    with open(stname, 'w') as json_file:
-        json.dump(sett, json_file, indent=4,default=str)        
-
-if os.path.exists(stname):
-    with open(stname) as json_file:
-        sett = {**sett,**json.load(json_file)}
-else:
-    savesett()
-def getdelay(dl): 
-    delays = ["short","medium","long"]
-    try:
-        rv = int(sett["d"+delays[dl]])
-    except:
-        rv = 0
-    return rv
 
 ## Database
 dbname = "data/cards.json"
@@ -62,23 +37,6 @@ nmemno = 0
 for c in carddb:
     if (int(carddb[c]["memno"]) > nmemno):
         nmemno = int(carddb[c]["memno"])
-
-def background(f):
-    def backgrnd_func(*a, **kw):
-        threading.Thread(target=f, args=a, kwargs=kw).start()
-    return backgrnd_func
-
-@background
-def handlelock(card,add):
-    try:
-        if add:
-            log.addlog("LockAdd",card) 
-            utils.addlock(card)
-        else:
-            log.addlog("LockRemove",card)
-            utils.remlock(card)
-    except Exception as e:
-        log.addlog("LockExcept",excep=e)
 
 #Handle Cards
 def addcard(card,staff=False):
@@ -117,10 +75,10 @@ def get_remain(card):
         return ""
 def replacecard(replcard,card):
     log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
-    handlelock(replcard,False) 
+    utils.handlelock(replcard,False) 
     carddb[card] = carddb[replcard]
     if carddb[card]["vip"]:
-        handlelock(card,True) 
+        utils.handlelock(card,True) 
     if log.memberin(carddb[replcard]["memno"]): # card signed-in
         cardvisit(replcard) # sign-out old card
     del carddb[replcard]
@@ -258,8 +216,8 @@ def kto(tt=0):
             cardvisit(card)
             sse.add_message("##Timer" + str(3))
             threads.reset_timeout(3,kto)
-
     clearq()
+
 def handlecard(card):
     global sysactive
     if len(carddb) == 0:
@@ -279,83 +237,83 @@ def handlecard(card):
                 log.addlog("ShutdownFail",excep=e) 
         elif cq == "MMMMM":
             sse.add_message("1 More to Shutdown")
-            to = getdelay(0)
+            to = utils.getdelay(0)
         elif cq == "MMMM":
             sse.add_message("2 More to Shutdown")
-            to = getdelay(0)
+            to = utils.getdelay(0)
         elif cq == "MMM": 
             sse.add_message("3 More to Shutdown")
-            to = getdelay(0)
+            to = utils.getdelay(0)
         elif cq == "MMKM":
             card = qq[2]["cd"]
             renewcard(card)
             sse.add_message(f'{membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             clearq()
-            to = getdelay(1)
+            to = utils.getdelay(1)
         elif cq[0:3] == "MMK" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()            
-            to = getdelay(0)
+            to = utils.getdelay(0)
         elif cq == "MMK":
             sse.add_message("Swipe Staff to Renew <BR> Other to cancel")
             showpic(card)
-            to = getdelay(1)
+            to = utils.getdelay(1)
         elif cq == "MMUM":
             mn = addcard(qq[2]["cd"])
             sse.add_message("##MakeCap" + str(mn))
             sse.add_message(f'Member { mn } Created')
             clearq()
-            to = getdelay(1)
+            to = utils.getdelay(1)
         elif cq[0:3] == "MMU" and len(cq) > 3:
             sse.add_message("Cancelled")
             clearq()
-            to = getdelay(0)
+            to = utils.getdelay(0)
         elif cq == "MMU":
             sse.add_message("Swipe Staff to Add <BR> Other to cancel")
             sse.add_message("##ShowCap")
-            to = getdelay(2)
+            to = utils.getdelay(2)
         elif cq[0] == "P" and len(cq) > 1:
             if cq == "PM":
                 sse.add_message("##MakeCap" + str(carddb[qq[0]["cd"]]["memno"]))
                 sse.add_message("Photo Saved")
-                to = getdelay(1)
+                to = utils.getdelay(1)
             else:
                 sse.add_message("Cancelled")
-                to = getdelay(0)
+                to = utils.getdelay(0)
             clearq()            
         elif cq == "P":
             sse.add_message("Swipe Staff to Take <BR> Other to cancel")
             sse.add_message("##ShowCap")            
-            to = getdelay(2)
+            to = utils.getdelay(2)
         elif cq[0] == "Q" and len(cq) > 1:
             if cq == "QU":
                 replacecard(qq[0]["cd"],qq[1]["cd"])
             else:
                 sse.add_message("Card already in use <BR> Replacement cancelled")
             clearq()
-            to = getdelay(1)
+            to = utils.getdelay(1)
         elif cq == "Q":
             if qq[0]["cd"] in carddb:
                 sse.add_message(f'Swipe New Card for <BR> { membername(qq[0]["cd"]) }')
             else:
                 sse.add_message("Invalid Card - Cancelled") # this is driven from showcards so shouldn't happen
                 clearq()
-            to = getdelay(2)
+            to = utils.getdelay(2)
         elif cq == "MM":
             sse.add_message("Swipe Blank to Add <BR> Swipe Existing to Renew")
-            to = getdelay(1)
+            to = utils.getdelay(1)
         elif cq == "MK": # special case - member arrives before staff sign-in expires
             card = qq[1]["cd"]
             sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
             clearq()
-            to = getdelay(1)
+            to = utils.getdelay(1)
         elif cq == "MU" or cq == "U":
             sse.add_message("Unknown Card")
             clearq()
-            to = getdelay(1)
+            to = utils.getdelay(1)
         elif len(cq) == 1:
             card = qq[0]["cd"]
             if cq[0] == "K":
@@ -363,10 +321,10 @@ def handlecard(card):
                 showpic(card)
                 cardvisit(card)
                 clearq()
-                to = getdelay(1)
+                to = utils.getdelay(1)
             else:
                 sse.add_message(f'{ membername(card) }')
-                to = getdelay(0)
+                to = utils.getdelay(0)
         else:
             sse.add_message("Welcome!")
             clearq()
@@ -388,12 +346,12 @@ app = Flask(__name__,
 
 @app.route('/theme.css')
 def css():
-    return render_template('theme.css',sett=sett)
+    return render_template('theme.css',sett=utils.sett)
 
 @app.route('/')
 def root():
     if sysactive:
-        return render_template('index.html',sett=sett)
+        return render_template('index.html',sett=utils.sett)
     else:
         return "System Shutting Down"
 
@@ -407,7 +365,7 @@ def showcards():
 @app.route('/settings')
 def settings():
     if sysactive:
-        return render_template('settings.html',sett=sett)
+        return render_template('settings.html',sett=utils.sett)
     else:
         return "System Shutting Down"
 
@@ -431,7 +389,7 @@ def update():
                     carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
                 except:
                     carddb[card]["vip"] = False
-                handlelock(card,carddb[card]["vip"])
+                utils.handlelock(card,carddb[card]["vip"])
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
             except Exception as e:
@@ -442,32 +400,31 @@ def update():
 
 @app.route('/savesettings', methods=['POST'])
 def savesettings():
-    global sett
     if sysactive:
         try:
             if "image" in request.files:
                 file = request.files["image"]
                 if file.filename:
                     adpic = "images/ad" +os.path.splitext(file.filename)[1]
-                    sett["adpic"] = adpic
+                    utils.sett["adpic"] = adpic
                     file.save("site/" + adpic)
-                    savesett()
+                    utils.savesett()
             if "delpic" in request.form and request.form["delpic"] == "on":
                 try:
-                    os.path.os.remove("site/" + sett["adpic"])
+                    os.path.os.remove("site/" + utils.sett["adpic"])
                 except:
                     pass
-                if "adpic" in sett:
-                    del(sett["adpic"])
-                savesett()
-            log.addlog("Settings Before",0,db=sett) 
-            for st in sett:
+                if "adpic" in utils.sett:
+                    del(utils.sett["adpic"])
+                utils.savesett()
+            log.addlog("Settings Before",0,db=utils.sett) 
+            for st in utils.sett:
                 try:
-                    sett[st] = request.form[st]
+                    utils.sett[st] = request.form[st]
                 except:
                     pass
-            log.addlog("Settings After",0,db=sett)
-            savesett()
+            log.addlog("Settings After",0,db=utils.sett)
+            utils.savesett()
             sse.add_message("##Refresh")
         except Exception as e:
             log.addlog("Settings Exception",excep=e)
@@ -480,12 +437,10 @@ def takephoto():
     if sysactive:
         card = request.form.get("card")
         if card in carddb:
-            clearq()
-            handlecard("@p" + card)
+            cards.put("@p" + card)
         return "OK"
     else:
         return "System Shutting Down"
-    return("OK")
 
 @app.route('/savepic', methods=['POST'])
 def savepic():
@@ -500,7 +455,6 @@ def savepic():
         return "OK"
     else:
         return "System Shutting Down"
-    return("OK")
 
 @app.route('/swipe', methods=['POST'])
 def swipe():
@@ -508,7 +462,7 @@ def swipe():
         clearq()
         card = request.form.get("card")
         if card in carddb:
-            handlecard(card)
+            cards.put(card)
             return "OK"
         else:
             return "Not Found"
@@ -517,17 +471,14 @@ def swipe():
 
 @app.route('/replace', methods=['POST'])
 def replace():
-    global replcard, mode
     if sysactive:
-        clearq()
-        handlecard("@r"+request.form.get("card")) 
+        cards.put("@r"+request.form.get("card")) 
         return "OK"
     else:
         return "System Shutting Down"
 
 @app.route('/delphoto', methods=['POST'])
 def delphoto():
-    global replcard, mode
     if sysactive:
         card = request.form.get("card")
         if card in carddb:
@@ -542,11 +493,10 @@ def delphoto():
 
 @app.route('/delmember', methods=['POST'])
 def delmember():
-    global replcard, mode
     if sysactive:
         card = request.form.get("card")
         if card in carddb:
-            handlelock(card,False)
+            utils.handlelock(card,False)
             log.delmem(carddb[card]["memno"])
             log.addlog("DelMember",card,db=carddb[card])
             del carddb[card]
