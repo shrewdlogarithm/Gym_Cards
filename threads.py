@@ -6,7 +6,6 @@ def start_thread(fn):
     t = threading.Thread(target=fn)
     t.start()
     thr.append(t)
-# TODO not currently used?
 def stop_threads():
     for t in thr:
         try:

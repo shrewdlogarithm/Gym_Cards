@@ -25,7 +25,7 @@ if os.path.exists(stname):
         sett = {**sett,**json.load(json_file)}
 else:
     savesett()
-def getdelay(dl): # TODO use this
+def getdelay(dl): 
     delays = ["short","medium","long"]
     try:
         rv = int(sett["d"+delays[dl]])
