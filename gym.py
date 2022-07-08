@@ -2,7 +2,7 @@ import os,random,json,time,base64,shutil,subprocess,threading
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils,door
+import sse,log,threads,utils
 
 log.addlog("GymStart")
 
@@ -73,10 +73,10 @@ def handlelock(card,add):
     try:
         if add:
             log.addlog("LockAdd",card) 
-            door.addlock(card)
+            utils.addlock(card)
         else:
             log.addlog("LockRemove",card)
-            door.remlock(card)
+            utils.remlock(card)
     except Exception as e:
         log.addlog("LockExcept",excep=e)
 

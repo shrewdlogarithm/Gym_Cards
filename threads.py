@@ -1,4 +1,4 @@
-import threading,os
+import threading
 
 ## Threads
 thr = []
