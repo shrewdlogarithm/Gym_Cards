@@ -1,8 +1,7 @@
-import time,threading,json,os
+import time,threading,json,os,requests
 from datetime import datetime,timedelta
-from dateutil.relativedelta import relativedelta # needed for 'month' addition
+from dateutil.relativedelta import relativedelta 
 from pyquery import PyQuery
-import requests
 import sse,log
 
 try:
@@ -13,7 +12,7 @@ except:
 localtime = datetime.now()
 dateform = '%Y-%m-%d' # the format Chrome requires..
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
-ip_address = "192.168.1.143"
+lock_address = "192.168.1.143"
 controller_serial = 123209978
 
 ##Settings
@@ -33,6 +32,7 @@ if os.path.exists(stname):
         sett = {**sett,**json.load(json_file)}
 else:
     savesett()
+
 def getdelay(dl): 
     delays = ["short","medium","long"]
     try:
@@ -96,14 +96,14 @@ def setnow(dt):
 
 def addlock(card):
     try:
-        client = RFIDClient(ip_address, controller_serial)
+        client = RFIDClient(lock_address, controller_serial)
         client.add_user(int(card), [1]) 
     except Exception as e:
         raise e
 
 def remlock(card):
     try:
-        client = RFIDClient(ip_address, controller_serial)
+        client = RFIDClient(lock_address, controller_serial)
         client.remove_user(int(card))
     except Exception as e:
         raise e
@@ -128,7 +128,7 @@ def handlelock(card,add):
 def getpage(path,vars={}):
     global lockavail
     try:
-        page = requests.post("http://" + ip_address + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars, timeout=3).text
+        page = requests.post("http://" + lock_address + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars, timeout=3).text
         return page
     except Exception as e:
         raise e

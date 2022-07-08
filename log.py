@@ -2,17 +2,12 @@ import os,json,threading,socket
 import utils
 
 lock = threading.Lock()
-## Logs
 logs = []
 memdb = {}
+
 def logname():
     return f'logs/{socket.gethostname()}-{utils.getnowlong().strftime("%Y%m%d")}.log'
-def getmemdb():
-    if not utils.getnowform() in memdb:
-        memdb[utils.getnowform()] = {}
-    return memdb[utils.getnowform()]
-def memberin(memno):
-    return memno in getmemdb()
+
 def addlog(ev,card="",db={},excep=""):
     global logs
     lock.acquire()
@@ -36,17 +31,27 @@ def addlog(ev,card="",db={},excep=""):
     except Exception as e:
         print(f'Log Writing exception {e}')
     lock.release()
-def membercount():
-    return len(getmemdb())
+
+def getmemdb():
+    global memdb
+    if not utils.getnowform() in memdb:
+        memdb[utils.getnowform()] = {}
+    return memdb[utils.getnowform()]
+
+def memberin(memno):
+    return memno in getmemdb()
+
 def countmem(memno):
     if memberin(memno):
         del getmemdb()[memno]
     else:
         getmemdb()[memno] = True  
-    return membercount()
+
+
 def delmem(memno):
     if memberin(memno):
         del getmemdb()[memno]
+
 try:
     if os.path.exists(logname()):
         with open(logname()) as lf:

@@ -4,14 +4,19 @@ from playsound import playsound
 from flask import Flask, Response, request, render_template
 import sse,log,threads,utils
 
-log.addlog("GymStart")
-
 sysactive = True
+nmemno = 0
 
-## Database
 dbname = "data/cards.json"
 backdbname = dbname + ".bak"
 carddb = {}
+
+cards = Queue()
+cardq=[]
+
+log.addlog("GymStart")
+
+## Database
 def savedb():
     try:
         shutil.copy2(dbname,backdbname)
@@ -33,7 +38,6 @@ except Exception as e:
     except Exception as e:
         log.addlog("LoadingBackDB",excep=e)
         carddb = {}
-nmemno = 0
 for c in carddb:
     if (int(carddb[c]["memno"]) > nmemno):
         nmemno = int(carddb[c]["memno"])
@@ -42,6 +46,43 @@ for c in carddb:
 def showpic(card):
     if (not log.memberin(carddb[card]["memno"]) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
         sse.add_message("##MemImg" + str(carddb[card]["memno"]))
+
+## Member Functions
+def membername(card):
+    if (carddb[card]["name"] != ""):
+        return carddb[card]["name"]
+    elif (carddb[card]["papermemno"] != ""):
+        return carddb[card]["papermemno"]
+    elif (carddb[card]["staff"]):
+        return "Staff-" + str(carddb[card]["memno"])
+    else:
+        return "Member-" + str(carddb[card]["memno"])
+
+def membergreet(card):
+    if card in carddb:
+        if log.memberin(carddb[card]["memno"]):
+            return ("Goodbye")
+        else:
+            return ("Welcome")
+    else:
+        return "Unknown Member"
+
+def memberstatus(card):
+    gr = get_remain(card)
+    if (gr < 1):
+        try:
+            playsound('sounds/expired.mp3')
+        except:
+            pass # doesn't work on Windows
+        return "expired"
+    elif (gr < 8):
+        try:
+            playsound('sounds/renew.mp3')
+        except:
+            pass # doesn't work on Windows
+        return "renew"
+    else:
+        return ""
 
 #Handle Cards
 def addcard(card,staff=False):
@@ -64,70 +105,19 @@ def addcard(card,staff=False):
         return nmemno
     else:
         return -1 # this should never happen
+
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowformlong()
+    log.countmem(carddb[card]["memno"])
     log.addlog("MemberInOut",card,db=carddb[card])
-    sse.add_message(f'##Active Members {log.countmem(carddb[card]["memno"])}')    
+    sse.add_message(f'##Active Members {log.membercount()}')    
     savedb()
-def renewcard(card):
-    carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
-    log.addlog("CardRenew",card,db=carddb[card])
-    savedb()
+   
 def get_remain(card):
     if card in carddb:
         return max(0,(utils.getdate(carddb[card]["expires"])-utils.getnow()).days+1,0)
     else:
         return ""
-def replacecard(replcard,card):
-    log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
-    utils.handlelock(replcard,False) 
-    carddb[card] = carddb[replcard]
-    if carddb[card]["vip"]:
-        utils.handlelock(card,True) 
-    if log.memberin(carddb[replcard]["memno"]): # card signed-in
-        cardvisit(replcard) # sign-out old card
-    del carddb[replcard]
-    log.addlog("CardReplacedNew",card,db=carddb[card])
-    sse.add_message('Card Replaced')
-    savedb()
-
-## Member Functions
-def membername(card):
-    if (carddb[card]["name"] != ""):
-        return carddb[card]["name"]
-    elif (carddb[card]["papermemno"] != ""):
-        return carddb[card]["papermemno"]
-    elif (carddb[card]["staff"]):
-        return "Staff-" + str(carddb[card]["memno"])
-    else:
-        return "Member-" + str(carddb[card]["memno"])
-def membergreet(card):
-    if card in carddb:
-        if log.memberin(carddb[card]["memno"]):
-            return ("Goodbye")
-        else:
-            return ("Welcome")
-    else:
-        return "Unknown Member"
-def memberstatus(card):
-    gr = get_remain(card)
-    if (gr < 1):
-        try:
-            playsound('sounds/expired.mp3')
-        except:
-            pass # doesn't work on Windows
-        return "expired"
-    elif (gr < 8):
-        try:
-            playsound('sounds/renew.mp3')
-        except:
-            pass # doesn't work on Windows
-        return "renew"
-    else:
-        return ""
-
-## Read Cards
-cards = Queue()
 
 ## EvDev Input (USB RFID Reader)
 def eventinput():
@@ -167,37 +157,38 @@ def eventinput():
                 log.addlog("KeyInput_exception",excep=e)
 threads.start_thread(eventinput)
 
-## Process Cards
-qq=[]
+## Card Processing
 def clearq():
-    global qq
-    qq = []
+    global cardq
+    cardq = []
+
 def addq(c):
-    global qq
+    global cardq
     if c[0:2] == "@r":
         clearq()
-        qq.append({"cd": c[2:],"repl": True}) 
+        cardq.append({"cd": c[2:],"repl": True}) 
     elif c[0:2] == "@p":
         clearq()
-        qq.append({"cd": c[2:],"photo": True}) 
+        cardq.append({"cd": c[2:],"photo": True}) 
     elif c[0:2] == "@m":
         mn = c[2:]
         for card in carddb:
             if carddb[card]["memno"] == int(mn):
-                qq.append({"cd": card})
+                cardq.append({"cd": card})
                 break
     else:
-        qq.append({"cd": c}) 
+        cardq.append({"cd": c}) 
+
 def getq():
     cseq = ""
-    for q in qq:
+    for q in cardq:
         if "repl" in q:
             nc = "Q"
         elif "photo" in q:
             nc = "P"
         elif q["cd"] in carddb:
             if carddb[q["cd"]]["staff"]: 
-                if cseq[0:1] == "M" and q["cd"] != qq[0]["cd"]: # master cards other than the first seen aren't masters here
+                if cseq[0:1] == "M" and q["cd"] != cardq[0]["cd"]: # master cards other than the first seen aren't masters here
                     nc = "K"
                 else:
                     nc = "M"
@@ -211,9 +202,9 @@ def getq():
 ## Handle card queue
 def kto(tt=0):
     sse.add_message("Welcome!")
-    if len(qq):
+    if len(cardq):
         if getq() == "M": # deferred staff 'in out'
-            card = qq[0]["cd"]
+            card = cardq[0]["cd"]
             sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
@@ -248,8 +239,10 @@ def handlecard(card):
             sse.add_message("3 More to Shutdown")
             to = utils.getdelay(0)
         elif cq == "MMKM":
-            card = qq[2]["cd"]
-            renewcard(card)
+            card = cardq[2]["cd"]
+            carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
+            log.addlog("CardRenew",card,db=carddb[card])
+            savedb()
             sse.add_message(f'{membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             clearq()
@@ -263,7 +256,7 @@ def handlecard(card):
             showpic(card)
             to = utils.getdelay(1)
         elif cq == "MMUM":
-            mn = addcard(qq[2]["cd"])
+            mn = addcard(cardq[2]["cd"])
             sse.add_message("##MakeCap" + str(mn))
             sse.add_message(f'Member { mn } Created')
             clearq()
@@ -278,7 +271,7 @@ def handlecard(card):
             to = utils.getdelay(2)
         elif cq[0] == "P" and len(cq) > 1:
             if cq == "PM":
-                sse.add_message("##MakeCap" + str(carddb[qq[0]["cd"]]["memno"]))
+                sse.add_message("##MakeCap" + str(carddb[cardq[0]["cd"]]["memno"]))
                 sse.add_message("Photo Saved")
                 to = utils.getdelay(1)
             else:
@@ -291,14 +284,26 @@ def handlecard(card):
             to = utils.getdelay(2)
         elif cq[0] == "Q" and len(cq) > 1:
             if cq == "QU":
-                replacecard(qq[0]["cd"],qq[1]["cd"])
+                replcard = cardq[0]["cd"]
+                card = cardq[1]["cd"]
+                log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
+                utils.handlelock(replcard,False) 
+                carddb[card] = carddb[replcard]
+                if carddb[card]["vip"]:
+                    utils.handlelock(card,True) 
+                if log.memberin(carddb[replcard]["memno"]): # card signed-in
+                    cardvisit(replcard) # sign-out old card
+                del carddb[replcard]
+                log.addlog("CardReplacedNew",card,db=carddb[card])
+                sse.add_message('Card Replaced')
+                savedb()
             else:
                 sse.add_message("Card already in use <BR> Replacement cancelled")
             clearq()
             to = utils.getdelay(1)
         elif cq == "Q":
-            if qq[0]["cd"] in carddb:
-                sse.add_message(f'Swipe New Card for <BR> { membername(qq[0]["cd"]) }')
+            if cardq[0]["cd"] in carddb:
+                sse.add_message(f'Swipe New Card for <BR> { membername(cardq[0]["cd"]) }')
             else:
                 sse.add_message("Invalid Card - Cancelled") # this is driven from showcards so shouldn't happen
                 clearq()
@@ -307,7 +312,7 @@ def handlecard(card):
             sse.add_message("Swipe Blank to Add <BR> Swipe Existing to Renew")
             to = utils.getdelay(1)
         elif cq == "MK": # special case - member arrives before staff sign-in expires
-            card = qq[1]["cd"]
+            card = cardq[1]["cd"]
             sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
@@ -318,7 +323,7 @@ def handlecard(card):
             clearq()
             to = utils.getdelay(1)
         elif len(cq) == 1:
-            card = qq[0]["cd"]
+            card = cardq[0]["cd"]
             if cq[0] == "K":
                 sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
                 showpic(card)

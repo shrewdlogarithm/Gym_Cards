@@ -1,5 +1,5 @@
-## Messages
 import queue
+
 class MessageAnnouncer:
     def __init__(self):
         self.listeners = []
@@ -14,11 +14,13 @@ class MessageAnnouncer:
             except queue.Full:
                 del self.listeners[i]
 announcer = MessageAnnouncer()
+
 def format_sse(data: str, event=None) -> str:
     msg = f'data: {data}\n\n'
     if event is not None:
         msg = f'event: {event}\n{msg}'
     return msg
+
 def add_message(m):
     msg = format_sse(data=m)
     announcer.announce(msg=msg)
