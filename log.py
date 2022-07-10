@@ -47,6 +47,9 @@ def countmem(memno):
     else:
         getmemdb()[memno] = True  
 
+def membercount():
+    return len(getmemdb())
+
 
 def delmem(memno):
     if memberin(memno):
