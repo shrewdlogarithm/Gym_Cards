@@ -148,14 +148,18 @@ def eventinput():
                                 log.addlog("evdev_keyevent_exception",excep=e)
             except Exception as e:
                     log.addlog("evdev_device_exception",excep=e)
-    except: # evdev n/a on Windows so we use Input() instead
-        while sysactive:
-            try:
-                ip = input()
-                cards.put(ip)
-            except Exception as e:
-                log.addlog("KeyInput_exception",excep=e)
+    except Exception as e:
+        log.addlog("eventinputException",excep=e)
 threads.start_thread(eventinput)
+
+def localinput():                    
+    while sysactive:
+        try:
+            ip = input()
+            cards.put(ip)
+        except Exception as e:
+            log.addlog("localinputexception",excep=e)
+threads.start_thread(localinput)
 
 ## Card Processing
 def clearq():
