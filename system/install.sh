@@ -20,7 +20,7 @@ pip3 install Chinese-RFID-Access-Control-Library
 pip3 install PyQuery
 pip3 install evdev
 
-sudo apt-get install ncftp
+sudo apt-get install lftp
 
 # if we're in an Argon Case
 curl https://download.argon40.com/argon1.sh | bash
