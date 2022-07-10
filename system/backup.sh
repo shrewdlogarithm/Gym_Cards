@@ -14,17 +14,8 @@ tar cvzf backups/$HOSTNAME-images.tar.gz site/images/*
 
 #ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . ~/Gym_Cards/backups/*.gz
 
-lftp -u 'gym@theedgeofthevoid.co.uk','LeeLee23"£' ftp://ftp.theedgeofthevoid.co.uk:21 <<EOF
-# the next 3 lines put you in ftpes mode. Uncomment if you are having trouble connecting.
-set ftp:ssl-force true
-set ftp:ssl-protect-data true
-set ssl:verify-certificate no
-# transfer starts now...
-set sftp:auto-confirm yes
-mput backups/*.gz;
-mirror -R -n site/images images;
-exit
-EOF
+host=$HOSTNAME
+lftp -u 'gym@theedgeofthevoid.co.uk','LeeLee23"£' ftp://ftp.theedgeofthevoid.co.uk:21 -e "set ftp:ssl-force true;set ftp:ssl-protect-data true;set ssl:verify-certificate no;set sftp:auto-confirm yes;mput backups/*.gz;mirror -R -n site/images ${host}images;exit"
 
 if [ $? -eq 0 ]
 then
