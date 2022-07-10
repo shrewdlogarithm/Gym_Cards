@@ -1,25 +1,40 @@
 echo "Backup running"
 date
 
-cd ~/Gym_Cards
-
-tar cvzf backups/$HOSTNAME-backup-$1.tar.gz data/* logs/*
-tar cvzf backups/$HOSTNAME-images.tar.gz site/images/*
-
+opt=$1
 if [ -z $1 ]
 then
-        $1 = ""
+        opt=$(date +"%Y_%m_%d")
 fi
 
-ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . ~/Gym_Cards/backups/*.gz
+cd ~/Gym_Cards
+
+tar cvzf backups/$HOSTNAME-backup-$opt.tar.gz data/* logs/*
+tar cvzf backups/$HOSTNAME-images.tar.gz site/images/*
+
+#ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . ~/Gym_Cards/backups/*.gz
+
+lftp -u 'gym@theedgeofthevoid.co.uk','LeeLee23"£' ftp://ftp.theedgeofthevoid.co.uk:21 <<EOF
+# the next 3 lines put you in ftpes mode. Uncomment if you are having trouble connecting.
+set ftp:ssl-force true
+set ftp:ssl-protect-data true
+set ssl:verify-certificate no
+# transfer starts now...
+set sftp:auto-confirm yes
+mput backups/*.gz;
+mirror -R -n site/images images;
+exit
+EOF
+
 if [ $? -eq 0 ]
 then
-        rm backups/*.gz
+        rm backups/* # includes lftp status files
 fi
 
 echo "Backup Complete"
-if [ $1 = "shutdown" ]
+if [ $opt = "shutdown" ]
 then    
         echo "Shutdown Commencing"
         sudo shutdown now
 fi
+
