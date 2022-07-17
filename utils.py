@@ -11,6 +11,7 @@ except:
 
 localtime = datetime.now()
 dateform = '%Y-%m-%d' # the format Chrome requires..
+dateformlongfb = '%Y-%m-%d-%H:%M:%S' # javascript format
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 lock_address = "192.168.1.143"
 controller_serial = 123209978
@@ -63,7 +64,13 @@ def getdate(dtstr):
     return datetime.strptime(dtstr,dateform).date()
 
 def getdatelong(dtstr):
-    return datetime.strptime(dtstr,dateformlong)
+    try:
+        return datetime.strptime(dtstr,dateformlong)
+    except:
+        try:
+            return datetime.strptime(dtstr,dateformlongfb)
+        except Exception as e:
+            log.addlog("getdatelongexception",excep=e)
 
 def getrenew(dt=0):
     if dt == 0:
