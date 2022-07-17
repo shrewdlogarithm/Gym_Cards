@@ -62,16 +62,24 @@
     margin: 10px;
 }
 
-#footleft {
+#headleft,#footleft {
     padding-left:50px;
     float: left;
 }
 
-#footright {
+#headright,#footright {
     padding-right: 50px;
     float: right;
 }
+#headright {
+    font-size: 24px;
+    display: none;
+}
 
+#headright a:link, a:visited, a:hover, a:active {
+    color: red;
+  }
+  
 #centerbox {
     margin: 0;
     position: absolute;

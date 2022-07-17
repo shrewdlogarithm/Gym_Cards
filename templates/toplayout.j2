@@ -1,6 +1,15 @@
 <iframe name="status" class="status"></iframe>
 <div class="modal open">
-    <div class="modal__header">Welcome to <span style="letter-spacing:0.1em;"><i>LJ'<span style="font-size:70%;vertical-align:super">s</span></span>GYM</i></div>
+    <div class="modal__header">
+      <div id="headleft">
+        Welcome to <span style="letter-spacing:0.1em;"><i>LJ'<span style="font-size:70%;vertical-align:super">s</span></span>GYM</i>
+      </div>
+      <div id="headright">
+        <a href="showstats">Stats</a> - 
+        <a href="showcards">Cards</a> - 
+        <a href="settings">Settings</a>
+      </div>
+    </div>
     <div class="modal__content">
       {% if sett: %}
         <div id="ads">

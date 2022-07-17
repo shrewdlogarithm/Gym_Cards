@@ -368,6 +368,13 @@ def root():
     else:
         return "System Shutting Down"
 
+@app.route('/showstats')
+def showstats():
+    if sysactive:
+        return render_template('showstats.html')
+    else:
+        return "System Shutting Down"
+
 @app.route('/showcards')
 def showcards():
     if sysactive:
