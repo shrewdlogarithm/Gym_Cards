@@ -19,6 +19,7 @@ pip3 install playsound
 pip3 install Chinese-RFID-Access-Control-Library
 pip3 install PyQuery
 pip3 install evdev
+pip3 install flask
 
 sudo apt-get install lftp
 
