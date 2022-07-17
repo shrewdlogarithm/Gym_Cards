@@ -67,22 +67,29 @@ def membergreet(card):
     else:
         return "Unknown Member"
 
-def memberstatus(card):
+def get_remain(card):
+    if card in carddb:
+        return max(0,(utils.getdate(carddb[card]["expires"])-utils.getnow()).days+1,0)
+    else:
+        return ""
+
+def getmemberstatus(card):
     gr = get_remain(card)
     if (gr < 1):
-        try:
-            playsound('sounds/expired.mp3')
-        except:
-            pass # doesn't work on Windows
         return "expired"
     elif (gr < 8):
-        try:
-            playsound('sounds/renew.mp3')
-        except:
-            pass # doesn't work on Windows
         return "renew"
     else:
         return ""
+def memberstatus(card):
+    ms = getmemberstatus(card)
+    fn = "sounds/" + ms + ".mp3"
+    if os.path.exists(fn):
+        try:
+            playsound(fn)
+        except:
+            pass # doesn't work on Windows
+    return ms
 
 #Handle Cards
 def addcard(card,staff=False):
@@ -113,12 +120,6 @@ def cardvisit(card):
     sse.add_message(f'##Active Members {log.membercount()}')    
     savedb()
    
-def get_remain(card):
-    if card in carddb:
-        return max(0,(utils.getdate(carddb[card]["expires"])-utils.getnow()).days+1,0)
-    else:
-        return ""
-
 ## EvDev Input (USB RFID Reader)
 def eventinput():
     try: 
@@ -371,7 +372,30 @@ def root():
 @app.route('/showstats')
 def showstats():
     if sysactive:
-        return render_template('showstats.html')
+        tvals = {
+            "Total": {"Val": len(carddb)},
+            "Current": {"Val": 0},
+            "Expiring": {"Val": 0},
+            "Expired": {"Val": 0},
+            "New": {"Val": 0},
+            "Visited": {"Val": 0}
+        }
+        for card in carddb:
+            ms = getmemberstatus(card)
+            if ms == "renew":
+                tvals["Expiring"]["Val"] += 1
+            if ms != "expired":
+                tvals["Current"]["Val"] += 1
+            else:
+                tvals["Expired"]["Val"] += 1
+            fs = (utils.getdate(carddb[card]["created"])-utils.getnow()).days
+            if fs < 8:
+                tvals["New"]["Val"] += 1
+            if carddb[card]["lastseen"] != "":
+                ls = (utils.getdatelong(carddb[card]["lastseen"]).date()-utils.getnow()).days
+                if ls < 8:
+                    tvals["Visited"]["Val"] += 1
+        return render_template('showstats.html',tvals=tvals)
     else:
         return "System Shutting Down"
 

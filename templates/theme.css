@@ -21,9 +21,25 @@ form, form input {
 input,select {
     background-color: {{ sett.theme0 }};
     color: {{ sett.theme3 }};
-;
-  }
-  input[type=submit],input[type=button] {
+}
+
+input[type=submit],input[type=button] {
     background-color: {{ sett.theme3 }};      
     color: {{ sett.theme2 }};
-  }
+}
+
+#headright a:link, a:visited, a:hover, a:active {
+    color: {{ sett.theme3 }};
+}
+
+#memberstats {
+    border: 2px solid {{ sett.theme2 }};
+    margin-top: 100px;
+    margin-left: 110px;
+    color: {{ sett.theme3 }};
+}
+
+#memberstats * {
+    padding: 20px;
+    border-right: 1px solid {{ sett.theme2 }};
+}

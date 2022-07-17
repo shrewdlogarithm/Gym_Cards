@@ -1,6 +1,6 @@
 <head>
   {% include 'head.j2' %}
-  <script>
+  <script>    
     $(document).ready(function(){
         $("#headright").show();
     });
@@ -8,6 +8,15 @@
 </head>
 <body>
   {% include 'toplayout.j2' %}
-  COMING SOON
+  <TABLE id="memberstats">
+    <TR>
+      <TH>Members</TH><TH></TH>
+    </TR>
+    {% for tval in tvals %}
+    <TR>
+      <TD> {{ tval }} </TD><TD> {{ tvals[tval]["Val"] }} </TD>
+    </TR>
+    {% endfor %}
+  </TABLE>
   {% include 'bottomlayout.j2' %}
 </body>

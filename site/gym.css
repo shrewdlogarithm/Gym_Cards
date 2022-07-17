@@ -76,10 +76,6 @@
     display: none;
 }
 
-#headright a:link, a:visited, a:hover, a:active {
-    color: red;
-  }
-  
 #centerbox {
     margin: 0;
     position: absolute;
