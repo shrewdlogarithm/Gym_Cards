@@ -373,28 +373,31 @@ def root():
 def showstats():
     if sysactive:
         tvals = {
-            "Total": {"Val": len(carddb)},
-            "Current": {"Val": 0},
-            "Expiring": {"Val": 0},
-            "Expired": {"Val": 0},
-            "New": {"Val": 0},
-            "Visited": {"Val": 0}
+            "Total": len(carddb),
+            "Current": 0,
+            "Expired": 0,
+            "New": 0,
+            "Visited": 0,
+            "Expiring": 0
         }
         for card in carddb:
             ms = getmemberstatus(card)
             if ms == "renew":
-                tvals["Expiring"]["Val"] += 1
+                tvals["Expiring"] += 1
             if ms != "expired":
-                tvals["Current"]["Val"] += 1
+                tvals["Current"] += 1
             else:
-                tvals["Expired"]["Val"] += 1
+                tvals["Expired"] += 1
             fs = (utils.getdate(carddb[card]["created"])-utils.getnow()).days
-            if fs < 8:
-                tvals["New"]["Val"] += 1
+            if fs > -8:
+                tvals["New"] += 1
             if carddb[card]["lastseen"] != "":
-                ls = (utils.getdatelong(carddb[card]["lastseen"]).date()-utils.getnow()).days
-                if ls < 8:
-                    tvals["Visited"]["Val"] += 1
+                try:
+                    ls = (utils.getdatelong(carddb[card]["lastseen"]).date()-utils.getnow()).days
+                    if ls < 8:
+                        tvals["Visited"] += 1
+                except:
+                    pass
         return render_template('showstats.html',tvals=tvals)
     else:
         return "System Shutting Down"
