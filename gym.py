@@ -391,7 +391,7 @@ def showstats():
             if carddb[card]["lastseen"] != "":
                 try:
                     ls = (utils.parsedatelong(carddb[card]["lastseen"]).date()-utils.getnow()).days
-                    if ls < 8:
+                    if ls > -8:
                         tvals["Visited"] += 1
                 except:
                     pass
