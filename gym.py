@@ -69,7 +69,7 @@ def membergreet(card):
 
 def get_remain(card):
     if card in carddb:
-        return max(0,(utils.getdate(carddb[card]["expires"])-utils.getnow()).days+1,0)
+        return max(0,(utils.parsedate(carddb[card]["expires"])-utils.getnow()).days+1,0)
     else:
         return ""
 
@@ -175,12 +175,6 @@ def addq(c):
     elif c[0:2] == "@p":
         clearq()
         cardq.append({"cd": c[2:],"photo": True}) 
-    elif c[0:2] == "@m":
-        mn = c[2:]
-        for card in carddb:
-            if carddb[card]["memno"] == int(mn):
-                cardq.append({"cd": card})
-                break
     else:
         cardq.append({"cd": c}) 
 
@@ -388,12 +382,12 @@ def showstats():
                 tvals["Current"] += 1
             else:
                 tvals["Expired"] += 1
-            fs = (utils.getdate(carddb[card]["created"])-utils.getnow()).days
+            fs = (utils.parsedate(carddb[card]["created"])-utils.getnow()).days
             if fs > -8:
                 tvals["New"] += 1
             if carddb[card]["lastseen"] != "":
                 try:
-                    ls = (utils.getdatelong(carddb[card]["lastseen"]).date()-utils.getnow()).days
+                    ls = (utils.parsedatelong(carddb[card]["lastseen"]).date()-utils.getnow()).days
                     if ls < 8:
                         tvals["Visited"] += 1
                 except:

@@ -14,6 +14,7 @@ dateform = '%Y-%m-%d' # the format Chrome requires..
 dateformlongfbms = '%Y-%m-%d %H:%M:%S.%f' # original format
 dateformlongfb = '%Y-%m-%d-%H:%M:%S' # older format
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
+
 lock_address = "192.168.1.143"
 controller_serial = 123209978
 
@@ -43,12 +44,6 @@ def getdelay(dl):
         rv = 0
     return rv
 
-def formdatelong(dt):
-    return dt.strftime(dateformlong)
-
-def formdate(dt):
-    return dt.strftime(dateform)
-
 def getnowlong():    
     return datetime.now()+timeoffset
 
@@ -56,15 +51,15 @@ def getnow():
     return getnowlong().date()
 
 def getnowformlong():
-    return formdatelong(getnowlong())
+    return getnowlong().strftime(dateformlong)
 
 def getnowform():
-    return formdate(getnow())
+    return getnow().strftime(dateform)
 
-def getdate(dtstr):
+def parsedate(dtstr):
     return datetime.strptime(dtstr,dateform).date()
 
-def getdatelong(dtstr):
+def parsedatelong(dtstr):
     try:
         return datetime.strptime(dtstr,dateformlong)
     except:
@@ -76,25 +71,20 @@ def getdatelong(dtstr):
             except:
                 pass
 
-def getrenew(dt=0):
-    if dt == 0:
-        dt = getnowlong()
-    return dt+relativedelta(months=1)
-
-def getrenewform(dt=0):
-    if dt == 0:
-        dt = getnowlong()
-    return formdate(getrenew(dt))
-
 def check_date(newdate,fbdate):
     try:
-        ndate = formdate(getdate(newdate))
+        ndate = parsedate(newdate).strftime(dateform)
         return ndate
     except:
         return fbdate
 
+def getrenewform(dt=0):
+    if dt == 0:
+        dt = getnowlong()
+    return (dt+relativedelta(months=1)).strftime(dateform)
+
 def calc_expiry(expdate):
-    expdate = getdate(expdate)
+    expdate = parsedate(expdate)
     if expdate-getnow() >= timedelta(days=-7):
         return getrenewform(expdate)
     else:
@@ -153,7 +143,7 @@ def getlocktime():
             page = getpage("ACT_ID_21",{"s5": "Configure"})
             pq = PyQuery(bytes(bytearray(page, encoding='utf-8')))
             d = pq("table:last tr:nth-of-type(5) td:nth-of-type(2)")
-            dd = getdatelong(d[0].text)
+            dd = parsedatelong(d[0].text)
             dn = getnowlong()
             if dn < dd: 
                 setnow(dd)
