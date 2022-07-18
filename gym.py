@@ -367,11 +367,14 @@ def root():
 def showstats():
     if sysactive:
         tvals = {
+            "Members": "",
             "Total": len(carddb),
             "Current": 0,
             "Expired": 0,
+            "Last 7 Days": "",
             "New": 0,
             "Visited": 0,
+            "Next 7 Days": "",
             "Expiring": 0
         }
         for card in carddb:
