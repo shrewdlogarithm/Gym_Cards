@@ -163,9 +163,9 @@ def getlocktime():
             timefound = True
         except Exception as e:
             log.addlog("DatetimeExcept",excep=e)
-            if maxtries > 0:
+            if maxtries > 1:
                 maxtries -= 1
-                time.sleep(1)
+                time.sleep(10)
             else:                
                 break
 getlocktime()
