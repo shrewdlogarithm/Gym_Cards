@@ -6,14 +6,14 @@ logs = []
 memdb = {}
 
 def logname():
-    return f'logs/{socket.gethostname()}-{utils.getnowlong().strftime("%Y%m%d")}.log'
+    return f'logs/{socket.gethostname()}-{utils.getnow().strftime("%Y%m%d")}.log'
 
 def addlog(ev,card="",db={},excep=""):
     global logs
     lock.acquire()
     newlog = {
         "event": ev,       
-        "dt": utils.getnowlong(),
+        "dt": utils.getnowformlong(),
         "card": card,
         "db": db,
         "excep": excep

@@ -9,9 +9,10 @@ try:
 except: 
     pass
 
-localtime = datetime.now()
+timeoffset = timedelta()
 dateform = '%Y-%m-%d' # the format Chrome requires..
-dateformlongfb = '%Y-%m-%d-%H:%M:%S' # javascript format
+dateformlongfbms = '%Y-%m-%d %H:%M:%S.%f' # original format
+dateformlongfb = '%Y-%m-%d-%H:%M:%S' # older format
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 lock_address = "192.168.1.143"
 controller_serial = 123209978
@@ -49,7 +50,7 @@ def formdate(dt):
     return dt.strftime(dateform)
 
 def getnowlong():    
-    return localtime
+    return datetime.now()+timeoffset
 
 def getnow():
     return getnowlong().date()
@@ -70,7 +71,10 @@ def getdatelong(dtstr):
         try:
             return datetime.strptime(dtstr,dateformlongfb)
         except Exception as e:
-            log.addlog("getdatelongexception",excep=e)
+            try:
+                return datetime.strptime(dtstr,dateformlongfbms)
+            except:
+                pass
 
 def getrenew(dt=0):
     if dt == 0:
@@ -97,8 +101,8 @@ def calc_expiry(expdate):
         return getrenewform()
 
 def setnow(dt):
-    global localtime
-    localtime = dt
+    global timeoffset
+    timeoffset = dt - datetime.now()
     sse.add_message("##Timeset" + getnowformlong())
 
 def addlock(card):
@@ -142,6 +146,7 @@ def getpage(path,vars={}):
 
 @background
 def getlocktime():
+    maxtries = 5
     timefound = False
     while not timefound:
         try:
@@ -151,12 +156,16 @@ def getlocktime():
             dd = getdatelong(d[0].text)
             dn = getnowlong()
             if dn < dd: 
-                log.addlog("Datetime: Using Lock time " + formdatelong(dd))        
                 setnow(dd)
+                log.addlog("Datetime: Using Lock time " + getnowformlong())        
             else:
-                log.addlog("Datetime: Using local time " + formdatelong(dn))
+                log.addlog("Datetime: Using System time " + getnowformlong())
             timefound = True
         except Exception as e:
             log.addlog("DatetimeExcept",excep=e)
-            time.sleep(15)
+            if maxtries > 0:
+                maxtries -= 1
+                time.sleep(1)
+            else:                
+                break
 getlocktime()
