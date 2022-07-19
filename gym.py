@@ -69,7 +69,7 @@ def membergreet(card):
 
 def get_remain(card):
     if card in carddb:
-        return max(0,(utils.parsedate(carddb[card]["expires"])-utils.getnow()).days+1,0)
+        return max(0,(utils.parsedate(carddb[card]["expires"])-utils.getnow()).days,0)
     else:
         return ""
 
