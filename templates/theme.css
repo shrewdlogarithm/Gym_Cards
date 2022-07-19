@@ -34,12 +34,10 @@ input[type=submit],input[type=button] {
 
 #memberstats {
     border: 2px solid {{ sett.theme2 }};
-    margin-top: 100px;
-    margin-left: 110px;
     color: {{ sett.theme3 }};
 }
 
 #memberstats * {
-    padding: 20px;
+    padding: 10px;
     border-right: 1px solid {{ sett.theme2 }};
 }

@@ -197,3 +197,15 @@ td {
 td * {
     display: inline;
 }
+
+#memberstats {
+    margin-top: 50px !important;
+    margin-left: 110px !important;
+}
+
+#memberstats,#recentexpired,#upcomingexpired {
+    margin-top: 30px;
+    margin-left: 50px;
+    float: left;
+    max-height: 75%;
+}

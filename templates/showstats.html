@@ -15,5 +15,25 @@
     </TR>
     {% endfor %}
   </TABLE>
+  <div id="recentexpired">
+    <TABLE>
+    <TD>Expired recently (7 days)</TD>
+    {% for rex in rexp %}
+    <TR>      
+      <TD>{{ rex }}</TD>
+    </TR>
+    {% endfor %}
+    </TABLE>
+    </div>
+  <div id="upcomingexpired">
+    <TABLE>
+    <TD>Expiring soon (3 days)</TD>
+    {% for uex in uexp %}
+    <TR>      
+      <TD>{{ uex }}</TD>
+    </TR>
+    {% endfor %}
+  </TABLE>
+  </div>
   {% include 'bottomlayout.j2' %}
 </body>

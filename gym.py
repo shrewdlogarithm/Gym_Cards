@@ -69,21 +69,24 @@ def membergreet(card):
 
 def get_remain(card):
     if card in carddb:
-        return max(0,(utils.parsedate(carddb[card]["expires"])-utils.getnow()).days,0)
+        return (utils.parsedate(carddb[card]["expires"])-utils.getnow()).days
     else:
         return ""
+
+def get_remainshow(card):
+    return max(0,get_remain(card))
 
 def getmemberstatus(card):
     gr = get_remain(card)
     if (gr < 1):
-        return "expired"
+        return ["expired",gr]
     elif (gr < 8):
-        return "renew"
+        return ["renew",gr]
     else:
-        return ""
+        return ["",0]
 def memberstatus(card):
     ms = getmemberstatus(card)
-    fn = "sounds/" + ms + ".mp3"
+    fn = "sounds/" + ms[0] + ".mp3"
     if os.path.exists(fn):
         try:
             playsound(fn)
@@ -204,7 +207,7 @@ def kto(tt=0):
     if len(cardq):
         if getq() == "M": # deferred staff 'in out'
             card = cardq[0]["cd"]
-            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remainshow(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
             sse.add_message("##Timer" + str(3))
@@ -242,7 +245,7 @@ def handlecard(card):
             carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
             log.addlog("CardRenew",card,db=carddb[card])
             savedb()
-            sse.add_message(f'{membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            sse.add_message(f'{membername(card)} <BR> { get_remainshow(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             clearq()
             to = utils.getdelay(1)
@@ -312,7 +315,7 @@ def handlecard(card):
             to = utils.getdelay(1)
         elif cq == "MK": # special case - member arrives before staff sign-in expires
             card = cardq[1]["cd"]
-            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+            sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remainshow(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             cardvisit(card)
             clearq()
@@ -324,7 +327,7 @@ def handlecard(card):
         elif len(cq) == 1:
             card = cardq[0]["cd"]
             if cq[0] == "K":
-                sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remain(card) } days left:::{ memberstatus(card) }')
+                sse.add_message(f'{membergreet(card) } <BR> { membername(card)} <BR> { get_remainshow(card) } days left:::{ memberstatus(card) }')
                 showpic(card)
                 cardvisit(card)
                 clearq()
@@ -377,13 +380,19 @@ def showstats():
             "Next 7 Days": "",
             "Expiring": 0
         }
+        rexp = []
+        uexp = []
         for card in carddb:
             ms = getmemberstatus(card)
-            if ms == "renew":
+            if ms[0] == "renew":
                 tvals["Expiring"] += 1
-            if ms != "expired":
+                if ms[1] < 4:
+                    uexp.append(carddb[card]["name"])
+            if ms[0] != "expired":
                 tvals["Current"] += 1
             else:
+                if ms[1] > -7:
+                    rexp.append(carddb[card]["name"])
                 tvals["Expired"] += 1
             fs = (utils.parsedate(carddb[card]["created"])-utils.getnow()).days
             if fs > -8:
@@ -395,7 +404,7 @@ def showstats():
                         tvals["Visited"] += 1
                 except:
                     pass
-        return render_template('showstats.html',tvals=tvals)
+        return render_template('showstats.html',tvals=tvals,rexp=sorted(rexp, key=str.casefold),uexp=sorted(uexp,key=str.casefold))
     else:
         return "System Shutting Down"
 

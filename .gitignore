@@ -26,6 +26,8 @@ logs/*.log
 *.tar 
 *.bak 
 
+*test*.py
+
 __pycache__/
 *.py[cod]
 *$py.class
