@@ -11,7 +11,6 @@ fi
 cd ~/Gym_Cards
 
 tar cvzf backups/${host}-backup-$opt.tar.gz data/* logs/*
-tar cvzf backups/${host}-images.tar.gz site/images/*
 
 #ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . ~/Gym_Cards/backups/*.gz
 
