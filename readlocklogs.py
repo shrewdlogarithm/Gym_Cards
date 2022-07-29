@@ -34,3 +34,4 @@ while 1==1:
             except Exception as e:
                 print("Failed with ", e)
                 time.sleep(1)
+    time.sleep(10)
