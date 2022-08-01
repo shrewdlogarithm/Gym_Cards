@@ -37,5 +37,13 @@ with open("data/cards.json") as json_file:
     carddb = json.load(json_file)
 
 for card in lockcards:
-    if not card in carddb or not "vip" in carddb[card] or not carddb[card]["vip"]:
-        print("Removing",card)
+    print("Lock Card ",card,end="")
+    if card in carddb:
+        print("in CardDB",end="")
+        if "vip" in carddb[card] or carddb[card]["vip"]:
+            print("Is VIP",end="")
+        else:
+            print("NOT VIP - REMOVE",end="")
+    else:
+        print("NOT IN CardDB - REMOVE",end="")
+    print("")

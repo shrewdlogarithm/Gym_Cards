@@ -2,7 +2,7 @@
 # Set machine name, enables Wifi, disable screen-blanking etc.
 
 # Then run
-# git clone https://shrewdlogarithm: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@github.com/shrewdlogarithm/Gym_Cards.git
+# git clone https://github.com/shrewdlogarithm/Gym_Cards.git
 
 # maybe run the following manually - just to ensure everything works as expected?
 
