@@ -25,6 +25,8 @@ while 1==1:
         while 1==1:
             try:
                 print("Trying to read page ", un)
+                if page:
+                    page.close()
                 page = getpage("ACT_ID_345",{
                     "PC":recid2,
                     "PE":"0",
