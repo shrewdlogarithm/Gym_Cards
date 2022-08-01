@@ -3,8 +3,10 @@ import re,time,requests
 lock = 'http://127.0.0.1'
 #lock = 'http://192.168.1.143'
 
+rs = requests.session()
+
 def getpage(path,vars={}):
-    return requests.post(lock + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars, timeout=1)
+    return rs.post(lock + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars, timeout=1)
 
 un = 1
 page = getpage("ACT_ID_21",{'s4': 'Swipe'})

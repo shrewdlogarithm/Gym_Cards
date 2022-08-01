@@ -1,10 +1,19 @@
 from pyquery import PyQuery
 import re,time,json,requests
-lock = 'http://192.168.1.143'
+from rfid import RFIDClient
+
+lock_address = "192.168.1.143"
+controller_serial = 123209978
 
 def getpage(path,vars={}):
-    return requests.post(lock + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars, timeout=1).text
+    return requests.post("http://" + lock_address + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': "192.168.1.143"}, data = vars, timeout=1).text
 
+def remlock(card):
+    try:
+        client = RFIDClient(lock_address, controller_serial)
+        client.remove_user(int(card))
+    except Exception as e:
+        raise e
 # Read all Users
 lockcards = []
 un = 1
@@ -36,14 +45,21 @@ while 1==1:
 with open("data/cards.json") as json_file:
     carddb = json.load(json_file)
 
+remc = 0
 for card in lockcards:
+    card = card.zfill(10)
     print("Lock Card ",card,end="")
     if card in carddb:
-        print("in CardDB",end="")
+        print(" IS in CardDB",end="")
         if "vip" in carddb[card] or carddb[card]["vip"]:
-            print("Is VIP",end="")
+            print(" IS VIP",end="")
         else:
-            print("NOT VIP - REMOVE",end="")
+            print(" IS NOT VIP - REMOVE",end="")
+            remc += 1
+            remlock(card)
     else:
-        print("NOT IN CardDB - REMOVE",end="")
+        print(" IS NOT IN CardDB - REMOVE",end="")
+        remc += 1
+        remlock(card)
     print("")
+print (len(lockcards),"cards in lock",remc,"removed")
