@@ -2,7 +2,7 @@ import os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils
+import sse,log,threads,utils,lock
 
 sysactive = True
 nmemno = 0
@@ -289,10 +289,10 @@ def handlecard(card):
                 replcard = cardq[0]["cd"]
                 card = cardq[1]["cd"]
                 log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
-                utils.handlelock(replcard,False) 
+                lock.updatelock(replcard,False) 
                 carddb[card] = carddb[replcard]
                 if carddb[card]["vip"]:
-                    utils.handlelock(card,True) 
+                    lock.updatelock(card,True) 
                 if log.memberin(carddb[replcard]["memno"]): # card signed-in
                     cardvisit(replcard) # sign-out old card
                 del carddb[replcard]
@@ -442,7 +442,7 @@ def update():
                     carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
                 except:
                     carddb[card]["vip"] = False
-                utils.handlelock(card,carddb[card]["vip"])
+                lock.updatelock(card,carddb[card]["vip"])
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
             except Exception as e:
@@ -549,7 +549,7 @@ def delmember():
     if sysactive:
         card = request.form.get("card")
         if card in carddb:
-            utils.handlelock(card,False)
+            lock.updatelock(card,False)
             log.delmem(carddb[card]["memno"])
             log.addlog("DelMember",card,db=carddb[card])
             del carddb[card]
