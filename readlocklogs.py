@@ -1,7 +1,7 @@
 from pyquery import PyQuery
 import re,time,requests
-lock = 'http://127.0.0.1'
-#lock = 'http://192.168.1.143'
+#lock = 'http://127.0.0.1'
+lock = 'http://192.168.1.143'
 
 rs = requests.session()
 

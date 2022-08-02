@@ -7,8 +7,8 @@ try:
 except: 
     pass
 
-lock_address = "127.0.0.1"
-#lock_address = "192.168.1.143"
+#lock_address = "127.0.0.1"
+lock_address = "192.168.1.143"
 controller_serial = 123209978
 
 def background(f):
