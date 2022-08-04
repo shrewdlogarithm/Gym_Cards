@@ -45,9 +45,8 @@ for card in lockcards:
     card = card.zfill(10)
     print("Lock Card ",card,end="")
     if card in carddb:
-        print(" IS in CardDB",end="")
         if "vip" in carddb[card] and carddb[card]["vip"]:
-            print(" IS VIP",end="")
+            pass
         else:
             print(" IS NOT VIP - REMOVE",end="")
             remc += 1
@@ -56,5 +55,16 @@ for card in lockcards:
         print(" IS NOT IN CardDB - REMOVE",end="")
         remc += 1
         lock.updatelock(card,False)
+    print("")
+for card in carddb:
+    print("DB  Card ",card,end="")
+    if card in lockcards:
+        if "vip" in carddb[card] and carddb[card]["vip"]:
+            pass
+        else:
+            print(" IS NOT VIP but in lock",end="")
+    else:
+         if "vip" in carddb[card] and carddb[card]["vip"]:
+            print (" IS VIP but not in lock",end="")
     print("")
 print (len(lockcards),"cards in lock",remc,"removed")
