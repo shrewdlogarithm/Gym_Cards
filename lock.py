@@ -30,10 +30,12 @@ def updatelock(card,add):
     except Exception as e:
         log.addlog("LockExcept",excep=e)
 
+rs = requests.session()
+
 def getpage(path,vars={}):
     global lockavail
     try:
-        page = requests.post("http://" + lock_address + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': lock_address}, data = vars, timeout=3).text
+        page = rs.post("http://" + lock_address + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': lock_address}, data = vars, timeout=3).text
         return page
     except Exception as e:
         raise e
