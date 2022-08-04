@@ -24,4 +24,3 @@ def format_sse(data: str, event=None) -> str:
 def add_message(m):
     msg = format_sse(data=m)
     announcer.announce(msg=msg)
-    print(m)
