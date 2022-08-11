@@ -49,14 +49,18 @@ def showpic(card):
 
 ## Member Functions
 def membername(card):
+    memname = ""
     if (carddb[card]["name"] != ""):
-        return carddb[card]["name"]
-    elif (carddb[card]["papermemno"] != ""):
-        return carddb[card]["papermemno"]
+        memname = carddb[card]["name"]
     elif (carddb[card]["staff"]):
-        return "Staff-" + str(carddb[card]["memno"])
+        memname = "Staff-" + str(carddb[card]["memno"])
     else:
-        return "Member-" + str(carddb[card]["memno"])
+        memname = "Member-" + str(carddb[card]["memno"])
+    if ("papermemno" in carddb[card] and carddb[card]["papermemno"] != ""):
+        memname += " (" + carddb[card]["papermemno"] + ")"
+    if ("vip" in carddb[card] and carddb[card]["vip"]):
+        memname += " FOB"
+    return memname
 
 def membergreet(card):
     if card in carddb:
