@@ -59,7 +59,7 @@ def membername(card):
     if ("papermemno" in carddb[card] and carddb[card]["papermemno"] != ""):
         memname += " (" + carddb[card]["papermemno"] + ")"
     if ("vip" in carddb[card] and carddb[card]["vip"]):
-        memname += " FOB"
+        memname += " *FOB*"
     return memname
 
 def membergreet(card):
