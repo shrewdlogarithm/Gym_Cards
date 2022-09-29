@@ -3,7 +3,7 @@ import utils
 
 rs = requests.session()
 
-logfile = "locklogread.json"
+logfile = "logs/locklogread.json"
 
 lastdate = None
 logs = []
@@ -23,7 +23,7 @@ time.sleep(1)
 lastdate,rows=lock.readlogs(lastdate)
 rows.sort(key=lambda x:x[4],reverse=False)
 try:
-    with open(logfile,"a") as lf:
+    with open(logfile,"a+") as lf:
         for r in rows:
             lf.write(json.dumps(r,default=str) + ",\n")
 except Exception as e:
