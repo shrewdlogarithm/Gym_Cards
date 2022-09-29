@@ -5,7 +5,8 @@ import lock
 with open("data/cards.json") as json_file:
     carddb = json.load(json_file)
 
-# Read all Users
+updatelock = False # change this to actually remove users from the lock
+
 lockcards = []
 un = 1
 usersfound=0
@@ -50,11 +51,11 @@ for card in lockcards:
         else:
             print(" IS NOT VIP - REMOVE",end="")
             remc += 1
-            lock.updatelock(card,False)
+            if updatelock: lock.updatelock(card,False)
     else:
         print(" IS NOT IN CardDB - REMOVE",end="")
         remc += 1
-        lock.updatelock(card,False)
+        if updatelock: lock.updatelock(card,False)
     print("")
 for card in carddb:
     print("DB  Card ",card,end="")
@@ -62,9 +63,11 @@ for card in carddb:
         if "vip" in carddb[card] and carddb[card]["vip"]:
             pass
         else:
-            print(" IS NOT VIP but in lock",end="")
+            print(" IS NOT VIP but in lock - REMOVE",end="")
+            if updatelock: lock.updatelock(card,False)
     else:
          if "vip" in carddb[card] and carddb[card]["vip"]:
-            print (" IS VIP but not in lock",end="")
+            print (" IS VIP but not in lock - ADD",end="")
+            if updatelock: lock.updatelock(card,true)
     print("")
 print (len(lockcards),"cards in lock",remc,"removed")

@@ -17,9 +17,9 @@ def background(f):
         threading.Thread(target=f, args=a, kwargs=kw).start()
     return bg_f
 
-def readlogs(lasttime,cb=None):
+def readlogs(lasttime):
+    rows = []
     un = 1
-    logdate = 0
     firstdate = None
     page = getpage("ACT_ID_21",{'s4': 'Swipe'})
     while 1==1:
@@ -29,20 +29,19 @@ def readlogs(lasttime,cb=None):
         for row in pq("table:last tr"):
             cells = []
             for cell in PyQuery(row)("td"):
-                cells.append(cell)
+                cells.append(cell.text)
             if len(cells):
                 try:
                     if recid2 == 0:
-                        recid2 = int(cells[0].text)-1
+                        recid2 = int(cells[0])-1
                 except Exception as e:
                     print(e)
                 # cells contains log rows
-                logdate = utils.parsedatelong(cells[4].text)
+                logdate = utils.parsedatelong(cells[4])
                 if lasttime == None or logdate > lasttime:
                     if firstdate == None:
                         firstdate = logdate
-                    if cb != None:
-                        cb(cells)
+                    rows.append(cells)
                 else:
                     break
         if int(pgs[0][0]) == int(pgs[0][1]):
@@ -50,7 +49,6 @@ def readlogs(lasttime,cb=None):
         else:
             while 1==1:
                 try:
-                    print("Trying to read page ", un)
                     page = getpage("ACT_ID_345",{
                         "PC":recid2,
                         "PE":"0",
@@ -60,8 +58,7 @@ def readlogs(lasttime,cb=None):
                 except Exception as e:
                     print("Failed with ", e)
                     time.sleep(1)
-        time.sleep(0)
-    return firstdate
+    return firstdate,rows
 
 @background
 def updatelock(card,add):
@@ -110,4 +107,3 @@ def getlocktime():
                 time.sleep(10)
             else:                
                 break
-getlocktime()
