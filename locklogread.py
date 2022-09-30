@@ -3,7 +3,7 @@ import utils
 
 rs = requests.session()
 
-logfile = "logs/locklogread.json"
+logfile = "logs/locklogread.log"
 
 lastdate = None
 logs = []
