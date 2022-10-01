@@ -24,6 +24,7 @@ def readlogs(lasttime):
     try:  
         page = getpage("ACT_ID_21",{'s4': 'Swipe'})
         while 1==1:
+            print("Reading Page",un)
             recid2 = 0
             pgs = re.findall(r"Page[^0-9]+?([0-9]+)[^0-9]+?Of[^0-9]+?([0-9]+)[^0-9]+?Page",page)
             pq = PyQuery(bytes(bytearray(page, encoding='utf-8')))
@@ -36,7 +37,7 @@ def readlogs(lasttime):
                         if recid2 == 0:
                             recid2 = int(cells[0])-1
                     except Exception as e:
-                        print(e)
+                        print("Failed with ", e)
                     # cells contains log rows
                     logdate = utils.parsedatelong(cells[4])
                     if lasttime == None or logdate > lasttime:
