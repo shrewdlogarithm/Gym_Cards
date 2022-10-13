@@ -3,4 +3,4 @@ date
 
 cd ~/Gym_Cards
 
-python locklogread.py
+python3 locklogread.py
