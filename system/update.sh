@@ -8,5 +8,5 @@ cd system
 cp -R autostart ~/.config/
 cp -R lxsession/* ~/.config/
 
-cat crontab | crontab -u admin -
+cat crontab | crontab -u $USER -
 cd

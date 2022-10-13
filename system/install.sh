@@ -13,12 +13,18 @@ cd ~/Gym_Cards/site
 bash get_tablesorter.sh
 cd
 
+pip3 install evdev
+sudo usermod -a -G input $USER # may be required on some systems
+
 pip3 install python_dateutil
+
 sudo apt install python3-gst-1.0
 pip3 install playsound
+
 pip3 install Chinese-RFID-Access-Control-Library
+
 pip3 install PyQuery
-pip3 install evdev
+
 pip3 install flask
 
 sudo apt-get install lftp

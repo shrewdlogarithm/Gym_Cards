@@ -1,4 +1,4 @@
-import requests,time,threading,re
+import requests,time,threading,re,os,json
 from pyquery import PyQuery
 from datetime import datetime
 import log,utils
@@ -17,10 +17,34 @@ def background(f):
         threading.Thread(target=f, args=a, kwargs=kw).start()
     return bg_f
 
+logfile = "logs/locklogread.log"
+
+def getlogs():
+    logs = []
+    try:
+        if os.path.exists(logfile):
+            with open(logfile) as lf:
+                listo = lf.read()
+                logs = json.loads("[" + listo[0:len(listo)-2] + "]")
+    except Exception as e:
+        pass 
+    return logs
+
+def writelog(rows):
+    try:
+        with open(logfile,"a+") as lf:
+            for r in rows:
+                lf.write(json.dumps(r,default=str) + ",\n")
+    except Exception as e:
+        pass
+
 def readlogs(lasttime):
+    getpage("ACT_ID_1",{'s6': 'exit'}) # logout just because
+    time.sleep(1)
+    getpage("ACT_ID_1",{'username': 'abc',"pwd":"654321","logId":"20101222"}) # login because it might help?
+    time.sleep(1)
     rows = []
     un = 1
-    firstdate = None
     try:  
         page = getpage("ACT_ID_21",{'s4': 'Swipe'})
         while 1==1:
@@ -41,8 +65,6 @@ def readlogs(lasttime):
                     # cells contains log rows
                     logdate = utils.parsedatelong(cells[4])
                     if lasttime == None or logdate > lasttime:
-                        if firstdate == None:
-                            firstdate = logdate
                         rows.append(cells)
                     else:
                         break;break
@@ -56,7 +78,8 @@ def readlogs(lasttime):
                 un += 1
     except Exception as e:
         print("Failed with ", e)
-    return firstdate,rows
+    rows.sort(key=lambda x:x[4],reverse=False) # reverse the list
+    return rows
 
 @background
 def updatelock(card,add):
