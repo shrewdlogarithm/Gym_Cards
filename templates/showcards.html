@@ -18,7 +18,11 @@
       width: 120px !important;
     }
   </style>
-  <script>
+  <script type="text/javascript">
+    lockdb = {{ lockdb | tojson }}
+ </script>
+ <script>    
+  
     function findform(subm) { 
       ff = $(subm).closest("FORM")
       if (ff.length == 0) {        

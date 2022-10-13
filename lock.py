@@ -17,7 +17,7 @@ def background(f):
         threading.Thread(target=f, args=a, kwargs=kw).start()
     return bg_f
 
-logfile = "logs/locklogread.log"
+logfile = "logs/lockaccess.log"
 
 def getlogs():
     logs = []
