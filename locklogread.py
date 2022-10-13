@@ -1,9 +1,16 @@
 import lock
 import utils
 
-logs = lock.getlogs()
-lastdate = utils.parsedatelong(logs[len(logs)-1][4])
-rows=lock.readlogs(lastdate)
-lock.writelog(rows)
+lastdate = None
 
-print("Lock Read Completed Successfully")
+logs = lock.getlogs()
+if len(logs):
+    lastdate = utils.parsedatelong(logs[len(logs)-1][4])
+
+try:
+    rows=lock.readlogs(lastdate)
+    lock.writelog(rows)
+except Exception as e:
+    print(e)
+
+print("Lock Read Ended")
