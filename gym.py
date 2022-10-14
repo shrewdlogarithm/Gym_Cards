@@ -141,21 +141,22 @@ def eventinput():
             try:
                 r, w, x = select(devices,[],[],0.2)
                 for fd in r:
-                    for event in devices[fd].read():                            
-                        if event.type == evdev.ecodes.EV_KEY:
-                            try:
-                                keyevent = evdev.categorize(event)
-                                if (keyevent.keystate == keyevent.key_up):
-                                    if (keyevent.keycode == "KEY_ENTER"):
-                                        if (devs[fd] != ""):
-                                            cards.put(devs[fd])
-                                            devs[fd] = ""
-                                    else:
-                                        if (fd not in devs):
-                                            devs[fd] = ""
-                                        devs[fd] += keyevent.keycode.replace("KEY_","")                                
-                            except Exception as e:
-                                log.addlog("evdev_keyevent_exception",excep=e)
+                    for event in devices[fd].read():  
+                        if "RFID" in devices[fd].name:                          
+                            if event.type == evdev.ecodes.EV_KEY:
+                                try:
+                                    keyevent = evdev.categorize(event)
+                                    if (keyevent.keystate == keyevent.key_up):
+                                        if (keyevent.keycode == "KEY_ENTER"):
+                                            if (devs[fd] != ""):
+                                                cards.put(devs[fd])
+                                                devs[fd] = ""
+                                        else:
+                                            if (fd not in devs):
+                                                devs[fd] = ""
+                                            devs[fd] += keyevent.keycode.replace("KEY_","")                                
+                                except Exception as e:
+                                    log.addlog("evdev_keyevent_exception",excep=e)
             except Exception as e:
                     log.addlog("evdev_device_exception",excep=e)
     except Exception as e:
