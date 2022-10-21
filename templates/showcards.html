@@ -88,7 +88,7 @@
               },
               5 : {
                 extractor: "inputs",
-                sorter : "shortdate",
+                sorter : "inputs",
                 filter: false
               },
               6 : {
@@ -177,12 +177,14 @@
           <td>                           
               {% if card in lockdb %}
                 <select>
-                <option>
-                  {{ carddb[card]['lastseen'] }}
-                </option>
+                  {% if carddb[card]['lastseen'] %}
+                    <option>
+                      {{ carddb[card]['lastseen'] }}
+                    </option>
+                  {% endif %}
                 {% for lock in lockdb[card] %}
                   <option value={{ lock[1] }}>
-                    {{ lock[4] }}
+                    {{ lock[4] }} (LOCK)
                   </option>
                 {% endfor %}
                 </select> 
