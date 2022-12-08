@@ -1,7 +1,8 @@
 echo "Backup running"
 date
 
-curl https://api.dynu.com/nic/update?hostname=gymlee.mywire.org&password=leelee23
+echo "DDNS Update:"
+echo url="https://api.dynu.com/nic/update?hostname=gymlee.mywire.org&password=leelee23&myipv4=$(curl -s -4 ifconfig.co)&myipv6=$(curl -s -6 ifconfig.co)" | curl -k -K  -
 
 host=$HOSTNAME
 opt=$1
