@@ -1,6 +1,8 @@
 echo "Backup running"
 date
 
+curl https://api.dynu.com/nic/update?hostname=gymlee.mywire.org&password=leelee23
+
 host=$HOSTNAME
 opt=$1
 if [ -z $1 ]
