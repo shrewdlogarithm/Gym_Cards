@@ -23,6 +23,8 @@ pip3 install playsound
 
 pip3 install Chinese-RFID-Access-Control-Library
 
+pip3 install requests
+
 pip3 install PyQuery
 
 pip3 install flask
