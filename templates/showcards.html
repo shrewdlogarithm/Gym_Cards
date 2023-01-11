@@ -89,29 +89,36 @@
               5 : {
                 extractor: "inputs",
                 sorter : "inputs",
-                filter: false
+                filter: false,
+                empty: "bottom"
               },
               6 : {
                 extractor: "inputs",
-                sorter : "shortdate",
-                filter: false
+                sorter : "inputs",
+                filter: false,
+                empty: "bottom"
               },
               7 : {
-                sorter: "select-text"
+                extractor: "inputs",
+                sorter : "shortdate",
+                filter: false
               },
               8 : {
                 sorter: "select-text"
               },
               9 : {
+                sorter: "select-text"
+              },
+              10 : {
                 filter: false,
                 sorter: false
               }
             },
             textExtraction: {
-              9: function(node,table,cellIndex) {
+              10: function(node,table,cellIndex) {
                 return $(node).find("input[type=submit]").val()
               },
-              10: function(node,table,cellIndex) {
+              11: function(node,table,cellIndex) {
                 return $(node).find("input[type=submit]").val()
               }
             },
@@ -136,6 +143,7 @@
       <th>Paper No</th>
       <th>Created</th>
       <th>Last Seen</th>
+      <th>Lock Used</th>
       <th>Expires</th>
       <th>VIP</th>
       <th>Staff</th>
@@ -175,23 +183,18 @@
             {{ carddb[card]['created'] }}
           </td>
           <td>                           
-              {% if card in lockdb %}
-                <select>
-                  {% if carddb[card]['lastseen'] %}
-                    <option>
-                      {{ carddb[card]['lastseen'] }}
-                    </option>
-                  {% endif %}
-                {% for lock in lockdb[card] %}
-                  <option value={{ lock[1] }}>
-                    {{ lock[4] }} (LOCK)
-                  </option>
-                {% endfor %}
-                </select> 
-              {% else %}
-                {{ carddb[card]['lastseen'] }}
-              {% endif %}
-            
+              {{ carddb[card]['lastseen'] }}
+          </td>
+          <td>
+            {% if card in lockdb %}
+            <select>
+            {% for lock in lockdb[card] %}
+              <option value={{ lock[1] }}>
+                {{ lock[4] }} (LOCK)
+              </option>
+            {% endfor %}
+            {% endif %}
+            </select> 
           </td>
           <td>                            
             <input type="date" name="expires" value="{{ carddb[card]['expires'] }}">
