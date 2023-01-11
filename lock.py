@@ -28,14 +28,15 @@ def getlogs():
                 logs = json.loads("[" + listo[0:len(listo)-2] + "]")
     except Exception as e:
         pass 
-    lockdb = {}
-    for log in logs:
-        card = log[1].zfill(10)
-        if card in lockdb:
-            lockdb[card].insert(0,log)
-        else:
-            lockdb[card] = [log]
-    return lockdb
+    return logs
+    # lockdb = {}
+    # for log in logs:
+    #     card = log[1].zfill(10)
+    #     if card in lockdb:
+    #         lockdb[card].insert(0,log)
+    #     else:
+    #         lockdb[card] = [log]
+    # return lockdb
 
 def writelog(rows):
     try:
@@ -52,6 +53,7 @@ def readlogs(lasttime):
     time.sleep(1)
     rows = []
     un = 1
+    done = False
     try:  
         page = getpage("ACT_ID_21",{'s4': 'Swipe'})
         while 1==1:
@@ -74,8 +76,9 @@ def readlogs(lasttime):
                     if lasttime == None or logdate > lasttime:
                         rows.append(cells)
                     else:
+                        done = True
                         break;break
-            if int(pgs[0][0]) >= int(pgs[0][1]):
+            if done or int(pgs[0][0]) >= int(pgs[0][1]):
                 break
             else:
                 page = getpage("ACT_ID_345",{
