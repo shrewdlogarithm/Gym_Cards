@@ -29,14 +29,17 @@ def getlogs():
     except Exception as e:
         pass 
     return logs
-    # lockdb = {}
-    # for log in logs:
-    #     card = log[1].zfill(10)
-    #     if card in lockdb:
-    #         lockdb[card].insert(0,log)
-    #     else:
-    #         lockdb[card] = [log]
-    # return lockdb
+
+def getlockdb():
+    logs = getlogs()
+    lockdb = {}
+    for log in logs:
+        card = log[1].zfill(10)
+        if card in lockdb:
+            lockdb[card].insert(0,log)
+        else:
+            lockdb[card] = [log]
+    return lockdb
 
 def writelog(rows):
     try:
