@@ -1,4 +1,5 @@
-echo "Backup of $HOSTNAME running"
+host=$(hostname -s)
+echo "Backup of $host running"
 date
 
 echo "DDNS Update:"
