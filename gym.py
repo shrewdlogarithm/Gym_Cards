@@ -418,7 +418,7 @@ def showstats():
 @app.route('/showcards')
 def showcards():
     if sysactive:
-        return render_template('showcards.html',carddb=carddb,memdb=log.getmemdb(),lockdb=lock.getlogdb())
+        return render_template('showcards.html',carddb=carddb,memdb=log.getmemdb(),lockdb=lock.getlockdb())
     else:
         return "System Shutting Down"
 
