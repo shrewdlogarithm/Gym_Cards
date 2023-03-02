@@ -35,5 +35,34 @@
     {% endfor %}
   </TABLE>
   </div>
+  <div id="substaken">
+    <TABLE><TR>
+    <TD>Day</TD>
+    <!-- <TD>New Members</TD><TD>Renewals</TD></TR> -->
+    {% for sub in memsubs %}
+    <TR>      
+      <!-- <TD>{{ sub }}</TD><TD>{{ memsubs[sub][0]|length }}</TD><TD>{{ memsubs[sub][1]|length }}</TD>      
+      <TR><TD></TD><TD>
+      {% for mem in memsubs[sub][0] %}
+        {{ mem }} </br>
+      {% endfor %}
+      </TD><TD>
+      {% for mem in memsubs[sub][1] %}
+        {{ mem }} </br>
+      {% endfor %}
+      </TD> -->
+      <TD>{{ sub }}</TD><TD> New {{ memsubs[sub][0]|length }} </TD><TD>
+      {% for mem in memsubs[sub][0] %}
+        {{ mem }} ,
+      {% endfor %}
+      </TD></TR><TR><TD></TD><TD> Renew {{ memsubs[sub][1]|length }} </TD><TD>
+      {% for mem in memsubs[sub][1] %}
+        {{ mem }} ,
+      {% endfor %}
+      </TD>
+    </TR>
+    {% endfor %}
+  </TABLE>
+  </div>
   {% include 'bottomlayout.j2' %}
 </body>

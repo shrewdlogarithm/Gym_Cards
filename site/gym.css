@@ -203,9 +203,14 @@ td * {
     margin-left: 110px !important;
 }
 
-#memberstats,#recentexpired,#upcomingexpired {
+#memberstats,#recentexpired,#upcomingexpired,#substaken {
     margin-top: 30px;
     margin-left: 50px;
     float: left;
     max-height: 75%;
+}
+
+#substaken td {
+    padding-right: 20px;
+    vertical-align: top !important;
 }

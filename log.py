@@ -1,15 +1,19 @@
+from datetime import timedelta
+
 import os,json,threading,socket
 import utils
 
 lock = threading.Lock()
-logs = []
 memdb = {}
 
-def logname():
-    return f'logs/{socket.gethostname()}-{utils.getnow().strftime("%Y%m%d")}.log'
+def logdate(dys=0):
+    offs = timedelta(days=dys)
+    return utils.getnow() - offs
+
+def logname(dys=0):    
+    return f'logs/{socket.gethostname()}-{logdate(dys).strftime("%Y%m%d")}.log'
 
 def addlog(ev,card="",db={},excep=""):
-    global logs
     lock.acquire()
     newlog = {
         "event": ev,       
@@ -24,7 +28,6 @@ def addlog(ev,card="",db={},excep=""):
         newlog["db"] = db
     if (excep != ""):
         newlog["excep"] = excep
-    logs.append(newlog)
     try:
         with open(logname(),"a") as lf:
             lf.write(json.dumps(newlog,default=str) + ",\n")
@@ -55,14 +58,22 @@ def delmem(memno):
     if memberin(memno):
         del getmemdb()[memno]
 
-try:
-    if os.path.exists(logname()):
-        with open(logname()) as lf:
-            listo = lf.read()
-            logs = json.loads("[" + listo[0:len(listo)-2] + "]")
-except Exception as e:
-    addlog("LoadingLogs",excep=e)
+def getlogmsgs(typ,dys=0):
     logs = []
+    retlogs = []
+    try:
+        if os.path.exists(logname(dys)):
+            with open(logname(dys)) as lf:
+                listo = lf.read()
+                logs = json.loads("[" + listo[0:len(listo)-2] + "]")
+    except Exception as e:
+        addlog("GetLogMsgs",excep=e)
+        logs = []
+    for log in logs:
+        if log["event"] == typ:
+            retlogs.append(log)
+    return retlogs
+            
+logs = getlogmsgs("MemberInOut")
 for log in logs:
-    if log["event"] == "MemberInOut":
-        countmem(log["db"]["memno"])
+    countmem(log["db"]["memno"])
