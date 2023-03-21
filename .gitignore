@@ -28,6 +28,8 @@ logs/*.log
 
 *test*.py
 
+*.sqlite
+
 __pycache__/
 *.py[cod]
 *$py.class
