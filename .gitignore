@@ -17,6 +17,8 @@ README.txt
 dev/*
 site/images/*
 
+*test*
+
 site/tablesorter/*
 
 backups/*
