@@ -41,3 +41,14 @@ input[type=submit],input[type=button] {
     padding: 10px;
     border-right: 1px solid {{ sett.theme2 }};
 }
+
+.flexcols {
+    border: 2px solid {{ sett.theme2 }};
+    color: {{ sett.theme3 }};
+    clear: left;
+}
+
+.flexcols * {
+    padding: 5px;
+    border-right: 1px solid {{ sett.theme2 }};
+}

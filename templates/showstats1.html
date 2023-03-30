@@ -1,0 +1,77 @@
+<head>
+  {% include 'head.j2' %}
+  <script>    
+    $(document).ready(function(){
+        $("#headright").show();
+    });
+    ignrel = true
+    source.onmessage = function(e) {
+      if (e.data.startsWith("##Active Members")) {
+        if (ignrel) {
+          ignrel = false
+        } else {
+          location.reload()
+      }
+      }
+    }
+  </script>
+</head>
+<body>
+  {% include 'toplayout.j2' %}
+  <div class="flexcols">
+    {% for tval in tvals %}
+    <div>
+      <span class="mshead">{{ tval }}</span><span class="msdata">{{ tvals[tval] }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="flexcols">    
+    <div id="swipes" class="grid3">
+      {% for swp in swipes|reverse %}
+      <span>
+        {{ swp["name"] }} 
+      </span>
+      <span>
+        {{ swp["mindt"][10:16] }} 
+      </span>
+      <span>
+        {% if swp["maxdt"] == "" %}              
+        <form action="swipe" target="status" method="POST">
+          <input name="card" type="hidden" value="{{ swp['card'] }}">                            
+          <input type="submit" value="Sign Out">
+        </form>        
+        {% else %}
+          {{ swp["maxdt"][10:16] }} 
+        {% endif %}
+      </span>
+      {% endfor %}
+    </div>
+    <div style="flex-basis: 40%">
+      Expired
+    <div class="grid10">
+      <span>Member</span><span>Expired<br>(Days)</span><span>Last Seen<BR>(Days)</span><span>Visits<BR>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Total</span>
+      {% for rex in rexp %}
+        <span>{{ visitdb[rex]["name"] }}</span><span>{{ visitdb[rex]["expires"] }}</span><span>{{ visitdb[rex]["dayssincevisit"] }}</span>
+        {% for i in range(0,7) %}
+          <span>{{ visitdb[rex]["DAY" ~ i] }}</span>
+        {% endfor %}
+        <span>{{ visitdb[rex]["visits"] }}</span>
+        {% endfor %}
+    </div>
+    </div>
+    <div style="flex-basis: 40%">
+        Expiring
+      <div class="grid10">
+        <span>Member</span><span>Expires<br>(Days)</span><span>Last Seen<BR>(Days)</span><span>Visits<BR>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Total</span>
+      {% for uex in uexp %}
+        <span>{{ visitdb[uex]["name"] }}</span><span>{{ visitdb[uex]["expires"] }}</span><span>{{ visitdb[uex]["dayssincevisit"] }}</span>
+        {% for i in range(0,7) %}
+          <span>{{ visitdb[uex]["DAY" ~ i] }}</span>
+        {% endfor %}
+        <span>{{ visitdb[uex]["visits"] }}</span>
+        {% endfor %}
+        </div>
+    </div>
+  </div>
+  {% include 'bottomlayout.j2' %}
+</body>

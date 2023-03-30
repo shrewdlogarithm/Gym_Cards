@@ -222,3 +222,64 @@ table, table * {
 #renewals td * {
     display: t;
 }
+
+.mshead {
+    font-size: 18px;
+}
+
+.msdata {
+    display:block;
+    font-size: 44px;
+}
+
+.flexcols {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.flexrows {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.grid10 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    text-align: left;
+}
+.grid10 span {
+    margin-top: auto;
+}
+
+.grid3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    text-align: left;
+}
+
+.grid1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    text-align: left;
+    vertical-align: top;
+}
+
+span {
+    border: 0px !important;
+    white-space: nowrap;
+}
+
+#swipes,#rex,#uex {
+    float: left;
+}
+
+#swipes form {
+    margin: 0;
+    border: 0;
+    padding: 0;
+}
+#swipes form input {
+    padding: 0;
+}

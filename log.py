@@ -7,6 +7,11 @@ import sqlite3
 dbname = "./data/logs.sqlite"
 connection = sqlite3.connect(dbname, check_same_thread=False)
 connection.row_factory = sqlite3.Row
+connection.execute("CREATE TABLE IF NOT EXISTS LOGS (dt TEXT NOT NULL,memno INTEGER, event TEXT NOT NULL, card TEXT NOT NULL, db TEXT, excep TEXT);")
+connection.execute("CREATE INDEX IF NOT EXISTS LOGS_event_dt ON LOGS (event,dt);")
+connection.execute("CREATE INDEX IF NOT EXISTS LOGS_dt ON LOGS (dt) ;")
+connection.execute("CREATE INDEX IF NOT EXISTS LOGS_memno ON LOGS (memno);")
+
 
 lock = threading.Lock()
 memdb = {}
@@ -61,11 +66,19 @@ def getmemdb():
 def memberin(memno):
     return memno in getmemdb()
 
-def countmem(memno):
-    if memberin(memno):
-        del getmemdb()[memno]
+swdb = []
+def countmem(card,name,dt):
+    if memberin(card):
+        swdb[getmemdb()[card]]["maxdt"] = dt
+        del getmemdb()[card]
     else:
-        getmemdb()[memno] = True  
+        swdb.append({
+            "card": card,
+            "name": name,
+            "mindt": dt,
+            "maxdt": ""
+        })
+        getmemdb()[card] = len(swdb)-1
 
 def membercount():
     return len(getmemdb())
@@ -78,7 +91,13 @@ def delmem(memno):
 def getlogmsgs(type,dys=0):
     print(logdtfrom(dys),logdtto(dys))
     mrows = connection.execute("SELECT * FROM LOGS WHERE dt > ? AND dt < ? AND event = ?",(logdtfrom(dys),logdtto(dys),type)).fetchall()
-    return mrows
+    mret = []
+    for m in mrows:
+        mr = dict(m)
+        if "db" in mr:
+            mr["db"] = json.loads(mr["db"])
+        mret.append(mr)
+    return mret
     
 def getlogmsgsfile(typ,dys=0):    
     logs = []
@@ -95,7 +114,19 @@ def getlogmsgsfile(typ,dys=0):
         if log["event"] == typ:
             retlogs.append(log)
     return retlogs
-            
-logs = getlogmsgs("MemberInOut")
-for log in logs:
-    countmem(log["memno"])
+
+def loadlogs():
+    def getname(log):
+        if "db" in log:
+            if "name" in log["db"] and log["db"]["name"] != "":
+                return log["db"]["name"]
+            elif "memno" in log["db"]:
+                return log["db"]["memno"]
+            else:
+                return "unknown"
+        else:
+            return "unknown"
+    logs = getlogmsgs("MemberInOut")
+    for log in logs:    
+        countmem(log["card"],getname(log),log["dt"])
+loadlogs()

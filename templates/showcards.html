@@ -232,7 +232,7 @@
           <td>
             <form action="swipe" target="status" method="POST">
               <input name="card" type="hidden" value="{{ card }}">                            
-              {% if carddb[card]["memno"] in memdb %}              
+              {% if card in memdb %}              
                 <input type="submit" value="In">
               {% else %}
                 <input type="submit" value="Out">

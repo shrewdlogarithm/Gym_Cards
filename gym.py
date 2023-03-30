@@ -124,7 +124,10 @@ def addcard(card,staff=False):
 
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowformlong()
-    log.countmem(carddb[card]["memno"])
+    memname = carddb[card]["name"]
+    if memname == "":
+        memname = carddb[card]["memno"]
+    log.countmem(card,memname,utils.getnowformlong())
     log.addlog("MemberInOut",card,db=carddb[card])
     sse.add_message(f'##Active Members {log.membercount()}')    
     savedb()
@@ -434,6 +437,63 @@ def showstats():
             for lg in log.getlogmsgs("CardRenew",x):
                 memsubs[ind][1].append(formatmem(lg))
         return render_template('showstats.html',tvals=tvals,rexp=sorted(rexp, key=str.casefold),uexp=sorted(uexp,key=str.casefold),memsubs=memsubs)
+    else:
+        return "System Shutting Down"
+
+@app.route('/showstats1')
+def showstats1():
+    if sysactive:
+        tvals = {
+            " ": "All",
+            "Members": len(carddb),
+            "Current": 0,
+            "Expired": 0,
+            "  ": "Last 7 Days",
+            "Visits": 0,
+            "New": 0
+        }
+        rexp = {}
+        uexp = {}
+        visitdb= {}
+        for card in carddb:
+            ms = getmemberstatus(card)
+            if ms[0] == "renew":
+                if ms[1] < 14:
+                    uexp[carddb[card]["memno"]] = ms[1]
+                    visitdb[carddb[card]["memno"]] = {"name": carddb[card]["name"],"expires": ms[1],"visits": 0,"dayssincevisit": "30+"}
+            if ms[0] != "expired":
+                tvals["Current"] += 1
+            else:
+                if ms[1] > -7:
+                    rexp[carddb[card]["memno"]] = ms[1]
+                    visitdb[carddb[card]["memno"]] = {"name": carddb[card]["name"],"expires": ms[1],"visits": 0,"dayssincevisit": "30+"}
+                tvals["Expired"] += 1
+            fs = (utils.parsedate(carddb[card]["created"])-utils.getnow()).days
+            if fs > -8:
+                tvals["New"] += 1
+            if carddb[card]["lastseen"] != "":
+                try:
+                    ls = (utils.parsedatelong(carddb[card]["lastseen"]).date()-utils.getnow()).days
+                    if ls > -8:
+                        tvals["Visits"] += 1
+                except:
+                    pass
+                sql = "SELECT memno,SUM(1) AS visits,CAST(JULIANDAY('now')-JULIANDAY(MAX(dt)) as int) as dayssincevisit"
+        for i in range(0,7):
+            sql += ",SUM(IIF(STRFTIME('%w',dt)='" + str(i) + "',1,0)) AS DAY" + str(i)
+        sql += " FROM LOGS WHERE dt > ? AND dt < ? AND event = 'MemberInOut' GROUP BY memno ORDER BY dayssincevisit "
+        stime = (utils.getnow()+utils.relativedelta(months=-1)).strftime(utils.dateform)
+        etime = utils.getnowform()
+        mrows = log.connection.execute(sql,(stime,etime)).fetchall()
+        for mr in mrows:
+            if mr["memno"] in visitdb:
+                visitdb[mr["memno"]] = visitdb[mr["memno"]] | dict(mr)
+            tvals = tvals | {
+                "Not Renewed": len(rexp),
+                "   ": "Next 7 Days",
+                "Expiring": len(uexp)
+            }
+        return render_template('showstats1.html',tvals=tvals,rexp=dict(sorted(rexp.items(),key=lambda x:x[1],reverse=True)),uexp=dict(sorted(uexp.items(),key=lambda x:x[1])),visitdb=visitdb,swipes=log.swdb)
     else:
         return "System Shutting Down"
 
