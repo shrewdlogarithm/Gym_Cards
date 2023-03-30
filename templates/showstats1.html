@@ -4,14 +4,19 @@
     $(document).ready(function(){
         $("#headright").show();
     });
-    ignrel = true
+    activemembers = -1
     source.onmessage = function(e) {
-      if (e.data.startsWith("##Active Members")) {
-        if (ignrel) {
-          ignrel = false
-        //} else {
-          //location.reload()
-      }
+      console.log(e.data)
+      if (e.data.startsWith("##Active Members")) {        
+        newactivemembers = e.data.substring(2)
+        if (activemembers != -1) {
+          if (activemembers != newactivemembers) {
+            activemembers = newactivemembers
+            location.reload()
+          }
+        } else {
+          activemembers = newactivemembers
+        }
       }
     }
   </script>

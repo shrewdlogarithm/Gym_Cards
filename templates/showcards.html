@@ -35,7 +35,7 @@
       $(document).ready(function(){
         $("#headright").show();
         if (window.location.href.indexOf("?DEL") >= 0) {
-          $(".danger").addClass("dangeron")
+          $(".danger").removeClass("dangerhide")
         }
           $(".showphoto").mouseover(function() {
             if ($(this).attr("data-image")) {
@@ -160,7 +160,7 @@
             <input name="card" type="hidden" value="{{ card }}">
             {{ carddb[card]["memno"] }} 
             {% if carddb[card]["memno"] != 1 %}                           
-              <input id="delmember" type=submit class="danger" value="X">
+              <input id="delmember" type=submit class="danger dangerhide" value="X">
             {% endif %}
           </form>
         </td>
@@ -250,7 +250,7 @@
           </form>
           <form action="delphoto" target="status" method="POST">
             <input name="card" type="hidden" value="{{ card }}"> 
-            <input type=submit class="danger" value="X">
+            <input type=submit class="danger dangerhide" value="X">
           </form>
         </td>
       </tr>

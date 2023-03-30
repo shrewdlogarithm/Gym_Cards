@@ -180,10 +180,9 @@
 
 .danger {
     background-color: red !important;
-    display: none !important;
 }
-.dangeron {
-    display: inline-block !important;
+.dangerhide {
+    display: none !important;
 }
 
 table, table * {
