@@ -182,6 +182,9 @@
     background-color: red !important;
     display: none !important;
 }
+.dangeron {
+    display: inline-block !important;
+}
 
 table, table * {
     font-family: "Arial";
