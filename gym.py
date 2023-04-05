@@ -46,7 +46,7 @@ for c in carddb:
 
 ## Show images
 def showpic(card):
-    if (not log.memberin(carddb[card]["memno"]) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
+    if (not log.memberin(card) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
         sse.add_message("##MemImg" + str(carddb[card]["memno"]))
 
 ## Member Functions
@@ -66,7 +66,7 @@ def membername(card):
 
 def membergreet(card):
     if card in carddb:
-        if log.memberin(carddb[card]["memno"]):
+        if log.memberin(card):
             return ("Goodbye")
         else:
             return ("Welcome")
@@ -303,7 +303,7 @@ def handlecard(card):
                 carddb[card] = carddb[replcard]
                 if carddb[card]["vip"]:
                     lock.updatelock(card,True) 
-                if log.memberin(carddb[replcard]["memno"]): # card signed-in
+                if log.memberin(replcard): # card signed-in
                     cardvisit(replcard) # sign-out old card
                 del carddb[replcard]
                 log.addlog("CardReplacedNew",card,db=carddb[card])
@@ -639,7 +639,7 @@ def delmember():
         card = request.form.get("card")
         if card in carddb:
             lock.updatelock(card,False)
-            log.delmem(carddb[card]["memno"])
+            log.delmem(card)
             log.addlog("DelMember",card,db=carddb[card])
             del carddb[card]
             savedb()

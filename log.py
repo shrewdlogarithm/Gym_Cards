@@ -63,8 +63,8 @@ def getmemdb():
         memdb[utils.getnowform()] = {}
     return memdb[utils.getnowform()]
 
-def memberin(memno):
-    return memno in getmemdb()
+def memberin(card):
+    return card in getmemdb()
 
 swdb = []
 def countmem(card,name,dt):
@@ -84,9 +84,9 @@ def membercount():
     return len(getmemdb())
 
 
-def delmem(memno):
-    if memberin(memno):
-        del getmemdb()[memno]
+def delmem(card):
+    if memberin(card):
+        del getmemdb()[card]
 
 def getlogmsgs(type,dys=0):
     print(logdtfrom(dys),logdtto(dys))
