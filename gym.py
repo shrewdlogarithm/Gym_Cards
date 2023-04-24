@@ -2,7 +2,7 @@ import os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils,lock
+import sse,log,threads,utils,lock,checkout
 
 sysactive = True
 nmemno = 0
@@ -496,6 +496,19 @@ def showstats1():
         return render_template('showstats1.html',tvals=tvals,rexp=dict(sorted(rexp.items(),key=lambda x:x[1],reverse=True)),uexp=dict(sorted(uexp.items(),key=lambda x:x[1])),visitdb=visitdb,swipes=log.swdb)
     else:
         return "System Shutting Down"
+
+@app.route('/checkout')
+def checkouttemplate():
+    if sysactive:
+        return render_template('checkout.html',itemdb=checkout.itemdb)
+    else:
+        return "System Shutting Down"
+
+@app.route('/checkoutlog', methods=['POST'])
+def checkoutlog():
+    txdb  = request.get_json()
+    checkout.addcheckoutlog(txdb)
+    return("OK")
 
 @app.route('/showcards')
 def showcards():

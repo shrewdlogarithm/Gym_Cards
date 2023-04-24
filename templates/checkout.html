@@ -1,0 +1,53 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  {% include 'head.j2' %}
+  <link rel="stylesheet" href="checkout.css">
+  <script src="checkout.js"></script>
+</head>
+<body>
+  {% include 'toplayout.j2' %}
+  <div class="checkout">
+    <div class="checktop">
+      <div class="checktopleft">
+        
+        {% for page in itemdb %}
+          {% for type in itemdb[page] %}
+          <span class="checktopleftrow" data-type="{{type}}">
+            {% for item in itemdb[page][type]["items"] %}
+              <span class="checkitem checklayer{{ page }}" style="background-color:{{ itemdb[page][type]['color'] }}" data-type="{{ type }}" data-price="{{item["price"]}}">
+                <span class="checkitemlabel">{{ item["title"] }}</span>
+                <span class="checkitemprice"></span>
+              </span>
+            {% endfor %}
+          </span>
+          {% endfor %}
+        {% endfor %}
+        </span>
+      </div>
+      <div class="checktopright">
+        <div class="checktoprighttop"></div>
+        <div class="checktoprightbottom"></div>
+      </div>
+    </div>
+    <div class="checkbottom">
+      <div class="checkbottomleft">
+        <span class="checkbutton" id="checkcancel">
+          <span>CANCEL</span>
+        </span>
+      </div>
+      <div class="checkbottomleftspace"></div>
+      <div class="checkbottomrightspace"></div>
+      <div class="checkbottomright">
+        <span class="checkbutton" id="checkgo">
+          <span>CHECKOUT</span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <audio id="pop">
+    <source src="/sounds/cameron.wav" type="audio/mpeg">
+  </audio>
+  <audio id="beep">
+    <source src="/sounds/prebeep.wav" type="audio/mpeg">
+  </audio>
+</body>

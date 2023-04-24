@@ -35,6 +35,10 @@ sudo usermod -a -G input $USER # may be required on some systems
 # for the RFID DoorLock
 pip3 install Chinese-RFID-Access-Control-Library
 
+# for the cash drawer
+sudo echo 'KERNEL=="ttyUSB0", MODE="0666"' > /etc/udev/rules.d/cashdrawer.rules
+sudo usermod -a -G dialout $USER # may be required on some systems
+
 # For the RPi Argon Case
 curl https://download.argon40.com/argon1.sh | bash
 
