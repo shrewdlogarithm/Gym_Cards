@@ -15,40 +15,39 @@ lock = threading.Lock()
 # connection.execute("CREATE INDEX IF NOT EXISTS LOGS_memno ON LOGS (memno);")
 
 itemdb = {
-    "sales": {
-        "subs": {
-            "color": "pink",
+    "0": {
+        "membership": {
+            "color": "limegreen",
             "items": [
-                {"title": "Subs","price": 30},
-                {"title": "Subs","price": 40},
+                {"title": "1-Day Member","price": 3.5},
+                {"title": "1-Week Member","price": 10},
+                ],
+            },
+        "subs": {
+            "color": "yellow",
+            "items": [
+                {"title": "Monthly Lite","price": 20},
+                {"title": "Monthly","price": 25},
+                {"title": "Monthly VIP","price": 30},
                 ],
             },
         "drinks": {
             "color": "blue",
             "items": [
-                {"title": "Water","price": .75},
+                {"title": "Water","price": .7},
                 {"title": "Energy Drink","price": 1},
+                {"title": "Energy Drink","price": 1.5},
                 {"title": "Energy Drink","price": 2},
-                {"title": "Energy Drink","price": 2.50},
             ],
         },
         "protein": {
-            "color": "yellow",
+            "color": "lightblue",
             "items": [
-                {"title": "Protein Scoop","price": 2},
-                {"title": "Protein Tub","price": 25},
                 {"title": "Protein Tub","price": 35},
             ],
         },
-        "other": {
-            "color": "red",
-            "items": [
-                {"title": "Random Item","price": 12.65},
-                {"title": "Random Thingy","price": 77.12},
-            ],
-        },
     },
-    "tender": {
+    "1": {
         "cash": {
             "color": "green",
             "items": [
@@ -58,20 +57,47 @@ itemdb = {
                 {"title": "Note","price": 5},
             ],
         },
-        "funnymoney": {
-            "color": "yellow",
-            "items": [
-                {"title": "LeeBucks","price": 5},
-                {"title": "LeeBucks","price": 2},
-                {"title": "LeeBucks","price": 1},
-            ],
-        },
         "other": {
             "color": "blue",
             "items": [
                 {"title": "Card","price": -1},
-                {"title": "Bank","price": -1}
+                {"title": "Bank","price": -1},
+                {"title": "Exact Cash","price": -1},
             ]
+        },
+    },
+    "2": {
+        "row1": {
+            "color": "orange",
+            "items": [
+                {"title": "1","price": 0},
+                {"title": "2","price": 0},
+                {"title": "3","price": 0},
+            ],
+        },
+        "row2": {
+            "color": "orange",
+            "items": [
+                {"title": "4","price": 0},
+                {"title": "5","price": 0},
+                {"title": "6","price": 0},
+            ],
+        },
+        "row3": {
+            "color": "orange",
+            "items": [
+                {"title": "7","price": 0},
+                {"title": "8","price": 0},
+                {"title": "9","price": 0},
+            ],
+        },
+        "row4": {
+            "color": "orange",
+            "items": [
+                {"title": "0","price": 0},
+                {"title": "00","price": 0},
+                {"title": "<<","price": 0},
+            ],
         },
     }
 }

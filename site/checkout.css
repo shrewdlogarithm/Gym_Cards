@@ -16,7 +16,19 @@
 
 .checkbottom {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.checkbottomlt,.checkbottommd {
+    margin-right: 10%;
+}
+
+.checkbottomrt,.checkbottommd {
+    margin-left: 10%;
+}
+
+#checkother {
+    background-color: orange;
 }
 
 .checktopleft {
@@ -40,10 +52,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 20px;
+    border: 20px solid black;
     color: black;
+    min-height: 15vh;
 }
 
+.checkitemselected {
+    border-color: white;
+}
 .checkitemlabel {
     font-size: 2vw;
 }

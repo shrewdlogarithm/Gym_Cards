@@ -269,7 +269,7 @@ table, table * {
 }
 
 span {
-    border: 0px !important;
+    /* border: 0px !important; */
     white-space: nowrap;
 }
 

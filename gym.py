@@ -508,6 +508,11 @@ def checkouttemplate():
 def checkoutlog():
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
+    try:
+        with open('/dev/ttyUSB0', 'w') as com:
+            com.write(chr(27)+chr(112)+chr(0)+chr(48))
+    except Exception as e:
+        log.addlog("Cash Drawer Failure",excep=e)
     return("OK")
 
 @app.route('/showcards')
