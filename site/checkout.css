@@ -27,6 +27,9 @@
     margin-left: 10%;
 }
 
+#checkcancel {
+    background-color: red;
+}
 #checkother {
     background-color: orange;
 }
@@ -54,7 +57,7 @@
     justify-content: center;
     border: 20px solid black;
     color: black;
-    min-height: 15vh;
+    min-height: 11vh;
 }
 
 .checkitemselected {

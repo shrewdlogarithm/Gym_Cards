@@ -1,0 +1,9 @@
+th,td {
+    min-width: 150px;
+    text-align: right;
+}
+
+th:first-of-type,td:first-of-type {
+    text-align: left !important;
+    min-width: 300px;
+}

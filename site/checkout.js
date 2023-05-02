@@ -1,15 +1,13 @@
 vtotal = 0
 ttotal = 0
 cstate = 0
-lcstate = 0
-vline = 0
 otheramt = 0
+lastendedevent = 0
 
 // using the sound sample length to limit button-presses
 function readysnd(snd) {
     return ($('audio#' + snd)[0].paused)
 }
-lastendedevent = 0
 function playsnd(snd,endfunc=0) {
     if (lastendedevent) {
         $('audio#'+snd)[0].removeEventListener("ended",lastendedevent)
@@ -27,6 +25,12 @@ function playthen(snd,btn) {
     })
 
 }
+function vendlines() {
+    return $(".checktoprighttop .checkrightline").length
+}
+function lastvend() {
+    return $(".checktoprighttop .checkrightline").last()
+}
 
 function updateprices() {
     $(".checkitem").each(function() {
@@ -39,12 +43,15 @@ function updateprices() {
             $(this).find(".checkitemprice").text(vtotal.toFixed(2))
     })
     if (cstate == 0) {
-        if ($(".checktoprighttop .checkrightline").length == 0) 
+        if (!vendlines()) 
             $("#checkcancel span").text("")
         else
-            $("#checkcancel span").text("Undo")
+            $("#checkcancel span").text("Remove Last Item")
         $("#checkother").removeClass("checkhide")
-        $("#checkother span").text("Enter Price")
+        if (vendlines() > 9)
+            $("#checkother span").text(">> MAX ENTRIES <<")
+        else
+            $("#checkother span").text("Enter Any Price")
         if (vtotal > 0) {
             $("#checkgo span").text("Checkout")
         } else {
@@ -54,17 +61,21 @@ function updateprices() {
         $("#checkcancel span").text("Cancel")
         $("#checkother").addClass("checkhide")
         if (ttotal >= vtotal) {
-            $("#checkgo span").text("Checkout")
+            $("#checkgo span").text("Open Drawer")
         } else {
             $("#checkgo span").text("")
         }
     } else if (cstate == 2) {
         $("#checkcancel span").text("Cancel")
+        $("#checkgo span").text("")
+        $("#checkcancel span").text("Cancel")
         $("#checkother").removeClass("checkhide")
         if (otheramt > 0)
-            $("#checkother span").text("Add Item")
+            $("#checkother span").text("Done")
         else
             $("#checkother span").text("")
+    } else if (cstate == 3) {
+        $("#checkgo span").text("Next Customer")
     }
 }
 
@@ -81,6 +92,7 @@ function maketotal(label) {
     )
     return retdiv
 }
+
 totaldiv = maketotal("Total")
 changediv = maketotal("Change")
 tenderdiv = maketotal("Tendered")
@@ -96,6 +108,7 @@ function addvend(type,label,price,color) {
         .addClass("checkrightline")
         .attr("data-price",price)
         .attr("data-type",type)
+        .attr("data-label",label)
     parentdiv.append($("<div/>")
         .addClass("checkrightlabel")
         .text(label)
@@ -106,10 +119,9 @@ function addvend(type,label,price,color) {
     )
     parentdiv.css("color",color)
     $(".checktoprighttop").append(parentdiv)
-    return parentdiv
 }
 function updvend(vendline,price) {
-    $(vendline).data("price",price).find(".checkrightprice").text(price)
+    $(vendline).data("price",price).find(".checkrightprice").text(price.toFixed(2))
 }
 function addvtotal(amt) {
     vtotal += amt
@@ -119,12 +131,14 @@ function itemclick() {
     if (readysnd("pop")) {
         thisprice = $(this).data("price")
         if (cstate == 0) {
-            addvend($(this).parent().data("type"),$(this).find(".checkitemlabel").text(),thisprice,$(this).css("background-color"))
-            addvtotal(thisprice)
-            $(".checktoprightbottom").append(totaldiv)
-            playthen("pop",this)
+            if (checkmaxvendlines()) {
+                addvend($(this).parent().data("type"),$(this).find(".checkitemlabel").text(),thisprice,$(this).css("background-color"))
+                addvtotal(thisprice)
+                $(".checktoprightbottom").append(totaldiv)
+                playthen("pop",this)
+            }
         } else if (cstate == 1) {
-            if ($(this).data("type") == "other") {
+            if ($(this).data("price") == -1) {
                 settotal(tenderdiv,vtotal)
                 ttotal = vtotal
                 tenderdiv.find(".checkrightlabel").text($(this).find(".checkitemlabel").text())
@@ -152,28 +166,32 @@ function itemclick() {
             }
             $(".checktoprightbottom").append(tenderdiv)
             $(".checktoprightbottom").append(changediv)
-        } else {
-            $(".checktoprightbottom").append(totaldiv)
+        } else if (cstate == 2) {
             addvtotal(0-otheramt/100)
             let amt = $(this).find(".checkitemlabel").text()
-            if (amt == "<<") {
+            if (amt == "<<<") {
                 if (otheramt > 0) {
                     otheramt = Math.trunc(otheramt / 10)
                     playthen("pop",this)
                 }
             } else if (amt == "00") {
-                otheramt *= 100
-                if (otheramt > 0)
-                    playthen("pop",this)
+                if (otheramt < 100) {
+                    otheramt *= 100
+                    if (otheramt > 0)
+                        playthen("pop",this)
+                }
             } else {
-                otheramt = otheramt * 10 + parseInt(amt)
-                if (otheramt > 0)
-                    playthen("pop",this)
+                if (otheramt < 1000) {
+                    otheramt = otheramt * 10 + parseInt(amt)
+                    if (otheramt > 0)
+                        playthen("pop",this)
+                }
             }
-            if (vline) {
-                updvend(vline,(otheramt/100).toFixed(2))
-                addvtotal(otheramt/100)
+            if (otheramt > 0) {
+                $(".checktoprightbottom").append(totaldiv)                
             }
+            updvend(lastvend(),otheramt/100)
+            addvtotal(otheramt/100)
         }
     }
     updateprices()
@@ -190,7 +208,7 @@ function changepage(pg) {
 function checkback() {
     if (readysnd("undo")) {
         if (cstate == 0) {
-            let remline = $(".checktoprighttop .checkrightline").last()
+            let remline = lastvend()
             if (remline.length) {
                 vtotal -= remline.data("price")
                 settotal(totaldiv,vtotal)
@@ -204,31 +222,39 @@ function checkback() {
             changediv.remove()
             $(".checktoprightbottom").append(totaldiv)
             playsnd("undo")
-        } else {
+        } else if (cstate == 2) {
             addvtotal(0-otheramt/100)
-            vline.remove()
-            changepage(lcstate)
+            lastvend().remove()
+            changepage(0)
             playsnd("undo")            
         }
         updateprices()
     }    
-    if ($(".checktoprighttop .checkrightline").length == 0) {
+    if (vendlines() == 0) {
         totaldiv.remove()
     }
 }
+function checkmaxvendlines() {
+    if (vendlines() > 9) {
+        playsnd("undo")
+        return false
+    } else   
+        return true
+}
 function checkother() {
     if (readysnd("pop")) {
-        if (cstate != 2) {
-            lcstate = cstate
-            if (cstate == 0) {
-                otheramt = "0"
-                vline = addvend("Other","Other",0,"Orange")            
+        if (cstate == 0) {
+            if (checkmaxvendlines()) {
+                if (cstate == 0) {
+                    otheramt = "0"
+                    addvend("Other","Other",0,"Orange")            
+                }
+                changepage(2)        
+                playsnd("pop")
             }
-            changepage(2)        
-            playsnd("pop")
         } else {
             if (otheramt != 0) {
-                changepage(lcstate)
+                changepage(0)
                 playsnd("pop")
             }
         }
@@ -237,7 +263,7 @@ function checkother() {
 }
 function checkgo() {
     if (readysnd("beep")) {
-        if ((cstate == 0 || cstate == 2)  && vtotal > 0) {
+        if (cstate == 0  && vtotal > 0) {
             settotal(totaldiv,vtotal)
             $(".checktoprighttop").append(totaldiv)
             changepage(1)
@@ -245,31 +271,37 @@ function checkgo() {
         } else if (cstate == 1 && vtotal <= ttotal) {
             let transdata = {
                 "sales": [],
-                "tender": []
+                "tender": {}
             }
             $(".checktopright .checkrightline").each(function() {
-                let type = $(this).data("type")
-                if (!type) {
-                    transdata["tender"].push($(this).find(".checkrightprice").text())            
-                } else {
+                if (!$(this).hasClass("checkrighttotal")) {
                     transdata["sales"].push({
-                        "type": type,
+                        "type": $(this).data("type"),
+                        "label": $(this).data("label"),
                         "price": $(this).data("price")
                     })
                 }
-                $(this).remove()
             })
-            vtotal = 0
-            ttotal = 0
-            changepage(0)
-            tenderdiv.remove()
-            changediv.remove()
-            totaldiv.remove()
+            transdata["tender"]["Paid"] = tenderdiv.find(".checkrightlabel").text()
+            transdata["tender"]["Total"] = vtotal
+            transdata["tender"]["Change"] = vtotal-ttotal
             $.ajax("/checkoutlog", {
                 data : JSON.stringify(transdata),
                 contentType : 'application/json',
                 type : 'POST'
             })
+            playsnd("beep")
+            cstate = 3
+        } else if (cstate == 3) {
+            vtotal = 0
+            ttotal = 0            
+            $(".checktopright .checkrightline").each(function() {
+                $(this).remove()
+            })
+            changepage(0)
+            tenderdiv.remove()
+            changediv.remove()
+            totaldiv.remove()
             playsnd("beep")
         }
         updateprices()

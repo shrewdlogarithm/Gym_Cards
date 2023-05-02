@@ -16,14 +16,14 @@ lock = threading.Lock()
 
 itemdb = {
     "0": {
-        "membership": {
+        "Membership": {
             "color": "limegreen",
             "items": [
                 {"title": "1-Day Member","price": 3.5},
                 {"title": "1-Week Member","price": 10},
                 ],
             },
-        "subs": {
+        "Subscription": {
             "color": "yellow",
             "items": [
                 {"title": "Monthly Lite","price": 20},
@@ -31,7 +31,7 @@ itemdb = {
                 {"title": "Monthly VIP","price": 30},
                 ],
             },
-        "drinks": {
+        "Drinks": {
             "color": "blue",
             "items": [
                 {"title": "Water","price": .7},
@@ -40,7 +40,7 @@ itemdb = {
                 {"title": "Energy Drink","price": 2},
             ],
         },
-        "protein": {
+        "Protein": {
             "color": "lightblue",
             "items": [
                 {"title": "Protein Tub","price": 35},
@@ -48,7 +48,7 @@ itemdb = {
         },
     },
     "1": {
-        "cash": {
+        "Notes": {
             "color": "green",
             "items": [
                 {"title": "Note","price": 50},
@@ -57,12 +57,12 @@ itemdb = {
                 {"title": "Note","price": 5},
             ],
         },
-        "other": {
+        "Exact": {
             "color": "blue",
             "items": [
                 {"title": "Card","price": -1},
                 {"title": "Bank","price": -1},
-                {"title": "Exact Cash","price": -1},
+                {"title": "Cash","price": -1},
             ]
         },
     },
@@ -96,7 +96,7 @@ itemdb = {
             "items": [
                 {"title": "0","price": 0},
                 {"title": "00","price": 0},
-                {"title": "<<","price": 0},
+                {"title": "<<<","price": 0},
             ],
         },
     }
