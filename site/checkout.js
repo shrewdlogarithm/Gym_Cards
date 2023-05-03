@@ -76,6 +76,8 @@ function updateprices() {
             $("#checkother span").text("")
     } else if (cstate == 3) {
         $("#checkgo span").text("Next Customer")
+    } else if (cstate == 4) {
+        $("#checkgo span").text("Processing...")
     }
 }
 
@@ -285,13 +287,23 @@ function checkgo() {
             transdata["tender"]["Paid"] = tenderdiv.find(".checkrightlabel").text()
             transdata["tender"]["Total"] = vtotal
             transdata["tender"]["Change"] = vtotal-ttotal
+            cstate = 4
+            updateprices()
             $.ajax("/checkoutlog", {
                 data : JSON.stringify(transdata),
                 contentType : 'application/json',
-                type : 'POST'
-            })
+                type : 'POST',
+                success: function(response) {
+                    cstate = 3
+                    updateprices()
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    playsnd("undo")
+                    cstate = 1
+                    updateprices()
+                }
+            })            
             playsnd("beep")
-            cstate = 3
         } else if (cstate == 3) {
             vtotal = 0
             ttotal = 0            
