@@ -508,11 +508,6 @@ def checkouttemplate():
 def checkoutlog():
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
-    # try:
-    #     ser = serial.Serial("COM4", 115200, timeout=1)
-    #     ser.write(chr(27)+chr(112)+chr(0)+chr(48))
-    # except: 
-    #     pass
     try:
         with open('/dev/ttyUSB0', 'w') as com:
             com.write(chr(27)+chr(112)+chr(0)+chr(48))
