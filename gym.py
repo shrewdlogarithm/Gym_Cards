@@ -2,7 +2,7 @@ import os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils,lock,checkout,serial,tillroll
+import sse,log,threads,utils,lock,checkout,tillroll
 
 sysactive = True
 nmemno = 0
