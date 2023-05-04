@@ -137,12 +137,12 @@ def eventinput():
     try: 
         import evdev
         from select import select
-        devs={}
+        devs={} #testing
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        devices = {dev.fd: dev for dev in devices}
+        r, w, x = select(devices,[],[],0.2)
         while sysactive:
             try:
-                devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-                devices = {dev.fd: dev for dev in devices}
-                r, w, x = select(devices,[],[],0.2)
                 for fd in r:
                     for event in devices[fd].read():  
                         if "RFID" in devices[fd].name:                          
