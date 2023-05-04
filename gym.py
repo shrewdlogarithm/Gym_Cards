@@ -2,7 +2,7 @@ import os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils,lock,checkout,serial,tillroll
+import sse,log,threads,utils,lock,checkout
 
 sysactive = True
 nmemno = 0
@@ -509,23 +509,11 @@ def checkoutlog():
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
     try:
-        ser = serial.Serial("COM4", 115200, timeout=1)
-        ser.write(chr(27)+chr(112)+chr(0)+chr(48))
-    except: 
-        pass
-    try:
         with open('/dev/ttyUSB0', 'w') as com:
             com.write(chr(27)+chr(112)+chr(0)+chr(48))
-    except:
-        pass
+    except Exception as e:
+        log.addlog("Cash Drawer Failure",excep=e)
     return("OK")
-
-@app.route('/tillroll')
-def sendtillroll():
-    if sysactive:
-         return render_template('tillroll.html',tilldata=tillroll.gettilldata())
-    else:
-        return "System Shutting Down"
 
 @app.route('/showcards')
 def showcards():
