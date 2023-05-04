@@ -17,7 +17,7 @@ tar czf backups/${host}-backup-$opt.tar.gz data/*
 
 #ncftpput -u gym@theedgeofthevoid.co.uk -p 'LeeLee23"£' ftp.theedgeofthevoid.co.uk . ~/Gym_Cards/backups/*.gz
 
-lftp -u 'gym@theedgeofthevoid.co.uk','LeeLee23"£' ftp://ftp.theedgeofthevoid.co.uk:21 -e "set ftp:ssl-force true;set ftp:ssl-protect-data true;set ssl:verify-certificate no;set sftp:auto-confirm yes;mput backups/*.gz;mirror -R -n site/images ${host}images;mirror -R -n logs ${host}logs;exit"
+lftp -u 'gym@theedgeofthevoid.co.uk','LeeLee23"£' ftp://ftp.theedgeofthevoid.co.uk:21 -e "set ftp:ssl-force true;set ftp:ssl-protect-data true;set ssl:verify-certificate no;set sftp:auto-confirm yes;mput backups/*.gz;mirror -R -n site/images ${host}images;mirror -R -n logs ${host}logs;mirror -R -n data ${host}data;exit"
 
 if [ $? -eq 0 ]
 then
