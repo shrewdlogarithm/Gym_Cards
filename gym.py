@@ -2,7 +2,7 @@ import os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils,lock,checkout,tillroll
+import sse,log,threads,utils,lock,checkout,serial,tillroll
 
 sysactive = True
 nmemno = 0
@@ -137,12 +137,12 @@ def eventinput():
     try: 
         import evdev
         from select import select
-        devs={} #testing
+        devs={}
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
         devices = {dev.fd: dev for dev in devices}
-        r, w, x = select(devices,[],[],0.2)
         while sysactive:
             try:
+                r, w, x = select(devices,[],[],0.2)
                 for fd in r:
                     for event in devices[fd].read():  
                         if "RFID" in devices[fd].name:                          
@@ -508,6 +508,11 @@ def checkouttemplate():
 def checkoutlog():
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
+    try:
+        ser = serial.Serial("COM4", 115200, timeout=1)
+        ser.write(chr(27)+chr(112)+chr(0)+chr(48))
+    except: 
+        pass
     try:
         with open('/dev/ttyUSB0', 'w') as com:
             com.write(chr(27)+chr(112)+chr(0)+chr(48))
