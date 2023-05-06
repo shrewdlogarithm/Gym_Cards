@@ -8,15 +8,6 @@ dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 
 lock = threading.Lock()
 
-# import sqlite3
-# dbname = "./data/logs.sqlite"
-# connection = sqlite3.connect(dbname, check_same_thread=False)
-# connection.row_factory = sqlite3.Row
-# connection.execute("CREATE TABLE IF NOT EXISTS LOGS (dt TEXT NOT NULL,memno INTEGER, event TEXT NOT NULL, card TEXT NOT NULL, db TEXT, excep TEXT);")
-# connection.execute("CREATE INDEX IF NOT EXISTS LOGS_event_dt ON LOGS (event,dt);")
-# connection.execute("CREATE INDEX IF NOT EXISTS LOGS_dt ON LOGS (dt) ;")
-# connection.execute("CREATE INDEX IF NOT EXISTS LOGS_memno ON LOGS (memno);")
-
 itemdb = {
     "0": {
         "Membership": {
@@ -120,8 +111,6 @@ def addcheckoutlog(db):
             lf.write(json.dumps(db,default=str) + ",\n")
     except Exception as e:
         print(f'Log Writing exception {e}')    
-    # connection.execute("INSERT INTO LOGS (dt,memno,event,card,db,excep) VALUES(?,?,?,?,?,?)",(newlog["dt"],memno,newlog["event"],newlog["card"],json.dumps(newlog["db"]),str(newlog["excep"])))
-    # connection.commit()
     lock.release()
 
 def addto(dct,ky,val):
