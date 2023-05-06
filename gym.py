@@ -2,7 +2,7 @@ import os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
-import sse,log,threads,utils,lock,checkout,tillroll
+import sse,log,threads,utils,lock,checkout
 
 sysactive = True
 nmemno = 0
@@ -518,7 +518,7 @@ def checkoutlog():
 @app.route('/tillroll')
 def sendtillroll():
     if sysactive:
-         return render_template('tillroll.html',tilldata=tillroll.gettilldata())
+         return render_template('checkoutdata.html',tilldata=checkout.getdata())
     else:
         return "System Shutting Down"
 
