@@ -1,4 +1,4 @@
 [Desktop Entry]
 Type=Application
 Name=Gym
-Exec=lxterminal -e "cd ~/Gym_Cards/;python3 gym.py >> logs/gym.log 2>&1"
+Exec=lxterminal -e "cd ~/Gym_Cards/;python3 gym.py >> logs/system.log 2>&1"
