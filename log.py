@@ -4,7 +4,7 @@ import os,json,threading,socket
 import utils
 
 import sqlite3
-dbname = "./data/logs.sqlite"
+dbname = "./db/logs.sqlite"
 connection = sqlite3.connect(dbname, check_same_thread=False)
 connection.row_factory = sqlite3.Row
 connection.execute("CREATE TABLE IF NOT EXISTS LOGS (dt TEXT NOT NULL,memno INTEGER, event TEXT NOT NULL, card TEXT NOT NULL, db TEXT, excep TEXT);")
