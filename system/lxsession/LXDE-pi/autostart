@@ -1,5 +1,0 @@
-@lxpanel --profile LXDE-pi
-@pcmanfm --desktop --profile LXDE-pi
-#@xscreensaver -no-splash
-point-rpi
-@chromium-browser --kiosk --app=http://localhost:8080 --disk-cache-dir=/dev/null --disk-cache-size=1
