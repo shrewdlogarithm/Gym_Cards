@@ -15,25 +15,25 @@ cd ~/Gym_Cards/site
 bash get_tablesorter.sh
 cd
 
+# For sound playback
+sudo apt install python3-gst-1.0
+
+# For backups
+sudo apt-get install lftp
+
 # Basic Python Requirements
 pip3 install python_dateutil
 pip3 install requests
 pip3 install PyQuery
 pip3 install flask
-
-# For sound playback
-sudo apt install python3-gst-1.0
 pip3 install playsound
 
-# For backups
-sudo apt-get install lftp
+# for the RFID DoorLock
+pip3 install Chinese-RFID-Access-Control-Library
 
 # To access the cardreader (not needed/doesn't work on Windows)
 pip3 install evdev
 sudo usermod -a -G input $USER # may be required on some systems
-
-# for the RFID DoorLock
-pip3 install Chinese-RFID-Access-Control-Library
 
 # for the cash drawer
 sudo echo 'KERNEL=="ttyUSB0", MODE="0666"' > /etc/udev/rules.d/cashdrawer.rules

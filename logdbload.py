@@ -9,7 +9,7 @@ def loadlogs(connection):
         connection.execute("CREATE INDEX LOGS_dt ON LOGS (dt) ;")
         connection.execute("CREATE INDEX LOGS_memno ON LOGS (memno);")
 
-        lfiles = glob("./logs/gympi-*.log")
+        lfiles = glob("./logs/gympi-2*.log")
         for file in lfiles:
             with open(file) as lf:
                 listo = lf.read()
@@ -27,7 +27,7 @@ def loadlogs(connection):
                                 print(log,e)
                                 raise Exception
                 except Exception as e:
-                    print(file,"failed")
+                    print(file,e)
         connection.commit()
     except Exception as e:
         print(e)
