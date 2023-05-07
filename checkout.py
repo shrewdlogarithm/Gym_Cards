@@ -1,7 +1,7 @@
 from datetime import timedelta,datetime
 
 import json,threading
-import utils
+import utils,socket
 
 from glob import glob
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
@@ -101,7 +101,7 @@ def logdate(dys=0):
     return utils.getnow() - offs
 
 def logname(dys=0):    
-    return f'logs/gympi-checkout-{logdate(dys).strftime("%Y%m%d")}.log'
+    return f'logs/{socket.gethostname()}-{logdate(dys).strftime("%Y%m%d")}.checkout'
 
 def addcheckoutlog(db):
     lock.acquire()
@@ -126,7 +126,7 @@ def getdata():
     ttypes = {"Total": 0}
     tilltrans = {}
     try:
-        lfiles = glob("./logs/gympi-checkout*.log")
+        lfiles = glob("./logs/*.checkout")
         for file in lfiles:
             with open(file) as lf:
                 listo = lf.read()

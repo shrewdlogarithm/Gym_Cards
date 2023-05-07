@@ -27,8 +27,8 @@ def logdtto(dys=0):
     return logdate(dys-1).strftime("%Y-%m-%d 00:00:00")
 
 def logname(dys=0):    
-    #return f'logs/{socket.gethostname()}-{logdate(dys).strftime("%Y%m%d")}.log'
-    return f'logs/gympi-{logdate(dys).strftime("%Y%m%d")}.log'
+    return f'logs/{socket.gethostname()}-{logdate(dys).strftime("%Y%m%d")}.log'
+    # return f'logs/gympi-{logdate(dys).strftime("%Y%m%d")}.log'
 
 def addlog(ev,card="",db={},excep=""):
     lock.acquire()

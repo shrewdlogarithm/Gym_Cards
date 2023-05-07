@@ -1,5 +1,3 @@
-host=$(hostname -s)
-
 host=$1
 if [ -z $1 ]
 then
