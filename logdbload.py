@@ -9,7 +9,7 @@ def loadlogs(connection):
         connection.execute("CREATE INDEX LOGS_dt ON LOGS (dt) ;")
         connection.execute("CREATE INDEX LOGS_memno ON LOGS (memno);")
 
-        lfiles = glob("./logs/*.log")
+        lfiles = glob("./logs/*20*.log") # ignores lockacces.log
         for file in lfiles:
             with open(file) as lf:
                 listo = lf.read()
