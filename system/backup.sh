@@ -28,5 +28,5 @@ echo "Backup Complete"
 if [ $opt = "shutdown" ]
 then    
         echo "Shutdown Commencing"
-        sudo shutdown now
+        shutdown now
 fi
