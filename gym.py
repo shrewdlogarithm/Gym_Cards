@@ -3,6 +3,7 @@ from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
 import sse,log,threads,utils,lock,checkout
+from datetime import datetime,timedelta
 
 sysactive = True
 nmemno = 0
@@ -359,6 +360,13 @@ def process_cards():
         while (not cards.empty()):
             handlecard(cards.get())
 threads.start_thread(process_cards)
+
+def wakeup(): # stop Firefox from losing connection to the SSE
+    while sysactive:
+        if datetime.now()-sse.lastsse > timedelta(minutes=60):
+            sse.add_message("##Refresh")
+        time.sleep(10)
+threads.start_thread(wakeup)
 
 ## Flask Server
 app = Flask(__name__,

@@ -1,4 +1,7 @@
 import queue
+from datetime import datetime
+
+lastsse = datetime.now()
 
 class MessageAnnouncer:
     def __init__(self):
@@ -22,5 +25,7 @@ def format_sse(data: str, event=None) -> str:
     return msg
 
 def add_message(m):
+    global lastsse
+    lastsse = datetime.now()
     msg = format_sse(data=m)
     announcer.announce(msg=msg)
