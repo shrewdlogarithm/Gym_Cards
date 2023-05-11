@@ -13,9 +13,9 @@
       },100)
     }
     // rto=0
-    function dorefresh() {
-      location.reload(true);
-    }
+    // function dorefresh() {
+    //   location.reload(true);
+    // }
     //rto = setTimeout(dorefresh,7200000)
     if (!!window.EventSource) {
       var source = new EventSource('/stream');
@@ -50,7 +50,7 @@
           $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
         }
         if (e.data == "##Refresh") {
-          dorefresh()
+          location.reload(true);
         }
       }
     }
