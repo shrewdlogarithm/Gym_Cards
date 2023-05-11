@@ -1,58 +1,59 @@
 <head>
   {% include 'head.j2' %}
+  <meta http-equiv="refresh" content="3600">
   <script src="webcam.js"></script>
   <script>    
-  bop=0
-  function fade(dir) {
-    if (bop) {
-      clearInterval(bop)
+    bop=0
+    function fade(dir) {
+      if (bop) {
+        clearInterval(bop)
+      }
+      bop = setInterval(function() {
+        $("#ads").css("opacity",parseFloat($("#ads").css("opacity")) + dir)
+      },100)
     }
-    bop = setInterval(function() {
-      $("#ads").css("opacity",parseFloat($("#ads").css("opacity")) + dir)
-    },100)
-  }
-  rto=0
-  function dorefresh() {
-    location.reload(true);
-  }
-  rto = setTimeout(dorefresh,7200000)
-  if (!!window.EventSource) {
-    var source = new EventSource('/stream');
-    source.onmessage = function(e) {
-      if (!e.data.startsWith("##")) {
-        if (rto != 0) {
-          clearTimeout(rto)
+    // rto=0
+    function dorefresh() {
+      location.reload(true);
+    }
+    //rto = setTimeout(dorefresh,7200000)
+    if (!!window.EventSource) {
+      var source = new EventSource('/stream');
+      source.onmessage = function(e) {
+        if (!e.data.startsWith("##")) {
+          // if (rto != 0) {
+            // clearTimeout(rto)
+          // }
+          $("#video").hide()
+          $("#photo").hide()
+          vals = e.data.split(":::")
+          if (vals[0] == "Welcome!") {
+            $("#ads div").show()
+            fade(.25)
+            $("#centerbox").removeClass().html("")
+          } else {
+            fade(-1)
+            $("#ads div").hide()
+            $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
+          }                
+          //rto = setTimeout(dorefresh,5000)
         }
-        $("#video").hide()
-        $("#photo").hide()
-        vals = e.data.split(":::")
-        if (vals[0] == "Welcome!") {
-          $("#ads div").show()
-          fade(.25)
-          $("#centerbox").removeClass().html("")
-        } else {
-          fade(-1)
-          $("#ads div").hide()
-          $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
-        }                
-        rto = setTimeout(dorefresh,5000)
-      }
-      if (e.data.startsWith("##ShowCap")) {
-        $("#photo").hide()
-        $("#video").show()
-      }
-      if (e.data.startsWith("##MakeCap")) {
-        takepicture(e.data.substring(9))
-      }
-      if (e.data.startsWith("##MemImg")) {
-        $("#video").hide()
-        $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
-      }
-      if (e.data == "##Refresh") {
-        dorefresh()
+        if (e.data.startsWith("##ShowCap")) {
+          $("#photo").hide()
+          $("#video").show()
+        }
+        if (e.data.startsWith("##MakeCap")) {
+          takepicture(e.data.substring(9))
+        }
+        if (e.data.startsWith("##MemImg")) {
+          $("#video").hide()
+          $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
+        }
+        if (e.data == "##Refresh") {
+          dorefresh()
+        }
       }
     }
-  }
   </script>
 </head>
 <body>
