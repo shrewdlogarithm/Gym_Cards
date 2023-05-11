@@ -361,13 +361,6 @@ def process_cards():
             handlecard(cards.get())
 threads.start_thread(process_cards)
 
-def wakeup(): # stop Firefox from losing connection to the SSE
-    while sysactive:
-        if datetime.now()-sse.lastsse > timedelta(minutes=1):
-            sse.add_message("It's now " + utils.getnowformlong())
-        time.sleep(10)
-threads.start_thread(wakeup)
-
 ## Flask Server
 app = Flask(__name__,
             static_url_path='', 
