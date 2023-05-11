@@ -160,11 +160,11 @@ def eventinput():
                                                 devs[fd] = ""
                                             devs[fd] += keyevent.keycode.replace("KEY_","")                                
                                 except Exception as e:
-                                    log.addlog("evdev_keyevent_exception",excep=e)
+                                    pass
             except Exception as e:
-                    log.addlog("evdev_device_exception",excep=e)
+                    pass
     except Exception as e:
-        log.addlog("eventinputException",excep=e)
+        pass
 threads.start_thread(eventinput)
 
 def localinput():                    
@@ -516,7 +516,7 @@ def checkoutlog():
         log.addlog("Cash Drawer Failure",excep=e)
     return("OK")
 
-@app.route('/tillroll')
+@app.route('/checkoutdata')
 def sendtillroll():
     if sysactive:
          return render_template('checkoutdata.html',tilldata=checkout.getdata())

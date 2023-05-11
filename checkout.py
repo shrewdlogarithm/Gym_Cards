@@ -116,9 +116,9 @@ def addcheckoutlog(db):
 def addto(dct,ky,val):
     try:
         if ky in dct:
-            dct[ky] += val
+            dct[ky] = round(dct[ky] + val,2)
         else:
-            dct[ky] = val
+            dct[ky] = round(val,2)
     except Exception as e:
         print(e)
 
@@ -155,4 +155,4 @@ def getdata():
                     print(e)
     except Exception as e:
         print(e)
-    return {"tilltrans": tilltrans,"ttypes": ttypes}
+    return {"tilldates": reversed(tilltrans),"tilltrans": tilltrans,"ttypes": ttypes}

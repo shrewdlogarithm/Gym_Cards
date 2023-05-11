@@ -7,3 +7,7 @@ th:first-of-type,td:first-of-type {
     text-align: left !important;
     min-width: 300px;
 }
+
+.treetable,.treetable * {
+    font-size: 24px;
+}
