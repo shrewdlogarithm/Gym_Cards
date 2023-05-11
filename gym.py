@@ -426,16 +426,20 @@ def showstats():
                     rtn += "*"
                 rtn = str(carddb[card]["memno"]) + " - " + rtn
             else:
-                rtn = str(lg["memno"]) + " - *REMOVED*"
+                if "db" in lg:
+                    if "memno" in lg["db"]:
+                        rtn = str(lg["db"]["memno"]) + " - *REMOVED*"
+                    else:
+                        rtn = "*REMOVED*"
             return rtn
         for x in range(0,15):
             ind = log.logdate(x).strftime("%a - (%d/%m)")
             memsubs[ind] = {}
             memsubs[ind][0] = []
-            for lg in log.getlogmsgs("CardCreate",x):
+            for lg in log.getlogmsgsfile("CardCreate",x):
                 memsubs[ind][0].append(formatmem(lg))
             memsubs[ind][1] = []
-            for lg in log.getlogmsgs("CardRenew",x):
+            for lg in log.getlogmsgsfile("CardRenew",x):
                 memsubs[ind][1].append(formatmem(lg))
         return render_template('showstats.html',tvals=tvals,rexp=sorted(rexp, key=str.casefold),uexp=sorted(uexp,key=str.casefold),memsubs=memsubs)
     else:

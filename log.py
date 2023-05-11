@@ -1,4 +1,5 @@
 from datetime import timedelta
+from glob import glob 
 
 import os,json,threading,socket
 import utils
@@ -103,13 +104,13 @@ def getlogmsgsfile(typ,dys=0):
     logs = []
     retlogs = []
     try:
-        if os.path.exists(logname(dys)):
-            with open(logname(dys)) as lf:
+        lfiles = glob(f'logs/*-{logdate(dys).strftime("%Y%m%d")}.log')
+        for file in lfiles:
+            with open(file) as lf:
                 listo = lf.read()
-                logs = json.loads("[" + listo[0:len(listo)-2] + "]")
+                logs = logs + json.loads("[" + listo[0:len(listo)-2] + "]")
     except Exception as e:
         addlog("GetLogMsgs",excep=e)
-        logs = []
     for log in logs:
         if log["event"] == typ:
             retlogs.append(log)
