@@ -160,11 +160,11 @@ def eventinput():
                                                 devs[fd] = ""
                                             devs[fd] += keyevent.keycode.replace("KEY_","")                                
                                 except Exception as e:
-                                    pass
+                                    log.addlog("evdev_keyevent_exception",excep=e)
             except Exception as e:
-                    pass
+                    log.addlog("evdev_keyevent_exception",excep=e)
     except Exception as e:
-        pass
+        log.addlog("evdev_keyevent_exception",excep=e)
 threads.start_thread(eventinput)
 
 def localinput():                    
