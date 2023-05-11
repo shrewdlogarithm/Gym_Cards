@@ -24,6 +24,7 @@ site/tablesorter/*
 backups/*
 data/*.json
 logs/*.log
+logs/*.checkout
 
 *.tar 
 *.bak 
