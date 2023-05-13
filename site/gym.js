@@ -29,6 +29,7 @@ if (!!window.EventSource) {
     if (e.data.startsWith("##Timeset")) {
       stime = e.data.substring(9)
       serverTime = Date.parse(stime)
+      console.log("Time Updated")
     } else if (e.data.startsWith("##Active Members")) {
       $('#footright').text(e.data.substring(2));
     } else if (e.data.startsWith("##Timer")) {
