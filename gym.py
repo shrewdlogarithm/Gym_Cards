@@ -238,7 +238,7 @@ def handlecard(card):
             sse.add_message("Shutdown")
             try:
                 sysactive = False
-                threads.stop_threads()
+                # threads.stop_threads() # this hangs on MINT for some reason so commented-out for now
                 subprocess.call(['bash','system/backup.sh','shutdown'])
             except Exception as e:
                 log.addlog("ShutdownFail",excep=e) 
