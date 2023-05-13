@@ -28,5 +28,5 @@ echo "Backup Complete"
 if [ $opt = "shutdown" ]
 then    
         echo "Shutdown Commencing"
-        shutdown now
+        systemctl poweroff
 fi
