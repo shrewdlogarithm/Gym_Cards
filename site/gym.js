@@ -23,22 +23,21 @@ function updbar() {
   }
 }
 
-function startserver() {
-  var serverTime = 0;
+var serverTime = 0;
+function startserver() {  
   if (!!window.EventSource) {
-    var source = new EventSource('/stream');
-    source.onmessage = function(e) {
+    var gymsource = new EventSource('/stream');
+    gymsource.onmessage = function(e) {
       if (e.data.startsWith("##Timeset")) {
         stime = e.data.substring(9)
         serverTime = Date.parse(stime)
-        console.log("Time Updated")
       } else if (e.data.startsWith("##Active Members")) {
         $('#footright').text(e.data.substring(2));
       } else if (e.data.startsWith("##Timer")) {
         timerbar(e.data.substring(7))
       }
     }
-    source.onerror = function(e) {
+    gymsource.onerror = function(e) {
       startserver()
     }
   }

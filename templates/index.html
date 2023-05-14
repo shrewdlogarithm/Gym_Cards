@@ -12,48 +12,55 @@
         $("#ads").css("opacity",parseFloat($("#ads").css("opacity")) + dir)
       },100)
     }
-    // rto=0
-    // function dorefresh() {
-    //   location.reload(true);
-    // }
-    //rto = setTimeout(dorefresh,7200000)
-    if (!!window.EventSource) {
-      var source = new EventSource('/stream');
-      source.onmessage = function(e) {
-        if (!e.data.startsWith("##")) {
-          // if (rto != 0) {
-            // clearTimeout(rto)
-          // }
-          $("#video").hide()
-          $("#photo").hide()
-          vals = e.data.split(":::")
-          if (vals[0] == "Welcome!") {
-            $("#ads div").show()
-            fade(.25)
-            $("#centerbox").removeClass().html("")
-          } else {
-            fade(-1)
-            $("#ads div").hide()
-            $("#centerbox").removeClass().addClass(vals[1]).html(vals[0])
-          }                
-          //rto = setTimeout(dorefresh,5000)
+    function startserver() {
+      sto=0
+      if (!!window.EventSource) {        
+        var source = new EventSource('/stream');
+        source.onmessage = function(e) {          
+          if (!e.data.startsWith("##")) {
+            $("#video").hide()
+            $("#photo").hide()
+            vals = e.data.split(":::")
+            if (vals[0] == "Welcome!") {
+              $("#ads div").show()
+              fade(.25)
+              $("#centerbox").removeClass().html("")
+            } else {
+              fade(-1)
+              $("#ads div").hide()
+              if (vals.length > 1)
+                $("#centerbox").removeClass().addClass(vals[1])
+              $("#centerbox").html(vals[0])
+            }                
+          }
+          if (e.data.startsWith("##ShowCap")) {
+            $("#photo").hide()
+            $("#video").show()
+          }
+          if (e.data.startsWith("##MakeCap")) {
+            takepicture(e.data.substring(9))
+          }
+          if (e.data.startsWith("##MemImg")) {
+            $("#video").hide()
+            $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
+          }
+          if (e.data == "##Refresh") {
+            location.reload(true);
+          }
         }
-        if (e.data.startsWith("##ShowCap")) {
-          $("#photo").hide()
-          $("#video").show()
-        }
-        if (e.data.startsWith("##MakeCap")) {
-          takepicture(e.data.substring(9))
-        }
-        if (e.data.startsWith("##MemImg")) {
-          $("#video").hide()
-          $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
-        }
-        if (e.data == "##Refresh") {
-          location.reload(true);
+        source.onerror = function(e) {
+          if (sto != 0)
+            clearTimeout(sto)
+          $("#centerbox").removeClass().text("Server Disconnection") 
+          source = new EventSource('/stream');
+          sto = setTimeout(function() {
+            startserver()
+            $("#centerbox").removeClass().text("") 
+          },2000)
         }
       }
     }
+    startserver()
   </script>
 </head>
 <body>

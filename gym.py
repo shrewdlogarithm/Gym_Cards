@@ -176,12 +176,6 @@ def localinput():
             log.addlog("localinputexception",excep=e)
 threads.start_thread(localinput)
 
-def timeupdatetest():
-    while sysactive:
-        sse.add_message("##Timeset" + utils.getnowformlong()) 
-        time.sleep(3600)
-threads.stop_thread(timeupdatetest)
-
 ## Card Processing
 def clearq():
     global cardq
