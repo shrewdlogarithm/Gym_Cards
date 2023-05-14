@@ -22,21 +22,28 @@ function updbar() {
     tto = setTimeout(updbar,100)
   }
 }
-var serverTime = 0;
-if (!!window.EventSource) {
-  var source = new EventSource('/stream');
-  source.onmessage = function(e) {
-    if (e.data.startsWith("##Timeset")) {
-      stime = e.data.substring(9)
-      serverTime = Date.parse(stime)
-      console.log("Time Updated")
-    } else if (e.data.startsWith("##Active Members")) {
-      $('#footright').text(e.data.substring(2));
-    } else if (e.data.startsWith("##Timer")) {
-      timerbar(e.data.substring(7))
+
+function startserver() {
+  var serverTime = 0;
+  if (!!window.EventSource) {
+    var source = new EventSource('/stream');
+    source.onmessage = function(e) {
+      if (e.data.startsWith("##Timeset")) {
+        stime = e.data.substring(9)
+        serverTime = Date.parse(stime)
+        console.log("Time Updated")
+      } else if (e.data.startsWith("##Active Members")) {
+        $('#footright').text(e.data.substring(2));
+      } else if (e.data.startsWith("##Timer")) {
+        timerbar(e.data.substring(7))
+      }
+    }
+    source.onerror = function(e) {
+      startserver()
     }
   }
 }
+startserver()
 
 function updateTime() {
   if (serverTime > 0) {
