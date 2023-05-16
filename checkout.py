@@ -116,9 +116,9 @@ def addcheckoutlog(db):
 def addto(dct,ky,val):
     try:
         if ky in dct:
-            dct[ky] = round(dct[ky] + val,2)
+            dct[ky] = f'{round(float(dct[ky]) + val,2):.2f}'
         else:
-            dct[ky] = round(val,2)
+            dct[ky] = f'{round(val,2):.2f}'
     except Exception as e:
         print(e)
 

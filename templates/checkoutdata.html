@@ -1,6 +1,6 @@
 <head>
   {% include 'head.j2' %}
-  <link rel="stylesheet" href="tillroll.css">
+  <link rel="stylesheet" href="checkoutdata.css">
   <script src="tree.js"></script>
   <script>
     $(document).ready(function(){
@@ -11,7 +11,10 @@
       function nodeCollapse() {
 
       }
-      $("#treedemo").treetable({ expandable: true,
+      $("#treedemo").treetable({ 
+        clickableNodeNames: true,
+        expandable: true,
+        expanderTemplate: "<a href='#'>\>\>\></a>",
         onNodeExpand:   nodeExpand,
         onNodeCollapse: nodeCollapse });
     })
