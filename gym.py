@@ -4,6 +4,7 @@ from playsound import playsound
 from flask import Flask, Response, request, render_template
 import sse,log,threads,utils,lock,checkout
 from datetime import datetime,timedelta
+from pynput import keyboard
 
 sysactive = True
 nmemno = 0
@@ -50,6 +51,9 @@ def showpic(card):
     if (not log.memberin(card) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
         sse.add_message("##MemImg" + str(carddb[card]["memno"]))
 
+def isvip(cdb):
+    return "vip" in cdb and cdb["vip"]
+
 ## Member Functions
 def membername(card):
     memname = ""
@@ -61,7 +65,7 @@ def membername(card):
         memname = "Member-" + str(carddb[card]["memno"])
     if ("papermemno" in carddb[card] and carddb[card]["papermemno"] != ""):
         memname += " (" + carddb[card]["papermemno"] + ")"
-    if ("vip" in carddb[card] and carddb[card]["vip"]):
+    if isvip(carddb[card]):
         memname += " *FOB*"
     return memname
 
@@ -133,48 +137,30 @@ def cardvisit(card):
     sse.add_message(f'##Active Members {log.membercount()}')    
     savedb()
    
-## EvDev Input (USB RFID Reader)
+## Input (USB RFID Reader)
 def eventinput():
-    try: 
-        import evdev
-        from select import select
-        devs={}
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-        devices = {dev.fd: dev for dev in devices}
-        while sysactive:
-            try:
-                r, w, x = select(devices,[],[],0.2)
-                for fd in r:
-                    for event in devices[fd].read():  
-                        if "RFID" in devices[fd].name:                          
-                            if event.type == evdev.ecodes.EV_KEY:
-                                try:
-                                    keyevent = evdev.categorize(event)
-                                    if (keyevent.keystate == keyevent.key_up):
-                                        if (keyevent.keycode == "KEY_ENTER"):
-                                            if (devs[fd] != ""):
-                                                cards.put(devs[fd])
-                                                devs[fd] = ""
-                                        else:
-                                            if (fd not in devs):
-                                                devs[fd] = ""
-                                            devs[fd] += keyevent.keycode.replace("KEY_","")                                
-                                except Exception as e:
-                                    log.addlog("evdev_keyevent_exception",excep=e)
-            except Exception as e:
-                    log.addlog("evdev_keyevent_exception",excep=e)
-    except Exception as e:
-        log.addlog("evdev_keyevent_exception",excep=e)
-threads.start_thread(eventinput)
-
-def localinput():                    
+    inputcard = ""
     while sysactive:
-        try:
-            ip = input()
-            cards.put(ip)
-        except Exception as e:
-            log.addlog("localinputexception",excep=e)
-threads.start_thread(localinput)
+        try:                
+            def on_press(key):
+                global inputcard
+                try:
+                    if key == keyboard.Key.enter and inputcard != "":
+                        cards.put(inputcard)
+                        inputcard = ""
+                    else:
+                        inputcard += key.char
+                except Exception as e:
+                    pass
+
+            # Collect events until released
+            with keyboard.Listener(
+                on_press=on_press) as listener:
+                listener.join()
+
+        except:
+            log.addlog("pynputexception",excep=e)
+threads.start_thread(eventinput)
 
 ## Card Processing
 def clearq():
@@ -302,7 +288,7 @@ def handlecard(card):
                 log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
                 lock.updatelock(replcard,False) 
                 carddb[card] = carddb[replcard]
-                if carddb[card]["vip"]:
+                if isvip(carddb[card]):
                     lock.updatelock(card,True) 
                 if log.memberin(replcard): # card signed-in
                     cardvisit(replcard) # sign-out old card
@@ -422,7 +408,7 @@ def showstats():
                 rtn = carddb[card]["name"]
                 if len(rtn) == 0:
                     rtn = "Unknown"
-                if (carddb[card]["vip"]):
+                if isvip(carddb[card]):
                     rtn += "*"
                 rtn = str(carddb[card]["memno"]) + " - " + rtn
             else:
@@ -561,7 +547,7 @@ def update():
                     carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
                 except:
                     carddb[card]["vip"] = False
-                lock.updatelock(card,carddb[card]["vip"])
+                lock.updatelock(card,isvip(carddb[card]))
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
             except Exception as e:
@@ -641,6 +627,14 @@ def swipe():
     else:
         return "System Shutting Down"
 
+# @app.route('/checkcard', methods=['POST'])
+# def checkcard():
+#     card = request.form.get("card")
+#     if card in carddb:
+#         return carddb[card]["name"]
+#     else:
+#         return "New Member"
+    
 @app.route('/replace', methods=['POST'])
 def replace():
     if sysactive:

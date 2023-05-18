@@ -31,13 +31,13 @@ pip3 install playsound
 # for the RFID DoorLock
 pip3 install Chinese-RFID-Access-Control-Library
 
-# To access the cardreader (not needed/doesn't work on Windows)
-pip3 install evdev
+# To access the cardreader 
+pip3 install pynput
 sudo usermod -a -G input $USER # may be required on some systems
 
 # for the cash drawer
 sudo echo 'KERNEL=="ttyUSB0", MODE="0666"' > /etc/udev/rules.d/cashdrawer.rules
-sudo usermod -a -G dialout $USER # may be required on some systems
+sudo usermod -a -G dialout $USER 
 
 # For the RPi Argon Case
 curl https://download.argon40.com/argon1.sh | bash
