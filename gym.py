@@ -15,6 +15,7 @@ carddb = {}
 
 cards = Queue()
 cardq=[]
+inputcard = ""
 
 log.addlog("GymStart")
 
@@ -139,7 +140,6 @@ def cardvisit(card):
    
 ## Input (USB RFID Reader)
 def eventinput():
-    inputcard = ""
     while sysactive:
         try:                
             def on_press(key):
