@@ -23,6 +23,7 @@ itemdb = {
                 {"title": "Monthly Lite","price": 20},
                 {"title": "Monthly","price": 25},
                 {"title": "Monthly VIP","price": 30},
+                {"title": "Monthly Couple","price": 40},
                 ],
             },
         "Drinks": {
