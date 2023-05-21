@@ -19,8 +19,6 @@ inputcard = ""
 
 log.addlog("GymStart")
 
-lock.getlocktime()
-
 ## Database
 def savedb():
     try:
