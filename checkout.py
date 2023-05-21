@@ -156,4 +156,4 @@ def getdata():
                     print(e)
     except Exception as e:
         print(e)
-    return {"tilldates": reversed(tilltrans),"tilltrans": tilltrans,"ttypes": ttypes}
+    return {"tilldates": sorted(tilltrans,reverse=True),"tilltrans": tilltrans,"ttypes": ttypes}
