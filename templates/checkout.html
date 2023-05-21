@@ -8,13 +8,19 @@
   {% include 'toplayout.j2' %}
   <div class="checkout">
     <div class="checktop">
-      <div class="checktopleft">
-        
+      <div class="checkoutcard">
+        Scan Card
+      </div>
+      <div class="checkoutboard">
+        Enter Name: <div id="checkouttext">&nbsp;</div>
+        <div id="checkoutletters"></div>
+      </div>
+      <div class="checktopleft">        
         {% for page in itemdb %}
           {% for type in itemdb[page] %}
           <span class="checktopleftrow" data-type="{{type}}">
             {% for item in itemdb[page][type]["items"] %}
-              <span class="checkitem checklayer{{ page }}" style="background-color:{{ itemdb[page][type]['color'] }}" data-type="{{ type }}" data-price="{{item["price"]}}">
+              <span class="checkitem checklayer{{ page }}" style="background-color: {{ itemdb[page][type]['color'] }}" data-type="{{ type }}" data-price="{{item['price']}}">
                 <span class="checkitemlabel">{{ item["title"] }}</span>
                 <span class="checkitemprice"></span>
               </span>

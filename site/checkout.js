@@ -1,8 +1,9 @@
 vtotal = 0
 ttotal = 0
-cstate = 0
+cstate = 0 // 0 - vend, 1 - payment, 2 - manual input, 3 - next customer, 4 - processing data to server, 5 swipe card, 6 - enter name
 otheramt = 0
 lastendedevent = 0
+cotext = ""
 
 // using the sound sample length to limit button-presses
 function readysnd(snd) {
@@ -23,7 +24,13 @@ function playthen(snd,btn) {
     playsnd(snd,function() {
         $(btn).removeClass("checkitemselected")
     })
+}
 
+function flipborder(obj,from,to) {
+    obj.css("border-color",from)
+    setTimeout(function() {
+        obj.css("border-color",to)
+    },150)
 }
 function vendlines() {
     return $(".checktoprighttop .checkrightline").length
@@ -42,6 +49,14 @@ function updateprices() {
         else 
             $(this).find(".checkitemprice").text(vtotal.toFixed(2))
     })
+    if (cstate == 5) {
+        $(".checkoutcard").css("display","inline-flex").css("pointer-events", "auto")
+    } else if (cstate == 6) {
+        $(".checkoutcard").css("display","none").css("pointer-events", "none")
+        $(".checkoutboard").css("display","inline-flex").css("pointer-events", "auto")
+    } else {
+        $(".checkoutcard,.checkoutboard").css("display","none").css("pointer-events", "none")
+    }
     if (cstate == 0) {
         if (!vendlines()) 
             $("#checkcancel span").text("")
@@ -66,7 +81,6 @@ function updateprices() {
             $("#checkgo span").text("")
         }
     } else if (cstate == 2) {
-        $("#checkcancel span").text("Cancel")
         $("#checkgo span").text("")
         $("#checkcancel span").text("Cancel")
         $("#checkother").removeClass("checkhide")
@@ -75,10 +89,20 @@ function updateprices() {
         else
             $("#checkother span").text("")
     } else if (cstate == 3) {
+        $("#checkcancel span").text("")
         $("#checkgo span").text("Next Customer")
     } else if (cstate == 4) {
         $("#checkgo span").text("Processing...")
+    } else if (cstate == 5) {
+        $("#checkgo span").text("Skip Card")
+        $("#checkcancel span").text("Cancel")
+        $("#checkother").addClass("checkhide")
+    } else if (cstate == 6) {
+        $("#checkgo span").text("Add Member")
+        $("#checkcancel span").text("Cancel")
+        $("#checkother").addClass("checkhide")
     }
+    $("#checkouttext").html("&nbsp;" + cotext)
 }
 
 function maketotal(label) {
@@ -122,9 +146,6 @@ function addvend(type,label,price,color) {
     parentdiv.css("color",color)
     $(".checktoprighttop").append(parentdiv)
 }
-function updvend(vendline,price) {
-    $(vendline).data("price",price).find(".checkrightprice").text(price.toFixed(2))
-}
 function addvtotal(amt) {
     vtotal += amt
     settotal(totaldiv,vtotal)
@@ -138,6 +159,10 @@ function itemclick() {
                 addvtotal(thisprice)
                 $(".checktoprightbottom").append(totaldiv)
                 playthen("pop",this)
+                if ($(this).data("type") == "Subscription") {
+                    cotext = ""
+                    cstate = 5
+                }
             }
         } else if (cstate == 1) {
             if ($(this).data("price") == -1) {
@@ -192,8 +217,9 @@ function itemclick() {
             if (otheramt > 0) {
                 $(".checktoprightbottom").append(totaldiv)                
             }
-            updvend(lastvend(),otheramt/100)
-            addvtotal(otheramt/100)
+            let price = otheramt/100
+            lastvend().data("price",price).find(".checkrightprice").text(price.toFixed(2))
+            addvtotal(price)
         }
     }
     updateprices()
@@ -207,8 +233,9 @@ function changepage(pg) {
             $(".checklayer"+i).addClass("checkhide")
     }
 }
-function checkback() {
+function checkcancel() {
     if (readysnd("undo")) {
+        flipborder($("#checkcancel"),"white","")
         if (cstate == 0) {
             let remline = lastvend()
             if (remline.length) {
@@ -229,6 +256,9 @@ function checkback() {
             lastvend().remove()
             changepage(0)
             playsnd("undo")            
+        } else if (cstate == 5 || cstate == 6) {
+            changepage(0)
+            playsnd("undo")            
         }
         updateprices()
     }    
@@ -245,6 +275,7 @@ function checkmaxvendlines() {
 }
 function checkother() {
     if (readysnd("pop")) {
+        flipborder($("#checkother"),"white","")
         if (cstate == 0) {
             if (checkmaxvendlines()) {
                 if (cstate == 0) {
@@ -263,8 +294,15 @@ function checkother() {
         updateprices()
     }
 }
+function updatename(nm,isnew=false) {
+    lastvend().data("membername",nm)
+    lastvend().data("isnew",isnew)
+    let lv = lastvend().find(".checkrightlabel")
+    lv.html(lv.text() + "<BR><span class='checkoutcardtext'>" + nm + "</span>")
+}
 function checkgo() {
     if (readysnd("beep")) {
+        flipborder($("#checkgo"),"white","")
         if (cstate == 0  && vtotal > 0) {
             settotal(totaldiv,vtotal)
             $(".checktoprighttop").append(totaldiv)
@@ -277,18 +315,16 @@ function checkgo() {
             }
             $(".checktopright .checkrightline").each(function() {
                 if (!$(this).hasClass("checkrighttotal")) {
-                    transdata["sales"].push({
-                        "type": $(this).data("type"),
-                        "label": $(this).data("label"),
-                        "price": $(this).data("price")
-                    })
+                    dtt = {}
+                    for (dt in $(this).data())
+                        dtt[dt] = $(this).data(dt)
+                    transdata["sales"].push(dtt)
                 }
             })
             transdata["tender"]["Paid"] = tenderdiv.find(".checkrightlabel").text()
             transdata["tender"]["Total"] = vtotal
             transdata["tender"]["Change"] = vtotal-ttotal
             cstate = 4
-            updateprices()
             $.ajax("/checkoutlog", {
                 data : JSON.stringify(transdata),
                 contentType : 'application/json',
@@ -315,6 +351,16 @@ function checkgo() {
             changediv.remove()
             totaldiv.remove()
             playsnd("beep")
+        } else if (cstate == 5) {            
+            updatename("New Member",true)
+            cstate = 0
+            playsnd("beep")
+        } else if (cstate == 6) {
+            if (cotext == "")
+                cotext = "New Member"
+            updatename(cotext,true)
+            cstate = 0
+            playsnd("beep")
         }
         updateprices()
     }
@@ -323,8 +369,67 @@ $(document).ready(function() {
     $(".checklayertender").addClass("checkhide");
     $(".checkitem").on("click",itemclick)
     $("#checkother").on("click",checkother)
-    $("#checkcancel").on("click",checkback)
+    $("#checkcancel").on("click",checkcancel)
     $("#checkgo").on("click",checkgo)
     changepage(0)
     updateprices()
+
+    cardinput = ""
+    lastcardinput = 0
+    $(window).on("keydown",function(e) {
+        if (cstate == 5) {
+            let nw = new Date().getTime()
+            if (nw - lastcardinput > 3000)
+                cardinput = ""
+            if (e.key == "Enter") {
+                if (cardinput != "")  {
+                    lastvend().data("card",cardinput)
+                    $.ajax("/checkcard", {
+                        data : {"card": cardinput,"member": cotext},
+                        type : 'POST',
+                        success: function(response) {
+                            cardinput = ""
+                            if (response == "New Member")
+                                cstate = 6
+                            else {
+                                updatename(response)
+                                cstate = 0                                
+                            }
+                            updateprices()
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {
+                            cardinput = ""
+                            cstate = 0 // TODO not sure what to do here - why would this possibly fail???
+                            updateprices()
+                        }
+                    })                                        
+                }
+            } else
+                cardinput += e.key
+            lastcardinput = nw
+        }
+    })
+    checkoutboard = "ABCDEFGHIJKLMNOPQRSTUVWXYZ <"
+    chrows = 4
+    chrowl = Math.round(checkoutboard.length/chrows,0)
+    for (i=0;i < chrows;i++) {
+        let row = $("<div>",{class: "checkoutboardrow"})
+        for (j = 0; j < chrowl;j++) {
+            row.append(                
+                $("<div>",{class: "checkoutboardkey",text: checkoutboard[i*chrowl+j]})
+            )
+        }
+        $("#checkoutletters").append(row)
+    }
+    $(".checkoutboardkey").on("click",function(e) {
+        if (readysnd("pop")) {
+            let lt = $(this).text()
+            if (lt == "<")
+                cotext = cotext.substr(0,cotext.length-1)
+            else if (lt != " " || cotext.substr(cotext.length-1,1) != " ")
+                cotext += $(this).text()            
+            playthen("pop",this)
+            updateprices()
+        }
+    })
 })

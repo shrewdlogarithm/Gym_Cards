@@ -145,7 +145,7 @@
       <th>Last Seen</th>
       <th>Lock Used</th>
       <th>Expires</th>
-      <th>VIP</th>
+      <th>MemType</th>
       <th>Staff</th>
       <th></th>
       <th>In/Out</th>
@@ -201,12 +201,20 @@
           </td>
           <td>
             <select name="vip">
-            {% if carddb[card]["vip"] %}
-              <option selected>Yes</option>
-              <option>No</option>
+            {% if carddb[card]["vip"] == "0" %}
+              <option value="0" selected>Normal</option>
             {% else %}
-              <option>Yes</option>
-              <option selected>No</option>
+              <option value="0">Normal</option>
+            {% endif %}
+            {% if carddb[card]["vip"] == "1" %}
+              <option value="1" selected>Lite</option>
+            {% else %}
+              <option value="1">Lite</option>
+            {% endif %}
+            {% if carddb[card]["vip"] == "2" or carddb[card]["vip"] == True %}
+              <option value="2" selected>VIP</option>
+            {% else %}
+              <option value="2">VIP</option>
             {% endif %}
             </select>
           </td>
