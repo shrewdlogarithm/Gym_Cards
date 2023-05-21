@@ -52,9 +52,6 @@ def showpic(card):
     if (not log.memberin(card) and os.path.exists("site/images/" + str(carddb[card]["memno"]) + ".png")):
         sse.add_message("##MemImg" + str(carddb[card]["memno"]))
 
-def isvip(cdb):
-    return "vip" in cdb and cdb["vip"]
-
 ## Member Functions
 def membername(card):
     memname = ""
@@ -66,7 +63,7 @@ def membername(card):
         memname = "Member-" + str(carddb[card]["memno"])
     if ("papermemno" in carddb[card] and carddb[card]["papermemno"] != ""):
         memname += " (" + carddb[card]["papermemno"] + ")"
-    if isvip(carddb[card]):
+    if lock.isvip(carddb[card]):
         memname += " *FOB*"
     return memname
 
@@ -107,7 +104,7 @@ def memberstatus(card):
     return ms
 
 #Handle Cards
-def addcard(card,staff=False):
+def addcard(card,staff=False,mtype=0,name=""):
     global carddb,nmemno
     if (card not in carddb):
         nmemno += 1
@@ -118,15 +115,24 @@ def addcard(card,staff=False):
             "expires": utils.getnowform(),
             "memno": nmemno,
             "papermemno": "",
-            "name": "",
-            "vip": False
+            "name": name,
+            "vip": mtype
         }
         carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
         log.addlog("CardCreate",card,db=carddb[card])
+        lock.updatelock(card,lock.isvip(carddb[card]))
         savedb()
         return nmemno
     else:
         return -1 # this should never happen
+
+def renewcard(card,mtype=0,name=""):
+    carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
+    carddb[card]["name"] = name
+    carddb[card]["vip"] = mtype
+    log.addlog("CardRenew",card,db=carddb[card])
+    lock.updatelock(card,lock.isvip(carddb[card]))
+    savedb()
 
 def cardvisit(card):
     carddb[card]["lastseen"] = utils.getnowformlong()
@@ -138,8 +144,44 @@ def cardvisit(card):
     sse.add_message(f'##Active Members {log.membercount()}')    
     savedb()
    
-## Input (USB RFID Reader)
+## EvDev Input (USB RFID Reader)
 def eventinput():
+    try: 
+        import evdev
+        from select import select
+        devs={}
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        devices = {dev.fd: dev for dev in devices}
+        while sysactive:
+            try:
+                r, w, x = select(devices,[],[],0.2)
+                for fd in r:
+                    for event in devices[fd].read():  
+                        if "RFID" in devices[fd].name:                          
+                            if event.type == evdev.ecodes.EV_KEY:
+                                try:
+                                    keyevent = evdev.categorize(event)
+                                    if (keyevent.keystate == keyevent.key_up):
+                                        if (keyevent.keycode == "KEY_ENTER"):
+                                            if (devs[fd] != ""):
+                                                cards.put(devs[fd])
+                                                devs[fd] = ""
+                                        else:
+                                            if (fd not in devs):
+                                                devs[fd] = ""
+                                            devs[fd] += keyevent.keycode.replace("KEY_","")                                
+                                except Exception as e:
+                                    log.addlog("evdev_keyevent_exception",excep=e)
+            except Exception as e:
+                devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+                devices = {dev.fd: dev for dev in devices}    
+    except Exception as e:
+        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+        devices = {dev.fd: dev for dev in devices}    
+# threads.start_thread(eventinput)
+
+## Input (USB RFID Reader)
+def pyninput():
     while sysactive:
         try:                
             def on_press(key):
@@ -160,7 +202,17 @@ def eventinput():
 
         except:
             log.addlog("pynputexception",excep=e)
-threads.start_thread(eventinput)
+threads.start_thread(pyninput)
+
+## Local Input
+def localinput():                    
+    while sysactive:
+        try:
+            ip = input()
+            cards.put(ip)
+        except Exception as e:
+            log.addlog("localinputexception",excep=e)
+# threads.start_thread(localinput)
 
 ## Card Processing
 def clearq():
@@ -239,9 +291,7 @@ def handlecard(card):
             to = utils.getdelay(0)
         elif cq == "MMKM":
             card = cardq[2]["cd"]
-            carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
-            log.addlog("CardRenew",card,db=carddb[card])
-            savedb()
+            renewcard(card)
             sse.add_message(f'{membername(card)} <BR> { get_remainshow(card) } days left:::{ memberstatus(card) }')
             showpic(card)
             clearq()
@@ -288,7 +338,7 @@ def handlecard(card):
                 log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
                 lock.updatelock(replcard,False) 
                 carddb[card] = carddb[replcard]
-                if isvip(carddb[card]):
+                if lock.isvip(carddb[card]):
                     lock.updatelock(card,True) 
                 if log.memberin(replcard): # card signed-in
                     cardvisit(replcard) # sign-out old card
@@ -408,7 +458,7 @@ def showstats():
                 rtn = carddb[card]["name"]
                 if len(rtn) == 0:
                     rtn = "Unknown"
-                if isvip(carddb[card]):
+                if lock.isvip(carddb[card]):
                     rtn += "*"
                 rtn = str(carddb[card]["memno"]) + " - " + rtn
             else:
@@ -497,8 +547,24 @@ def checkouttemplate():
 
 @app.route('/checkoutlog', methods=['POST'])
 def checkoutlog():
+    def getmtype(tx):
+        if "label" in tx:
+            if "lite" in tx["label"].lower():
+                return 1
+            elif "vip" in tx["label"].lower():
+                return 2
+        return 0        
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
+    if "sales" in txdb:
+        for tx in txdb["sales"]:
+            if "type" in tx and tx["type"] == "Subscription" and "card" in tx:
+                if "membername" in tx:
+                    print(tx["membername"])
+                if "isnew" in tx and tx["isnew"]:
+                    addcard(tx["card"],False,getmtype(tx),tx["membername"])
+                else:      
+                    renewcard(tx["card"],getmtype(tx),tx["membername"])
     try:
         with open('/dev/ttyUSB0', 'w') as com:
             com.write(chr(27)+chr(112)+chr(0)+chr(48))
@@ -544,10 +610,10 @@ def update():
                     except:
                         carddb[card]["staff"] = False
                 try: 
-                    carddb[card]["vip"] = request.form.get("vip").lower()=="yes"
+                    carddb[card]["vip"] = request.form.get("vip")
                 except:
-                    carddb[card]["vip"] = False
-                lock.updatelock(card,isvip(carddb[card]))
+                    carddb[card]["vip"] = 0
+                lock.updatelock(card,lock.isvip(carddb[card]))
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
             except Exception as e:
@@ -627,13 +693,13 @@ def swipe():
     else:
         return "System Shutting Down"
 
-# @app.route('/checkcard', methods=['POST'])
-# def checkcard():
-#     card = request.form.get("card")
-#     if card in carddb:
-#         return carddb[card]["name"]
-#     else:
-#         return "New Member"
+@app.route('/checkcard', methods=['POST'])
+def checkcard():
+    card = request.form.get("card")
+    if card in carddb:
+        return carddb[card]["name"]
+    else:
+        return "New Member"
     
 @app.route('/replace', methods=['POST'])
 def replace():

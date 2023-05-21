@@ -141,3 +141,6 @@ def getlocktime():
                 time.sleep(10)
             else:                
                 break
+
+def isvip(cdb):
+    return "vip" in cdb and (cdb["vip"] == True or cdb["vip"] == 2) # VIP used to be True/False - supporting both
