@@ -117,30 +117,5 @@ def getpage(path,vars={}):
     except Exception as e:
         raise e
 
-@background
-def getlocktime():
-    maxtries = 5
-    timefound = False
-    while not timefound:
-        try:
-            page = getpage("ACT_ID_21",{"s5": "Configure"})
-            pq = PyQuery(bytes(bytearray(page, encoding='utf-8')))
-            d = pq("table:last tr:nth-of-type(5) td:nth-of-type(2)")
-            dd = utils.parsedatelong(d[0].text)
-            dn = utils.getnowlong()
-            if dn < dd: 
-                utils.setnow(dd)
-                log.addlog("Datetime: Using Lock time " + utils.getnowformlong())        
-            else:
-                log.addlog("Datetime: Using System time " + utils.getnowformlong())
-            timefound = True
-        except Exception as e:
-            log.addlog("DatetimeExcept",excep=e)
-            if maxtries > 1:
-                maxtries -= 1
-                time.sleep(10)
-            else:                
-                break
-
 def isvip(cdb):
     return "vip" in cdb and (cdb["vip"] == True or cdb["vip"] == 2) # VIP used to be True/False - supporting both

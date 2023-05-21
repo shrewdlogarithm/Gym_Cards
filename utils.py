@@ -3,7 +3,6 @@ from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta 
 import sse
 
-timeoffset = timedelta()
 dateform = '%Y-%m-%d' # the format Chrome requires..
 dateformlongfbms = '%Y-%m-%d %H:%M:%S.%f' # original format
 dateformlongfb = '%Y-%m-%d-%H:%M:%S' # older format
@@ -36,7 +35,7 @@ def getdelay(dl):
     return rv
 
 def getnowlong():    
-    return datetime.now()+timeoffset
+    return datetime.now()
 
 def getnow():
     return getnowlong().date()
@@ -80,8 +79,3 @@ def calc_expiry(expdate):
         return getrenewform(expdate)
     else:
         return getrenewform()
-
-def setnow(dt):
-    global timeoffset
-    timeoffset = dt - datetime.now()
-    sse.add_message("##Timeset" + getnowformlong())
