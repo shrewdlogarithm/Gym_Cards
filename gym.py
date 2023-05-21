@@ -557,8 +557,6 @@ def checkoutlog():
     if "sales" in txdb:
         for tx in txdb["sales"]:
             if "type" in tx and tx["type"] == "Subscription" and "card" in tx:
-                if "membername" in tx:
-                    print(tx["membername"])
                 if "isnew" in tx and tx["isnew"]:
                     addcard(tx["card"],False,getmtype(tx),tx["membername"])
                 else:      
