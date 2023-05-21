@@ -561,15 +561,15 @@ def checkoutlog():
     def getmtype(tx):
         if "label" in tx:
             if "lite" in tx["label"].lower():
-                return 1
+                return "1"
             elif "vip" in tx["label"].lower():
-                return 2
-        return 0        
+                return "2"
+        return "0"        
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
     if "sales" in txdb:
         for tx in txdb["sales"]:
-            if "type" in tx and tx["type"] == "Subscription" and "card" in tx:
+            if "type" in tx and tx["type"] == "Subscription" and "card" in tx and tx["card"] != "":
                 if "isnew" in tx and tx["isnew"]:
                     addcard(tx["card"],False,getmtype(tx),tx["membername"])
                 else:      

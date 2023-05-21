@@ -352,12 +352,10 @@ function checkgo() {
             totaldiv.remove()
             playsnd("beep")
         } else if (cstate == 5) {            
-            updatename("New Member",true)
+            updatename("",true)
             cstate = 0
             playsnd("beep")
         } else if (cstate == 6) {
-            if (cotext == "")
-                cotext = "New Member"
             updatename(cotext,true)
             cstate = 0
             playsnd("beep")
@@ -389,9 +387,10 @@ $(document).ready(function() {
                         type : 'POST',
                         success: function(response) {
                             cardinput = ""
-                            if (response == "New Member")
+                            if (response == "New Member") {
+                                updatename("")
                                 cstate = 6
-                            else {
+                            }else {
                                 updatename(response)
                                 cstate = 0                                
                             }
@@ -426,7 +425,7 @@ $(document).ready(function() {
             let lt = $(this).text()
             if (lt == "<")
                 cotext = cotext.substr(0,cotext.length-1)
-            else if (lt != " " || cotext.substr(cotext.length-1,1) != " ")
+            else if (lt != " " || (cotext != "" && cotext.substr(cotext.length-1,1)) != " ")
                 cotext += $(this).text()            
             playthen("pop",this)
             updateprices()
