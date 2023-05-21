@@ -15,7 +15,6 @@ carddb = {}
 
 cards = Queue()
 cardq=[]
-inputcard = ""
 
 log.addlog("GymStart")
 
@@ -152,6 +151,14 @@ def eventinput():
         devices = {dev.fd: dev for dev in devices}
         while sysactive:
             try:
+                rffound = False
+                for dev in devices:
+                    if "RFID" in devices[dev].name:
+                        rffound = True
+                        break;
+                if not rffound:
+                    log.addlog("evdev_no_card_reader")
+                    raise Exception # reload devices
                 r, w, x = select(devices,[],[],0.2)
                 for fd in r:
                     for event in devices[fd].read():  
@@ -170,37 +177,43 @@ def eventinput():
                                             devs[fd] += keyevent.keycode.replace("KEY_","")                                
                                 except Exception as e:
                                     log.addlog("evdev_keyevent_exception",excep=e)
-            except Exception as e:
+            except Exception as e: # this traps reloads AND devices which have disconnected
                 devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-                devices = {dev.fd: dev for dev in devices}    
+                devices = {dev.fd: dev for dev in devices}
     except Exception as e:
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-        devices = {dev.fd: dev for dev in devices}    
-# threads.start_thread(eventinput)
+        log.addlog("evdev_exception",excep=e)
+threads.start_thread(eventinput)
 
+inputcard = ""
+lastkey = utils.getnowlong()
 ## Input (USB RFID Reader)
 def pyninput():
     while sysactive:
         try:                
             def on_press(key):
-                global inputcard
+                global inputcard,lastkey
+                if utils.getnowlong() - lastkey > timedelta(seconds=1):
+                    inputcard = ""
                 try:
                     if key == keyboard.Key.enter and inputcard != "":
                         cards.put(inputcard)
+                        print("==" + inputcard)
                         inputcard = ""
                     else:
                         inputcard += key.char
+                        lastkey = utils.getnowlong()
+                        print(">>" + inputcard)
                 except Exception as e:
-                    pass
+                    pass                
 
             # Collect events until released
             with keyboard.Listener(
                 on_press=on_press) as listener:
                 listener.join()
 
-        except:
+        except Exception as e:
             log.addlog("pynputexception",excep=e)
-threads.start_thread(pyninput)
+# threads.start_thread(pyninput)
 
 ## Local Input
 def localinput():                    
