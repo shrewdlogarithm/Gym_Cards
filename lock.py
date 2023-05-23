@@ -118,4 +118,4 @@ def getpage(path,vars={}):
         raise e
 
 def isvip(cdb):
-    return "vip" in cdb and (cdb["vip"] == True or cdb["vip"] == 2) # VIP used to be True/False - supporting both
+    return "vip" in cdb and (cdb["vip"] == True or cdb["vip"] == "2") # VIP used to be True/False - supporting both

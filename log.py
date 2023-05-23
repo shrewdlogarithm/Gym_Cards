@@ -90,7 +90,6 @@ def delmem(card):
         del getmemdb()[card]
 
 def getlogmsgs(type,dys=0):
-    print(logdtfrom(dys),logdtto(dys))
     mrows = connection.execute("SELECT * FROM LOGS WHERE dt > ? AND dt < ? AND event = ?",(logdtfrom(dys),logdtto(dys),type)).fetchall()
     mret = []
     for m in mrows:
