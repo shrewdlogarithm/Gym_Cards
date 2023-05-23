@@ -403,7 +403,7 @@ $(document).ready(function() {
                         }
                     })                                        
                 }
-            } else
+            } else if ("0123456789".includes(e.key))
                 cardinput += e.key
             lastcardinput = nw
         }
