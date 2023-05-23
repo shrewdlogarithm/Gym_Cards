@@ -31,8 +31,9 @@ pip3 install playsound
 # for the RFID DoorLock
 pip3 install Chinese-RFID-Access-Control-Library
 
-# To access the cardreader 
-pip3 install pynput
+# To access the cardreader (pick one)
+pip3 install evdev # this one for production
+pip3 install pynput # this one for Windows
 sudo usermod -a -G input $USER # may be required on some systems
 
 # for the cash drawer
@@ -42,4 +43,3 @@ sudo usermod -a -G dialout $USER
 # to run under gunicorn
 pip3 install gevent
 sudo apt install gunicorn
-gunicorn --bind 0.0.0.0:8080 --worker-class=gevent gym:app

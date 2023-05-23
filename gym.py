@@ -1,4 +1,4 @@
-import os,random,json,time,base64,shutil,subprocess
+import sys,os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
@@ -197,12 +197,10 @@ def pyninput():
                 try:
                     if key == keyboard.Key.enter and inputcard != "":
                         cards.put(inputcard)
-                        print("==" + inputcard)
                         inputcard = ""
                     else:
                         inputcard += key.char
                         lastkey = utils.getnowlong()
-                        print(">>" + inputcard)
                 except Exception as e:
                     pass                
 
@@ -287,10 +285,11 @@ def handlecard(card):
             sse.add_message("Shutdown")
             try:
                 sysactive = False
-                # threads.stop_threads() # this hangs on MINT for some reason so commented-out for now
                 subprocess.call(['bash','system/backup.sh','shutdown'])
             except Exception as e:
                 log.addlog("ShutdownFail",excep=e) 
+            threads.stop_threads() 
+            sys.exit(4) # stops wsgi servers
         elif cq == "MMMMM":
             sse.add_message("1 More to Shutdown")
             to = utils.getdelay(0)
