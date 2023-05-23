@@ -39,9 +39,7 @@ sudo usermod -a -G input $USER # may be required on some systems
 sudo echo 'KERNEL=="ttyUSB0", MODE="0666"' > /etc/udev/rules.d/cashdrawer.rules
 sudo usermod -a -G dialout $USER 
 
-# For the RPi Argon Case
-curl https://download.argon40.com/argon1.sh | bash
-
-# Check for updates/install crontab/desktop shortcuts etc.
-cd ~/Gym_Cards
-bash system/update.sh
+# to run under gunicorn
+pip3 install gevent
+sudo apt install gunicorn
+gunicorn --bind 0.0.0.0:8080 --worker-class=gevent gym:app
