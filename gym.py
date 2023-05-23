@@ -4,7 +4,6 @@ from playsound import playsound
 from flask import Flask, Response, request, render_template
 import sse,log,threads,utils,lock,checkout
 from datetime import datetime,timedelta
-from pynput import keyboard
 
 sysactive = True
 nmemno = 0
@@ -178,6 +177,9 @@ def eventinput():
                                 except Exception as e:
                                     log.addlog("evdev_keyevent_exception",excep=e)
             except Exception as e: # this traps reloads AND devices which have disconnected
+                sse.add_message("Card Reader not found")
+                time.sleep(2)
+                sse.add_message("")
                 devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
                 devices = {dev.fd: dev for dev in devices}
     except Exception as e:
@@ -188,29 +190,33 @@ inputcard = ""
 lastkey = utils.getnowlong()
 ## Input (USB RFID Reader)
 def pyninput():
-    while sysactive:
-        try:                
-            def on_press(key):
-                global inputcard,lastkey
-                if utils.getnowlong() - lastkey > timedelta(seconds=1):
-                    inputcard = ""
-                try:
-                    if key == keyboard.Key.enter and inputcard != "":
-                        cards.put(inputcard)
+    try:
+        from pynput import keyboard
+        while sysactive:
+            try:                
+                def on_press(key):
+                    global inputcard,lastkey
+                    if utils.getnowlong() - lastkey > timedelta(seconds=1):
                         inputcard = ""
-                    else:
-                        inputcard += key.char
-                        lastkey = utils.getnowlong()
-                except Exception as e:
-                    pass                
+                    try:
+                        if key == keyboard.Key.enter and inputcard != "":
+                            cards.put(inputcard)
+                            inputcard = ""
+                        else:
+                            inputcard += key.char
+                            lastkey = utils.getnowlong()
+                    except Exception as e:
+                        pass                
 
-            # Collect events until released
-            with keyboard.Listener(
-                on_press=on_press) as listener:
-                listener.join()
+                # Collect events until released
+                with keyboard.Listener(
+                    on_press=on_press) as listener:
+                    listener.join()
 
-        except Exception as e:
-            log.addlog("pynputexception",excep=e)
+            except Exception as e:
+                log.addlog("pynputexception",excep=e)
+    except:
+        log.addlog("pynputexception",excep=e)
 # threads.start_thread(pyninput)
 
 ## Local Input
