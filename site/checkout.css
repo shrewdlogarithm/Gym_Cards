@@ -149,3 +149,12 @@
     width: 150px;
     border: 20px solid green;
 }
+
+.debug {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    color: red;
+    font-size: 1vw;
+    z-index: 1;
+}

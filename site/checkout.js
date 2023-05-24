@@ -369,6 +369,9 @@ $(document).ready(function() {
     $("#checkother").on("click",checkother)
     $("#checkcancel").on("click",checkcancel)
     $("#checkgo").on("click",checkgo)
+    $(window).on("mousedown",function(e) {
+        $(".debug").text(e.screenX + " - " + e.screenY + " - " + e.timeStamp)
+    })
     changepage(0)
     updateprices()
 
