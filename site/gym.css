@@ -45,7 +45,7 @@
 }
 
 .modal__content {
-    bottom: 45px;
+    bottom: 15px;
     top: 100px;
     overflow-y: auto;
     text-align: center;
