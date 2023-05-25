@@ -369,7 +369,7 @@ $(document).ready(function() {
     $("#checkother").on("click",checkother)
     $("#checkcancel").on("click",checkcancel)
     $("#checkgo").on("click",checkgo)
-    $(window).on("mousedown",function(e) {
+    $(window).on("mousedown touchdown",function(e) {
         $(".debug").text(e.screenX + " - " + e.screenY + " - " + e.timeStamp)
     })
     changepage(0)
@@ -423,7 +423,7 @@ $(document).ready(function() {
         }
         $("#checkoutletters").append(row)
     }
-    $(".checkoutboardkey").on("click",function(e) {
+    $(".checkoutboardkey").on("mousedown touchdown",function(e) {
         if (readysnd("pop")) {
             let lt = $(this).text()
             if (lt == "<")

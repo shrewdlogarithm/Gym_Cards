@@ -46,10 +46,16 @@ itemdb = {
         "Notes": {
             "color": "green",
             "items": [
-                {"title": "Note","price": 50},
                 {"title": "Note","price": 20},
                 {"title": "Note","price": 10},
                 {"title": "Note","price": 5},
+            ],
+        },
+        "Coins": {
+            "color": "grey",
+            "items": [
+                {"title": "Coin","price": 2},
+                {"title": "Coin","price": 1},
             ],
         },
         "Exact": {
