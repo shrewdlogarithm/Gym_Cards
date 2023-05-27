@@ -38,7 +38,10 @@ function startserver() {
       }
     }
     gymsource.onerror = function(e) {
-      startserver()
+      settimeout(function() {
+        gymsource.close()
+        startserver()
+      },2000)
     }
   }
 }

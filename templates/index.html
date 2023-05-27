@@ -52,10 +52,10 @@
           if (sto != 0)
             clearTimeout(sto)
           $("#centerbox").removeClass().text("Server Disconnection") 
-          source = new EventSource('/stream');
           sto = setTimeout(function() {
-            startserver()
             $("#centerbox").removeClass().text("") 
+            source.close()
+            startserver()
           },2000)
         }
       }
