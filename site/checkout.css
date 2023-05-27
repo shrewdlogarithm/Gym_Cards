@@ -162,3 +162,11 @@
     font-size: 1vw;
     z-index: 1;
 }
+
+#footright {
+    position: absolute;
+    top: 15px;
+    right: 0px;
+    font-size: 1vw;
+    z-index: 2;
+}

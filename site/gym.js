@@ -32,20 +32,21 @@ function startserver() {
         stime = e.data.substring(9)
         serverTime = Date.parse(stime)
       } else if (e.data.startsWith("##Active Members")) {
+        console.log(e.data)
         $('#footright').text(e.data.substring(2));
       } else if (e.data.startsWith("##Timer")) {
         timerbar(e.data.substring(7))
       }
     }
     gymsource.onerror = function(e) {
-      settimeout(function() {
+      setTimeout(function() {
+        $('#footright').text("Server Disconnected");
         gymsource.close()
         startserver()
       },2000)
     }
   }
 }
-startserver()
 
 function updateTime() {
   if (serverTime > 0) {
@@ -55,6 +56,7 @@ function updateTime() {
   }
 }
 $(document).ready(function(){
+    startserver()
     updateTime();
     setInterval(updateTime, 1000);
 });

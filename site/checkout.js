@@ -375,6 +375,9 @@ $(document).ready(function() {
     changepage(0)
     updateprices()
 
+    $(".modal__header").append(
+        $("<div>",{id: "footright",text: ""})
+    )
     cardinput = ""
     lastcardinput = 0
     $(window).on("keydown",function(e) {
