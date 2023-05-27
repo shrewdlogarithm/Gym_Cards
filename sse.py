@@ -13,9 +13,12 @@ class MessageAnnouncer:
     def announce(self, msg):
         for i in reversed(range(len(self.listeners))):
             try:
-                self.listeners[i].put_nowait(msg)
-            except queue.Full:
-                del self.listeners[i]
+                try:
+                    self.listeners[i].put_nowait(msg)
+                except queue.Full:
+                    del self.listeners[i]
+            except: # multi-threaded index out of range errors mostly
+                pass
 announcer = MessageAnnouncer()
 
 def format_sse(data: str, event=None) -> str:

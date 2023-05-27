@@ -1,7 +1,7 @@
 from datetime import timedelta,datetime
 
-import json,threading
-import utils,socket
+import json,threading,socket
+import utils,log
 
 from glob import glob
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
@@ -117,7 +117,7 @@ def addcheckoutlog(db):
         with open(logname(),"a") as lf:
             lf.write(json.dumps(db,default=str) + ",\n")
     except Exception as e:
-        print(f'Log Writing exception {e}')    
+        log.addlog("AddCheckOutLog",excep=e)    
     lock.release()
 
 def addto(dct,ky,val):
@@ -127,7 +127,7 @@ def addto(dct,ky,val):
         else:
             dct[ky] = f'{round(val,2):.2f}'
     except Exception as e:
-        print(e)
+        log.addlog("AddTo",excep=e)    
 
 def getdata():
     ttypes = {"Total": 0}
@@ -159,7 +159,7 @@ def getdata():
                         for tender in log["tender"]:
                             tilltrans[tdate]["times"][ttime]["trans"].append({"label": tender,"type": "Total", "price": log["tender"][tender]})
                 except Exception as e:
-                    print(e)
+                    log.addlog("GetDataLoop",excep=e)    
     except Exception as e:
-        print(e)
+        log.addlog("GetData",excep=e)    
     return {"tilldates": sorted(tilltrans,reverse=True),"tilltrans": tilltrans,"ttypes": ttypes}
