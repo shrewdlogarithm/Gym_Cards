@@ -24,7 +24,7 @@ function updbar() {
 }
 
 var serverTime = 0;
-function startserver() {  
+function gymserver() {  
   if (!!window.EventSource) {
     var gymsource = new EventSource('/stream');
     gymsource.onmessage = function(e) {
@@ -42,7 +42,7 @@ function startserver() {
       setTimeout(function() {
         $('#footright').text("Server Disconnected");
         gymsource.close()
-        startserver()
+        gymserver()
       },2000)
     }
   }
@@ -56,7 +56,7 @@ function updateTime() {
   }
 }
 $(document).ready(function(){
-    startserver()
+    gymserver()
     updateTime();
     setInterval(updateTime, 1000);
 });
