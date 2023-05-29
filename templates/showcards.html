@@ -197,25 +197,17 @@
             </select> 
           </td>
           <td>                            
-            <input type="date" name="expires" value="{{ carddb[card]['expires'] }}">
+            <input type="date" name="expires" value="{{ carddb[card]['expires'] }}" required>
           </td>
           <td>
             <select name="vip">
-            {% if carddb[card]["vip"] == "0" %}
-              <option value="0" selected>Normal</option>
-            {% else %}
-              <option value="0">Normal</option>
-            {% endif %}
-            {% if carddb[card]["vip"] == "1" %}
-              <option value="1" selected>Lite</option>
-            {% else %}
-              <option value="1">Lite</option>
-            {% endif %}
-            {% if carddb[card]["vip"] == "2" or carddb[card]["vip"] == True %}
-              <option value="2" selected>VIP</option>
-            {% else %}
-              <option value="2">VIP</option>
-            {% endif %}
+              {% for mtype in mtypes %}
+                {% if carddb[card]["vip"] == mtype %}
+                  <option value="{{ mtype }}" selected>{{ mtypes[mtype]["name"] }}</option>
+                {% else %}
+                  <option value="{{ mtype }}">{{ mtypes[mtype]["name"] }}</option>
+                {% endif %}
+              {% endfor %}
             </select>
           </td>
           <td>

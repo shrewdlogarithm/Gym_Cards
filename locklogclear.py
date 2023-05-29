@@ -1,6 +1,6 @@
 import re,time,json
 from pyquery import PyQuery
-import lock
+import utils,lock
 
 with open("data/cards.json") as json_file:
     carddb = json.load(json_file)
@@ -46,7 +46,7 @@ for card in lockcards:
     card = card.zfill(10)
     print("Lock Card ",card,end="")
     if card in carddb:
-        if lock.isvip(carddb[card]):
+        if utils.isvip(carddb[card]):
             pass
         else:
             print(" IS NOT VIP - REMOVE",end="")
@@ -60,13 +60,13 @@ for card in lockcards:
 for card in carddb:
     print("DB  Card ",card,end="")
     if card in lockcards:
-        if lock.isvip(carddb[card]):
+        if utils.isvip(carddb[card]):
             pass
         else:
             print(" IS NOT VIP but in lock - REMOVE",end="")
             if updatelock: lock.updatelock(card,False)
     else:
-         if lock.isvip(carddb[card]):
+         if utils.isvip(carddb[card]):
             print (" IS VIP but not in lock - ADD",end="")
             if updatelock: lock.updatelock(card,true)
     print("")

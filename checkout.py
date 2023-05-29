@@ -1,12 +1,12 @@
 from datetime import timedelta,datetime
 
 import json,threading,socket
-import utils,log
+import utils,log,lock
 
 from glob import glob
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 
-lock = threading.Lock()
+thrlock = threading.Lock()
 
 itemdb = {
     "0": {
@@ -19,11 +19,7 @@ itemdb = {
             },
         "Subscription": {
             "color": "yellow",
-            "items": [
-                {"title": "Monthly Lite","price": 20},
-                {"title": "Monthly","price": 25},
-                {"title": "Monthly VIP","price": 30},
-                {"title": "Monthly Couple","price": 40},
+            "items": [                
                 ],
             },
         "Drinks": {
@@ -102,6 +98,10 @@ itemdb = {
         },
     }
 }
+for mtype in utils.mtypes:
+    itemdb["0"]["Subscription"]["items"].append(
+        {"title": "Subs " + utils.mtypes[mtype]["name"], "price": utils.mtypes[mtype]["price"]}
+    )
 
 def logdate(dys=0):
     offs = timedelta(days=dys)
@@ -111,14 +111,14 @@ def logname(dys=0):
     return f'logs/{socket.gethostname()}-{logdate(dys).strftime("%Y%m%d")}.checkout'
 
 def addcheckoutlog(db):
-    lock.acquire()
+    thrlock.acquire()
     db["date"] = utils.getnowformlong()
     try:
         with open(logname(),"a") as lf:
             lf.write(json.dumps(db,default=str) + ",\n")
     except Exception as e:
         log.addlog("AddCheckOutLog",excep=e)    
-    lock.release()
+    thrlock.release()
 
 def addto(dct,ky,val):
     try:

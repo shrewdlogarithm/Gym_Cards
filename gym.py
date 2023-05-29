@@ -59,7 +59,7 @@ def membername(card):
         memname = "Member-" + str(carddb[card]["memno"])
     if ("papermemno" in carddb[card] and carddb[card]["papermemno"] != ""):
         memname += " (" + carddb[card]["papermemno"] + ")"
-    if lock.isvip(carddb[card]):
+    if utils.isvip(carddb[card]):
         memname += " *FOB*"
     return memname
 
@@ -83,12 +83,12 @@ def get_remainshow(card):
 
 def getmemberstatus(card):
     gr = get_remain(card)
-    if (gr < 1):
-        return ["expired",gr]
-    elif (gr < 8):
-        return ["renew",gr]
-    else:
-        return ["",0]
+    if (not carddb[card]["staff"]):
+        if (gr < 1):
+            return ["expired",gr]
+        elif (gr < 8):
+            return ["renew",gr]
+    return ["",0]
 def memberstatus(card):
     ms = getmemberstatus(card)
     fn = "sounds/" + ms[0] + ".mp3"
@@ -116,7 +116,7 @@ def addcard(card,staff=False,mtype=0,name=""):
         }
         carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
         log.addlog("CardCreate",card,db=carddb[card])
-        lock.updatelock(card,lock.isvip(carddb[card]))
+        lock.updatelock(card,utils.isvip(carddb[card]))
         savedb()
         return nmemno
     else:
@@ -127,7 +127,7 @@ def renewcard(card,mtype=0,name=""):
     carddb[card]["name"] = name
     carddb[card]["vip"] = mtype
     log.addlog("CardRenew",card,db=carddb[card])
-    lock.updatelock(card,lock.isvip(carddb[card]))
+    lock.updatelock(card,utils.isvip(carddb[card]))
     savedb()
 
 def cardvisit(card):
@@ -139,7 +139,39 @@ def cardvisit(card):
     log.addlog("MemberInOut",card,db=carddb[card])
     sse.add_message(f'##Active Members {log.membercount()}')    
     savedb()
-   
+inputcard = ""
+lastkey = utils.getnowlong()
+## Input (USB RFID Reader)
+def pyninput():
+    try:
+        from pynput import keyboard
+        while sysactive:
+            try:                
+                def on_press(key):
+                    global inputcard,lastkey
+                    if utils.getnowlong() - lastkey > timedelta(seconds=1):
+                        inputcard = ""
+                    try:
+                        if key == keyboard.Key.enter and inputcard != "":
+                            cards.put(inputcard)
+                            inputcard = ""
+                        else:
+                            inputcard += key.char
+                            lastkey = utils.getnowlong()
+                    except Exception as e:
+                        pass                
+
+                # Collect events until released
+                with keyboard.Listener(
+                    on_press=on_press) as listener:
+                    listener.join()
+
+            except Exception as e:
+                log.addlog("pynputexception",excep=e)
+    except:
+        log.addlog("pynputexception",excep=e)
+# threads.start_thread(pyninput)
+  
 ## EvDev Input (USB RFID Reader)
 def eventinput():
     try: 
@@ -184,40 +216,8 @@ def eventinput():
                 devices = {dev.fd: dev for dev in devices}
     except Exception as e:
         log.addlog("evdev_exception",excep=e)
+        pyninput() # windows only?
 threads.start_thread(eventinput)
-
-inputcard = ""
-lastkey = utils.getnowlong()
-## Input (USB RFID Reader)
-def pyninput():
-    try:
-        from pynput import keyboard
-        while sysactive:
-            try:                
-                def on_press(key):
-                    global inputcard,lastkey
-                    if utils.getnowlong() - lastkey > timedelta(seconds=1):
-                        inputcard = ""
-                    try:
-                        if key == keyboard.Key.enter and inputcard != "":
-                            cards.put(inputcard)
-                            inputcard = ""
-                        else:
-                            inputcard += key.char
-                            lastkey = utils.getnowlong()
-                    except Exception as e:
-                        pass                
-
-                # Collect events until released
-                with keyboard.Listener(
-                    on_press=on_press) as listener:
-                    listener.join()
-
-            except Exception as e:
-                log.addlog("pynputexception",excep=e)
-    except:
-        log.addlog("pynputexception",excep=e)
-# threads.start_thread(pyninput)
 
 ## Local Input
 def localinput():                    
@@ -354,7 +354,7 @@ def handlecard(card):
                 log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
                 lock.updatelock(replcard,False) 
                 carddb[card] = carddb[replcard]
-                if lock.isvip(carddb[card]):
+                if utils.isvip(carddb[card]):
                     lock.updatelock(card,True) 
                 if log.memberin(replcard): # card signed-in
                     cardvisit(replcard) # sign-out old card
@@ -372,7 +372,7 @@ def handlecard(card):
             else:
                 sse.add_message("Invalid Card - Cancelled") # this is driven from showcards so shouldn't happen
                 clearq()
-            to = utils.getdelay(2)
+            to = utils.getdelay(1)
         elif cq == "MM":
             sse.add_message("Swipe Blank to Add <BR> Swipe Existing to Renew")
             to = utils.getdelay(1)
@@ -401,7 +401,6 @@ def handlecard(card):
         else:
             sse.add_message("Welcome!")
             clearq()
-
         sse.add_message("##Timer" + str(to))
         threads.reset_timeout(to,kto)            
 
@@ -474,7 +473,7 @@ def showstats():
                 rtn = carddb[card]["name"]
                 if len(rtn) == 0:
                     rtn = "Unknown"
-                if lock.isvip(carddb[card]):
+                if utils.isvip(carddb[card]):
                     rtn += "*"
                 rtn = str(carddb[card]["memno"]) + " - " + rtn
             else:
@@ -569,6 +568,8 @@ def checkoutlog():
                 return "1"
             elif "vip" in tx["label"].lower():
                 return "2"
+            elif "couple" in tx["label"].lower():
+                return "3"
         return "0"        
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
@@ -596,7 +597,7 @@ def sendtillroll():
 @app.route('/showcards')
 def showcards():
     if sysactive:
-        return render_template('showcards.html',carddb=carddb,memdb=log.getmemdb(),lockdb=lock.getlockdb())
+        return render_template('showcards.html',carddb=carddb,memdb=log.getmemdb(),lockdb=lock.getlockdb(),mtypes=utils.mtypes)
     else:
         return "System Shutting Down"
 
@@ -627,7 +628,7 @@ def update():
                     carddb[card]["vip"] = request.form.get("vip")
                 except:
                     carddb[card]["vip"] = 0
-                lock.updatelock(card,lock.isvip(carddb[card]))
+                lock.updatelock(card,utils.isvip(carddb[card]))
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
             except Exception as e:
@@ -711,9 +712,9 @@ def swipe():
 def checkcard():
     card = request.form.get("card")
     if card in carddb:
-        return carddb[card]["name"]
+        return carddb[card] | {"newexpires": utils.calc_expiry(carddb[card]["expires"])}
     else:
-        return "New Member"
+        return "Not Found"
     
 @app.route('/replace', methods=['POST'])
 def replace():

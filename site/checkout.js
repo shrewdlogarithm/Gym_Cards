@@ -4,6 +4,7 @@ cstate = 0 // 0 - vend, 1 - payment, 2 - manual input, 3 - next customer, 4 - pr
 otheramt = 0
 lastendedevent = 0
 cotext = ""
+cardswiped = false
 
 // using the sound sample length to limit button-presses
 function readysnd(snd) {
@@ -137,7 +138,8 @@ function addvend(type,label,price,color) {
         .attr("data-label",label)
     parentdiv.append($("<div/>")
         .addClass("checkrightlabel")
-        .text(label)
+        .text(label).append($("<div></div>")
+            .addClass("checkrightlabeltext"))
     )        
     parentdiv.append($("<div/>")
         .addClass("checkrightprice")
@@ -159,8 +161,7 @@ function itemclick() {
                 addvtotal(thisprice)
                 $(".checktoprightbottom").append(totaldiv)
                 playthen("pop",this)
-                if ($(this).data("type") == "Subscription") {
-                    cotext = ""
+                if ($(this).data("type") == "Subscription" && !cardswiped) {
                     cstate = 5
                 }
             }
@@ -294,11 +295,10 @@ function checkother() {
         updateprices()
     }
 }
-function updatename(nm,isnew=false) {
-    lastvend().data("membername",nm)
-    lastvend().data("isnew",isnew)
-    let lv = lastvend().find(".checkrightlabel")
-    lv.html(lv.text() + "<BR><span class='checkoutcardtext'>" + nm + "</span>")
+function updatename(nm,isnew=false,ex="") {
+    lastvend().attr("data-membername",nm)
+    lastvend().attr("data-isnew",isnew)
+    let lv = lastvend().find(".checkrightlabeltext").text(nm + " - " + ex)
 }
 function checkgo() {
     if (readysnd("beep")) {
@@ -381,38 +381,46 @@ $(document).ready(function() {
     cardinput = ""
     lastcardinput = 0
     $(window).on("keydown",function(e) {
-        if (cstate == 5) {
-            let nw = new Date().getTime()
-            if (nw - lastcardinput > 3000)
-                cardinput = ""
-            if (e.key == "Enter") {
-                if (cardinput != "")  {
-                    lastvend().data("card",cardinput)
-                    $.ajax("/checkcard", {
-                        data : {"card": cardinput,"member": cotext},
-                        type : 'POST',
-                        success: function(response) {
-                            cardinput = ""
-                            if (response == "New Member") {
-                                updatename("")
-                                cstate = 6
-                            }else {
-                                updatename(response)
-                                cstate = 0                                
-                            }
-                            updateprices()
-                        },
-                        error: function(xhr, ajaxOptions, thrownError) {
-                            cardinput = ""
-                            cstate = 0 // TODO not sure what to do here - why would this possibly fail???
-                            updateprices()
+        let nw = new Date().getTime()
+        if (nw - lastcardinput > 3000)
+            cardinput = ""
+        if (e.key == "Enter" && cardinput != "") {
+            if (cstate == 5 || cstate == 0)  {
+                lastvend().attr("data-card",cardinput)
+                $.ajax("/checkcard", {
+                    data : {"card": cardinput},
+                    type : 'POST',
+                    success: function(response) {
+                        cardinput = ""
+                        if (cstate == 0) {
+                            cardswiped = true
+                            $("#Subscription"+response["vip"]).click()
+                            cardswiped = false
                         }
-                    })                                        
-                }
-            } else if ("0123456789".includes(e.key))
-                cardinput += e.key
-            lastcardinput = nw
-        }
+                        if (response == "Not Found") {
+                            if (cstate == 5) {
+                                updatename("")
+                                cotext = ""
+                                cstate = 6                                
+                            } else {
+                                playsnd("undo")
+                            }
+                        } else {
+                            updatename(response["name"],false,response["newexpires"])
+                            cstate = 0                                
+                        }
+                        updateprices()
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        cardinput = ""
+                        cstate = 0 // TODO not sure what to do here - why would this possibly fail???
+                        updateprices()
+                    }
+                })                                        
+            }
+        } else if ("0123456789".includes(e.key))
+            cardinput += e.key
+        lastcardinput = nw
     })
     checkoutboard = "ABCDEFGHIJKLMNOPQRSTUVWXYZ <"
     chrows = 4
