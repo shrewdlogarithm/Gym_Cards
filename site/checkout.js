@@ -381,7 +381,7 @@ $(document).ready(function() {
     cardinput = ""
     lastcardinput = 0
     function viptype(mtype) {
-        if (mtype == true)
+        if (mtype === true)
             return "2" 
         else
             return mtype
