@@ -380,6 +380,12 @@ $(document).ready(function() {
     )
     cardinput = ""
     lastcardinput = 0
+    function viptype(mtype) {
+        if (mtype == true)
+            return "2" 
+        else
+            return mtype
+    }
     $(window).on("keydown",function(e) {
         let nw = new Date().getTime()
         if (nw - lastcardinput > 3000)
@@ -391,12 +397,13 @@ $(document).ready(function() {
                     data : {"card": cardinput},
                     type : 'POST',
                     success: function(response) {
-                        cardinput = ""
                         if (cstate == 0) {
                             cardswiped = true
-                            $("#Subscription"+response["vip"]).click()
+                            $("#Subscription"+viptype(response["vip"])).click()
+                            lastvend().attr("data-card",cardinput)
                             cardswiped = false
                         }
+                        cardinput = ""
                         if (response == "Not Found") {
                             if (cstate == 5) {
                                 updatename("")

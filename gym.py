@@ -155,7 +155,7 @@ def pyninput():
                         if key == keyboard.Key.enter and inputcard != "":
                             cards.put(inputcard)
                             inputcard = ""
-                        else:
+                        elif key.char in "0123456789":
                             inputcard += key.char
                             lastkey = utils.getnowlong()
                     except Exception as e:
@@ -170,7 +170,7 @@ def pyninput():
                 log.addlog("pynputexception",excep=e)
     except:
         log.addlog("pynputexception",excep=e)
-# threads.start_thread(pyninput)
+threads.start_thread(pyninput)
   
 ## EvDev Input (USB RFID Reader)
 def eventinput():
@@ -216,7 +216,6 @@ def eventinput():
                 devices = {dev.fd: dev for dev in devices}
     except Exception as e:
         log.addlog("evdev_exception",excep=e)
-        pyninput() # windows only?
 threads.start_thread(eventinput)
 
 ## Local Input
@@ -576,6 +575,7 @@ def checkoutlog():
     if "sales" in txdb:
         for tx in txdb["sales"]:
             if "type" in tx and tx["type"] == "Subscription" and "card" in tx and tx["card"] != "":
+                tx["card"] = str(tx["card"]) # data attrs can be converted - we want a string
                 if "isnew" in tx and tx["isnew"]:
                     addcard(tx["card"],False,getmtype(tx),tx["membername"])
                 else:      
