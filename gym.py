@@ -187,7 +187,7 @@ def pyninput():
                 log.addlog("pynputexception",excep=e)
     except:
         log.addlog("pynputexception",excep=e)
-threads.start_thread(pyninput)
+#threads.start_thread(pyninput)
   
 ## EvDev Input (USB RFID Reader)
 def eventinput():
@@ -311,7 +311,7 @@ def handlecard(card):
             except Exception as e:
                 log.addlog("ShutdownFail",excep=e) 
             threads.stop_threads() 
-            sys.exit(4) # stops wsgi servers
+            os._exit(4) # stops wsgi servers - sys.exit(4) does NOT work contrary to what the Internet says...
         elif cq == "MMMMM":
             sse.add_message("1 More to Shutdown")
             to = utils.getdelay(0)
