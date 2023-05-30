@@ -40,8 +40,26 @@ except Exception as e:
         log.addlog("LoadingBackDB",excep=e)
         carddb = {}
 for c in carddb:
-    if (int(carddb[c]["memno"]) > nmemno):
+    if int(carddb[c]["memno"]) > nmemno:
         nmemno = int(carddb[c]["memno"])
+    # fix VIP flag and merge staff into vip mtypes
+    if "vip" in carddb[c]:
+        mtype = carddb[c]["vip"]
+        try:
+            if mtype == True:
+                mtype = 2
+            elif mtype == False:
+                mtype = 0
+            else:
+                mtype = int(mtype)
+        except:
+            pass
+        carddb[c]["vip"] = mtype
+    if "staff" in carddb[c] and carddb[c]["staff"]:
+        carddb[c]["vip"] = 4
+        del carddb[c]["staff"]
+savedb()
+            
 
 ## Show images
 def showpic(card):
@@ -53,13 +71,13 @@ def membername(card):
     memname = ""
     if (carddb[card]["name"] != ""):
         memname = carddb[card]["name"]
-    elif (carddb[card]["staff"]):
+    elif utils.ismtype(carddb[card],"staff"):
         memname = "Staff-" + str(carddb[card]["memno"])
     else:
         memname = "Member-" + str(carddb[card]["memno"])
     if ("papermemno" in carddb[card] and carddb[card]["papermemno"] != ""):
         memname += " (" + carddb[card]["papermemno"] + ")"
-    if utils.isvip(carddb[card]):
+    if utils.ismtype(carddb[card],"vip"):
         memname += " *FOB*"
     return memname
 
@@ -83,7 +101,7 @@ def get_remainshow(card):
 
 def getmemberstatus(card):
     gr = get_remain(card)
-    if (not carddb[card]["staff"]):
+    if not utils.ismtype(carddb[card],"staff"):
         if (gr < 1):
             return ["expired",gr]
         elif (gr < 8):
@@ -100,12 +118,11 @@ def memberstatus(card):
     return ms
 
 #Handle Cards
-def addcard(card,staff=False,mtype=0,name=""):
+def addcard(card,mtype=0,name=""):
     global carddb,nmemno
     if (card not in carddb):
         nmemno += 1
         carddb[card] = {
-            "staff": staff,
             "created": utils.getnowform(),
             "lastseen": "",
             "expires": utils.getnowform(),
@@ -116,7 +133,7 @@ def addcard(card,staff=False,mtype=0,name=""):
         }
         carddb[card]["expires"] = utils.calc_expiry(carddb[card]["expires"])
         log.addlog("CardCreate",card,db=carddb[card])
-        lock.updatelock(card,utils.isvip(carddb[card]))
+        lock.updatelock(card,utils.ismtype(carddb[card],"vip"))
         savedb()
         return nmemno
     else:
@@ -127,7 +144,7 @@ def renewcard(card,mtype=0,name=""):
     carddb[card]["name"] = name
     carddb[card]["vip"] = mtype
     log.addlog("CardRenew",card,db=carddb[card])
-    lock.updatelock(card,utils.isvip(carddb[card]))
+    lock.updatelock(card,utils.ismtype(carddb[card],"vip"))
     savedb()
 
 def cardvisit(card):
@@ -252,7 +269,7 @@ def getq():
         elif "photo" in q:
             nc = "P"
         elif q["cd"] in carddb:
-            if carddb[q["cd"]]["staff"]: 
+            if utils.ismtype(carddb[q["cd"]],"staff"): 
                 if cseq[0:1] == "M" and q["cd"] != cardq[0]["cd"]: # master cards other than the first seen aren't masters here
                     nc = "K"
                 else:
@@ -280,7 +297,7 @@ def kto(tt=0):
 def handlecard(card):
     global sysactive
     if len(carddb) == 0:
-        addcard(card,True)
+        addcard(card,4)
         sse.add_message("Staff-1 Created")
     else:
         to = 0
@@ -353,7 +370,7 @@ def handlecard(card):
                 log.addlog("CardReplacedOld",replcard,db=carddb[replcard])
                 lock.updatelock(replcard,False) 
                 carddb[card] = carddb[replcard]
-                if utils.isvip(carddb[card]):
+                if utils.ismtype(carddb[card],"vip"):
                     lock.updatelock(card,True) 
                 if log.memberin(replcard): # card signed-in
                     cardvisit(replcard) # sign-out old card
@@ -472,7 +489,7 @@ def showstats():
                 rtn = carddb[card]["name"]
                 if len(rtn) == 0:
                     rtn = "Unknown"
-                if utils.isvip(carddb[card]):
+                if utils.ismtype(carddb[card],"vip"):
                     rtn += "*"
                 rtn = str(carddb[card]["memno"]) + " - " + rtn
             else:
@@ -577,7 +594,7 @@ def checkoutlog():
             if "type" in tx and tx["type"] == "Subscription" and "card" in tx and tx["card"] != "":
                 tx["card"] = str(tx["card"]) # data attrs can be converted - we want a string
                 if "isnew" in tx and tx["isnew"]:
-                    addcard(tx["card"],False,getmtype(tx),tx["membername"])
+                    addcard(tx["card"],getmtype(tx),tx["membername"])
                 else:      
                     renewcard(tx["card"],getmtype(tx),tx["membername"])
     try:
@@ -619,16 +636,11 @@ def update():
                 carddb[card]["name"] = request.form.get("name")
                 carddb[card]["papermemno"] = request.form.get("papermemno")
                 carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
-                if carddb[card]["memno"] != 1:
-                    try: 
-                        carddb[card]["staff"] = request.form.get("staff").lower()=="yes"
-                    except:
-                        carddb[card]["staff"] = False
                 try: 
-                    carddb[card]["vip"] = request.form.get("vip")
+                    carddb[card]["vip"] = int(request.form.get("vip"))
                 except:
                     carddb[card]["vip"] = 0
-                lock.updatelock(card,utils.isvip(carddb[card]))
+                lock.updatelock(card,utils.ismtype(carddb[card],"vip"))
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
             except Exception as e:

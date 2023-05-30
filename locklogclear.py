@@ -46,7 +46,7 @@ for card in lockcards:
     card = card.zfill(10)
     print("Lock Card ",card,end="")
     if card in carddb:
-        if utils.isvip(carddb[card]):
+        if utils.ismtype(carddb[card],"vip"):
             pass
         else:
             print(" IS NOT VIP - REMOVE",end="")
@@ -60,13 +60,13 @@ for card in lockcards:
 for card in carddb:
     print("DB  Card ",card,end="")
     if card in lockcards:
-        if utils.isvip(carddb[card]):
+        if utils.ismtype(carddb[card],"vip"):
             pass
         else:
             print(" IS NOT VIP but in lock - REMOVE",end="")
             if updatelock: lock.updatelock(card,False)
     else:
-         if utils.isvip(carddb[card]):
+         if utils.ismtype(carddb[card],"vip"):
             print (" IS VIP but not in lock - ADD",end="")
             if updatelock: lock.updatelock(card,true)
     print("")

@@ -99,9 +99,10 @@ itemdb = {
     }
 }
 for mtype in utils.mtypes:
-    itemdb["0"]["Subscription"]["items"].append(
-        {"title": "Subs " + utils.mtypes[mtype]["name"], "price": utils.mtypes[mtype]["price"]}
-    )
+    if not utils.mtypes[mtype]["staff"]:
+        itemdb["0"]["Subscription"]["items"].append(
+            {"title": "Subs " + utils.mtypes[mtype]["name"], "price": utils.mtypes[mtype]["price"]}
+        )
 
 def logdate(dys=0):
     offs = timedelta(days=dys)

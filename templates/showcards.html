@@ -146,7 +146,6 @@
       <th>Lock Used</th>
       <th>Expires</th>
       <th>MemType</th>
-      <th>Staff</th>
       <th></th>
       <th>In/Out</th>
       <th>Photo</th>
@@ -201,29 +200,14 @@
           </td>
           <td>
             <select name="vip">
-              {% for mtype in mtypes %}
-                {% if carddb[card]["vip"] == mtype %}
-                  <option value="{{ mtype }}" selected>{{ mtypes[mtype]["name"] }}</option>
-                {% else %}
-                  <option value="{{ mtype }}">{{ mtypes[mtype]["name"] }}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-          </td>
-          <td>
-            {% if carddb[card]["memno"] != 1 %}                           
-              <select name="staff">
-              {% if carddb[card]["staff"] %}
-                <option selected>Yes</option>
-                <option>No</option>
+            {% for mtype in mtypes %}
+              {% if carddb[card]["vip"] == mtype %}
+                <option value={{ mtype }} selected>{{ mtypes[mtype]["name"] }}</option>
               {% else %}
-                <option>Yes</option>
-                <option selected>No</option>
+                <option value={{ mtype }}>{{ mtypes[mtype]["name"] }}</option>
               {% endif %}
-              </select>
-            {% else %}
-              Yes
-            {% endif %}
+            {% endfor %}
+            </select>
           </td>
           <td>
             <input type="submit" value="Save Changes">

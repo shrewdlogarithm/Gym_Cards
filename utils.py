@@ -80,10 +80,11 @@ def calc_expiry(expdate):
         return getrenewform()
     
 mtypes = {
-    "0": {"name": "Normal", "price": 25, "vip": False},
-    "1": {"name": "Lite", "price": 20, "vip": False},
-    "2": {"name": "VIP", "price": 30, "vip": True},
-    "3": {"name": "Couple", "price": 40, "vip": False},
+    0: {"name": "Normal", "price": 25, "vip": False, "staff": False},
+    1: {"name": "Lite", "price": 20, "vip": False, "staff": False},
+    2: {"name": "VIP", "price": 30, "vip": True, "staff": False},
+    3: {"name": "Couple", "price": 40, "vip": False, "staff": False},
+    4: {"name": "Staff", "price": 0, "vip": False, "staff": True},
 }
-def isvip(cdb):
-    return "vip" in cdb and (cdb["vip"] == True or (cdb["vip"] in mtypes and mtypes[cdb["vip"]]["vip"])) # VIP used to be True/False - supporting both
+def ismtype(cdb,typ):
+    return "vip" in cdb and cdb["vip"] in mtypes and mtypes[cdb["vip"]][typ]
