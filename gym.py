@@ -234,6 +234,7 @@ def eventinput():
                 devices = {dev.fd: dev for dev in devices}
     except Exception as e:
         log.addlog("evdev_exception",excep=e)
+        # pyninput()
 threads.start_thread(eventinput)
 
 ## Local Input
@@ -241,10 +242,12 @@ def localinput():
     while sysactive:
         try:
             ip = input()
-            cards.put(ip)
+            for card in carddb:
+                if carddb[card]["memno"] == int(ip):
+                    cards.put(card)
         except Exception as e:
-            log.addlog("localinputexception",excep=e)
-# threads.start_thread(localinput)
+            pass
+threads.start_thread(localinput)
 
 ## Card Processing
 def clearq():
