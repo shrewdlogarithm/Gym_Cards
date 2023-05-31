@@ -126,7 +126,7 @@ def loadlogs():
                 return "unknown"
         else:
             return "unknown"
-    logs = getlogmsgs("MemberInOut")
+    logs = getlogmsgsfile("MemberInOut")
     for log in logs:    
         countmem(log["card"],getname(log),log["dt"])
 loadlogs()
