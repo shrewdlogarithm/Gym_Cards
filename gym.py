@@ -46,9 +46,9 @@ for c in carddb:
     if "vip" in carddb[c]:
         mtype = carddb[c]["vip"]
         try:
-            if mtype == True:
+            if mtype is True:
                 mtype = 2
-            elif mtype == False:
+            elif mtype is False:
                 mtype = 0
             else:
                 mtype = int(mtype)
@@ -188,7 +188,7 @@ def pyninput():
                 log.addlog("pynputexception",excep=e)
     except:
         log.addlog("pynputexception",excep=e)
-#threads.start_thread(pyninput)
+# threads.start_thread(pyninput)
   
 ## EvDev Input (USB RFID Reader)
 def eventinput():
@@ -582,12 +582,12 @@ def checkoutlog():
     def getmtype(tx):
         if "label" in tx:
             if "lite" in tx["label"].lower():
-                return "1"
+                return 1
             elif "vip" in tx["label"].lower():
-                return "2"
+                return 2
             elif "couple" in tx["label"].lower():
-                return "3"
-        return "0"        
+                return 3
+        return 0        
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
     if "sales" in txdb:

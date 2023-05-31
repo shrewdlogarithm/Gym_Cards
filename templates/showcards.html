@@ -131,7 +131,7 @@
             }
           })
           lastval = 0
-          $("input").on("focus",function() {
+          $("input,select").on("focus",function() {
             lastval = $(this).val()
           })
           $("input").on("input",function() {
