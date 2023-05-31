@@ -170,9 +170,23 @@
     max-height:90%;
 }
 
-.tablesorter input {
+/* this all hacks the theme.css */
+form input[type=submit] {
+    color: black !important;
+}
+
+.tablesorter input { /* ensures date picker icon is visible */
     color-scheme: dark;
 }
+
+select {
+    color: white !important;
+}
+
+form select,input {
+    color: #acf310 !important;
+}
+/* hack ends */
 
 .tablesorter input:disabled {
     background-color: grey;

@@ -6,15 +6,20 @@
   <script src="tablesorter/js/parsers/parser-input-select.js"></script>
   <style>
     .tablesorter  td:nth-child(1),
+    .tablesorter  td:nth-child(5),
     .tablesorter  td:nth-child(8),
-    .tablesorter  td:nth-child(9),
-    .tablesorter  td:nth-child(11),
-    .tablesorter  td:nth-child(12) {
+    .tablesorter  td:nth-child(9) {
       width : 90px !important;
     }
+    .tablesorter  td:nth-child(10),
+    .tablesorter  td:nth-child(11) {
+      width : 50px !important;
+    }
     .tablesorter  td:nth-child(2),
+    .tablesorter  td:nth-child(3),
     .tablesorter  td:nth-child(4),
-    .tablesorter  td:nth-child(5) {
+    .tablesorter  td:nth-child(6),
+    .tablesorter  td:nth-child(7) {
       width: 120px !important;
     }
   </style>
@@ -106,19 +111,15 @@
               8 : {
                 sorter: "select-text"
               },
-              9 : {
-                sorter: "select-text"
-              },
-              10 : {
-                filter: false,
-                sorter: false
+              11 : {
+                filter: false
               }
             },
             textExtraction: {
-              10: function(node,table,cellIndex) {
+              9: function(node,table,cellIndex) {
                 return $(node).find("input[type=submit]").val()
               },
-              11: function(node,table,cellIndex) {
+              10: function(node,table,cellIndex) {
                 return $(node).find("input[type=submit]").val()
               }
             },
@@ -127,6 +128,23 @@
             widgetOptions : {
               filter_columnFilters : true,
               filter_startsWith: false,
+            }
+          })
+          lastval = 0
+          $("input").on("focus",function() {
+            lastval = $(this).val()
+          })
+          $("input").on("input",function() {
+            if (lastval != $(this).val()) {
+              $(this).css("background-color","red")
+            } else {
+              $(this).css("background-color","#000")
+            }
+          })
+          $("input,select").on("blur",function() {
+            if (lastval != $(this).val()) {
+              $(this).closest("form").submit()
+              $(this).css("background-color","#000")              
             }
           })
       })
@@ -146,9 +164,9 @@
       <th>Lock Used</th>
       <th>Expires</th>
       <th>MemType</th>
-      <th></th>
       <th>In/Out</th>
       <th>Photo</th>
+      <th>&nbsp;</th>
       </tr>
     </thead>
     <tbody>
@@ -170,13 +188,17 @@
             <input type=submit value="Repl">
           </form>
         </td>
-        <form action="update" target="status" method="POST">
-          <input name="card" type="hidden" value="{{ card }}">
           <td>
-            <input size=15 name="name" type="text" value='{{carddb[card]["name"]}}'>
+            <form action="update" target="status" method="POST">
+              <input name="card" type="hidden" value="{{ card }}">
+              <input size=15 name="name" type="text" value='{{carddb[card]["name"]}}'>
+            </form>
           </td>
           <td>
-            <input size=5 name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
+            <form action="update" target="status" method="POST">
+              <input name="card" type="hidden" value="{{ card }}">
+              <input size=5 name="papermemno" type="text" value='{{ carddb[card]["papermemno"] }}'>
+            </form>
           </td>
           <td>                            
             {{ carddb[card]['created'] }}
@@ -196,23 +218,28 @@
             </select> 
           </td>
           <td>                            
-            <input type="date" name="expires" value="{{ carddb[card]['expires'] }}" required>
+            <form action="update" target="status" method="POST">
+              <input name="card" type="hidden" value="{{ card }}">
+              <input type="date" name="expires" value="{{ carddb[card]['expires'] }}" required>
+            </form>
           </td>
           <td>
-            <select name="vip">
-            {% for mtype in mtypes %}
-              {% if carddb[card]["vip"] == mtype %}
-                <option value={{ mtype }} selected>{{ mtypes[mtype]["name"] }}</option>
-              {% else %}
-                <option value={{ mtype }}>{{ mtypes[mtype]["name"] }}</option>
-              {% endif %}
-            {% endfor %}
-            </select>
+            <form action="update" target="status" method="POST">
+              <input name="card" type="hidden" value="{{ card }}">
+              <select name="vip">
+              {% for mtype in mtypes %}
+                {% if carddb[card]["vip"] == mtype %}
+                  <option value={{ mtype }} selected>{{ mtypes[mtype]["name"] }}</option>
+                {% else %}
+                  <option value={{ mtype }}>{{ mtypes[mtype]["name"] }}</option>
+                {% endif %}
+              {% endfor %}
+              </select>
+            </form>
           </td>
-          <td>
-            <input type="submit" value="Save Changes">
-          </td>
-        </form>
+          <!-- <td> -->
+            <!-- <input type="submit" value="Save Changes"> -->
+          <!-- </td> -->
           <td>
             <form action="swipe" target="status" method="POST">
               <input name="card" type="hidden" value="{{ card }}">                            

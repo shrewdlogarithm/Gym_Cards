@@ -55,8 +55,9 @@ for c in carddb:
         except:
             pass
         carddb[c]["vip"] = mtype
-    if "staff" in carddb[c] and carddb[c]["staff"]:
-        carddb[c]["vip"] = 4
+    if "staff" in carddb[c]:
+        if carddb[c]["staff"]:
+            carddb[c]["vip"] = 4
         del carddb[c]["staff"]
 savedb()
             
@@ -633,13 +634,17 @@ def update():
         if (card in carddb):
             try:
                 log.addlog("UpdateBefore",card,db=carddb[card]) 
-                carddb[card]["name"] = request.form.get("name")
-                carddb[card]["papermemno"] = request.form.get("papermemno")
-                carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
-                try: 
-                    carddb[card]["vip"] = int(request.form.get("vip"))
-                except:
-                    carddb[card]["vip"] = 0
+                if "name" in request.form:
+                    carddb[card]["name"] = request.form.get("name")
+                if "papermemno" in request.form:
+                    carddb[card]["papermemno"] = request.form.get("papermemno")
+                if "expires" in request.form:
+                    carddb[card]["expires"] = utils.check_date(request.form.get("expires"),carddb[card]["expires"])
+                if "vip" in request.form:
+                    try: 
+                        carddb[card]["vip"] = int(request.form.get("vip"))
+                    except: 
+                        carddb[card]["vip"] = 0
                 lock.updatelock(card,utils.ismtype(carddb[card],"vip"))
                 log.addlog("UpdateAfter",card,db=carddb[card])
                 savedb()                
