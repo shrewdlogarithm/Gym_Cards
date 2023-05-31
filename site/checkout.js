@@ -380,12 +380,6 @@ $(document).ready(function() {
     )
     cardinput = ""
     lastcardinput = 0
-    function viptype(mtype) {
-        if (mtype === true)
-            return "2" 
-        else
-            return mtype
-    }
     $(window).on("keydown",function(e) {
         let nw = new Date().getTime()
         if (nw - lastcardinput > 3000)
@@ -399,8 +393,12 @@ $(document).ready(function() {
                     success: function(response) {
                         if (cstate == 0) {
                             cardswiped = true
-                            $("#Subscription"+viptype(response["vip"])).click()
-                            lastvend().attr("data-card",cardinput)
+                            btntopress = $("#Subscription"+response["vip"])
+                            if (btntopress.length) {
+                                btntopress.click()
+                                lastvend().attr("data-card",cardinput)
+                            } else
+                                playsnd("undo")
                             cardswiped = false
                         }
                         cardinput = ""
