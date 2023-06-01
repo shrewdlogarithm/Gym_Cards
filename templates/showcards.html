@@ -78,13 +78,11 @@
               1 : {
                 sorter: "digit"
               },
-              2 : {
-                extractor: "inputs",
-                sorter : "inputs"
+              2: {
+                empty: "bottom"
               },
-              3 : {
-                extractor: "inputs",
-                sorter : "inputs"
+              3: {
+                empty: "bottom"
               },
               4 : {
                 extractor: "inputs",
@@ -116,6 +114,12 @@
               }
             },
             textExtraction: {
+              2: function(node,table,cellIndex) {
+                return $(node).find("input[type=text]").val()
+              },
+              3: function(node,table,cellIndex) {
+                return $(node).find("input[type=text]").val()
+              },
               9: function(node,table,cellIndex) {
                 return $(node).find("input[type=submit]").val()
               },
@@ -131,17 +135,17 @@
             }
           })
           lastval = 0
-          $("input,select").on("focus",function() {
+          $("#membertable tbody input,select").on("focus",function() {
             lastval = $(this).val()
           })
-          $("input").on("input",function() {
+          $("#membertable tbody input").on("input",function() {
             if (lastval != $(this).val()) {
               $(this).css("background-color","red")
             } else {
               $(this).css("background-color","#000")
             }
           })
-          $("input,select").on("blur",function() {
+          $("#membertable tbody input,select").on("blur",function() {
             if (lastval != $(this).val()) {
               $(this).closest("form").submit()
               $(this).css("background-color","#000")              
