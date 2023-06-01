@@ -269,7 +269,7 @@ function checkcancel() {
 }
 function checkmaxvendlines() {
     if (vendlines() > 9) {
-        playsnd("undo")
+        playsnd("uhoh")
         return false
     } else   
         return true
@@ -334,7 +334,7 @@ function checkgo() {
                     updateprices()
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
-                    playsnd("undo")
+                    playsnd("uhoh")
                     cstate = 1
                     updateprices()
                 }
@@ -380,48 +380,64 @@ $(document).ready(function() {
     )
     cardinput = ""
     lastcardinput = 0
+    function cardexists(card) { 
+        found = false
+        $(".checkrightline[data-card]").each(function() {
+            if ($(this).data("card") == card) {
+                console.log("NO")
+                found = true
+            }
+        })
+        return found
+    }
     $(window).on("keydown",function(e) {
         let nw = new Date().getTime()
         if (nw - lastcardinput > 3000)
             cardinput = ""
         if (e.key == "Enter" && cardinput != "") {
             if (cstate == 5 || cstate == 0)  {
-                lastvend().attr("data-card",cardinput)
-                $.ajax("/checkcard", {
-                    data : {"card": cardinput},
-                    type : 'POST',
-                    success: function(response) {
-                        if (cstate == 0) {
-                            cardswiped = true
-                            btntopress = $("#Subscription"+response["vip"])
-                            if (btntopress.length) {
-                                btntopress.click()
-                                lastvend().attr("data-card",cardinput)
-                            } else
-                                playsnd("undo")
-                            cardswiped = false
-                        }
-                        cardinput = ""
-                        if (response == "Not Found") {
-                            if (cstate == 5) {
-                                updatename("")
-                                cotext = ""
-                                cstate = 6                                
-                            } else {
-                                playsnd("undo")
+                if (cardexists(cardinput)) {
+                    playsnd("uhoh")
+                    cardinput = ""
+                } else {
+                    lastvend().attr("data-card",cardinput)
+                    $.ajax("/checkcard", {
+                        data : {"card": cardinput},
+                        type : 'POST',
+                        success: function(response) {
+                            if (cstate == 0) {
+                                cardswiped = true
+                                btntopress = $("#Subscription"+response["vip"])
+                                if (btntopress.length) {
+                                    btntopress.click()
+                                    lastvend().attr("data-card",cardinput)
+                                } else
+                                    playsnd("uhoh")
+                                cardswiped = false
                             }
-                        } else {
-                            updatename(response["name"],false,response["newexpires"])
-                            cstate = 0                                
+                            cardinput = ""
+                            if (response == "Not Found") {
+                                if (cstate == 5) {
+                                    updatename("")
+                                    cotext = ""
+                                    cstate = 6                                
+                                } else {
+                                    playsnd("uhoh")
+                                }
+                            } else {
+
+                                updatename(response["name"],false,response["newexpires"])
+                                cstate = 0                                
+                            }
+                            updateprices()
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {
+                            cardinput = ""
+                            cstate = 0 // TODO not sure what to do here - why would this possibly fail???
+                            updateprices()
                         }
-                        updateprices()
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        cardinput = ""
-                        cstate = 0 // TODO not sure what to do here - why would this possibly fail???
-                        updateprices()
-                    }
-                })                                        
+                    })                                        
+                }
             }
         } else if ("0123456789".includes(e.key))
             cardinput += e.key
