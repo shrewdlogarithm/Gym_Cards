@@ -205,6 +205,10 @@ table, table * {
     text-shadow: none;
 }
 
+#membertable {
+    padding-bottom: 100px; /* ensures you can see bottom row */
+}
+
 #membertable td {
     vertical-align: middle !important;
     white-space: nowrap;
