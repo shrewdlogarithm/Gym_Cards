@@ -300,6 +300,40 @@ function updatename(nm,isnew=false,ex="") {
     lastvend().attr("data-isnew",isnew)
     let lv = lastvend().find(".checkrightlabeltext").text(nm + " - " + ex)
 }
+function opendrawer(staffcard="") {
+    let transdata = {
+        "staff": staffcard,
+        "sales": [],
+        "tender": {}
+    }
+    $(".checktopright .checkrightline").each(function() {
+        if (!$(this).hasClass("checkrighttotal")) {
+            dtt = {}
+            for (dt in $(this).data())
+                dtt[dt] = $(this).data(dt)
+            transdata["sales"].push(dtt)
+        }
+    })
+    transdata["tender"]["Paid"] = tenderdiv.find(".checkrightlabel").text()
+    transdata["tender"]["Total"] = vtotal
+    transdata["tender"]["Change"] = vtotal-ttotal
+    cstate = 4
+    $.ajax("/checkoutlog", {
+        data : JSON.stringify(transdata),
+        contentType : 'application/json',
+        type : 'POST',
+        success: function(response) {
+            cstate = 3
+            updateprices()
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            playsnd("uhoh")
+            cstate = 1
+            updateprices()
+        }
+    })            
+    playsnd("beep")
+}
 function checkgo() {
     if (readysnd("beep")) {
         flipborder($("#checkgo"),"white","")
@@ -309,37 +343,7 @@ function checkgo() {
             changepage(1)
             playsnd("beep")
         } else if (cstate == 1 && vtotal <= ttotal) {
-            let transdata = {
-                "sales": [],
-                "tender": {}
-            }
-            $(".checktopright .checkrightline").each(function() {
-                if (!$(this).hasClass("checkrighttotal")) {
-                    dtt = {}
-                    for (dt in $(this).data())
-                        dtt[dt] = $(this).data(dt)
-                    transdata["sales"].push(dtt)
-                }
-            })
-            transdata["tender"]["Paid"] = tenderdiv.find(".checkrightlabel").text()
-            transdata["tender"]["Total"] = vtotal
-            transdata["tender"]["Change"] = vtotal-ttotal
-            cstate = 4
-            $.ajax("/checkoutlog", {
-                data : JSON.stringify(transdata),
-                contentType : 'application/json',
-                type : 'POST',
-                success: function(response) {
-                    cstate = 3
-                    updateprices()
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    playsnd("uhoh")
-                    cstate = 1
-                    updateprices()
-                }
-            })            
-            playsnd("beep")
+            //opendrawer() // enable to allow pressing the button
         } else if (cstate == 3) {
             vtotal = 0
             ttotal = 0            
@@ -392,15 +396,16 @@ $(document).ready(function() {
     }
     $(window).on("keydown",function(e) {
         let nw = new Date().getTime()
-        if (nw - lastcardinput > 3000)
+        if (nw - lastcardinput > 750)
             cardinput = ""
         if (e.key == "Enter" && cardinput != "") {
-            if (cstate == 5 || cstate == 0)  {
+            if (cstate == 5 || cstate == 0 || (cstate == 1 && vtotal <= ttotal))  {
                 if (cardexists(cardinput)) {
                     playsnd("uhoh")
                     cardinput = ""
                 } else {
-                    lastvend().attr("data-card",cardinput)
+                    if (cstate != 1) 
+                        lastvend().attr("data-card",cardinput)
                     $.ajax("/checkcard", {
                         data : {"card": cardinput},
                         type : 'POST',
@@ -415,7 +420,6 @@ $(document).ready(function() {
                                     playsnd("uhoh")
                                 cardswiped = false
                             }
-                            cardinput = ""
                             if (response == "Not Found") {
                                 if (cstate == 5) {
                                     updatename("")
@@ -425,11 +429,19 @@ $(document).ready(function() {
                                     playsnd("uhoh")
                                 }
                             } else {
-
-                                updatename(response["name"],false,response["newexpires"])
-                                cstate = 0                                
+                                if (cstate == 1) {
+                                    if (response["staff"]) {
+                                        opendrawer()
+                                    } else {
+                                        playsnd("uhoh")
+                                    }
+                                } else {
+                                    updatename(response["name"],false,response["newexpires"])
+                                    cstate = 0             
+                                }                                                       
                             }
                             updateprices()
+                            cardinput = ""
                         },
                         error: function(xhr, ajaxOptions, thrownError) {
                             cardinput = ""

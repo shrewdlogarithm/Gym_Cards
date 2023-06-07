@@ -732,7 +732,7 @@ def swipe():
 def checkcard():
     card = request.form.get("card")
     if card in carddb:
-        return carddb[card] | {"newexpires": utils.calc_expiry(carddb[card]["expires"])}
+        return carddb[card] | {"staff": utils.mtypes[carddb[card]["vip"]]["staff"],"newexpires": utils.calc_expiry(carddb[card]["expires"])}
     else:
         return "Not Found"
     
