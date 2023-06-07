@@ -159,37 +159,7 @@ def cardvisit(card):
     savedb()
 inputcard = ""
 lastkey = utils.getnowlong()
-## Input (USB RFID Reader)
-def pyninput():
-    try:
-        from pynput import keyboard
-        while sysactive:
-            try:                
-                def on_press(key):
-                    global inputcard,lastkey
-                    if utils.getnowlong() - lastkey > timedelta(seconds=1):
-                        inputcard = ""
-                    try:
-                        if key == keyboard.Key.enter and inputcard != "":
-                            cards.put(inputcard)
-                            inputcard = ""
-                        elif key.char in "0123456789":
-                            inputcard += key.char
-                            lastkey = utils.getnowlong()
-                    except Exception as e:
-                        pass                
 
-                # Collect events until released
-                with keyboard.Listener(
-                    on_press=on_press) as listener:
-                    listener.join()
-
-            except Exception as e:
-                log.addlog("pynputexception",excep=e)
-    except:
-        log.addlog("pynputexception",excep=e)
-# threads.start_thread(pyninput)
-  
 ## EvDev Input (USB RFID Reader)
 def eventinput():
     try: 
@@ -234,21 +204,39 @@ def eventinput():
                 devices = {dev.fd: dev for dev in devices}
     except Exception as e:
         log.addlog("evdev_exception",excep=e)
-        # pyninput()
 threads.start_thread(eventinput)
 
-## Local Input - THIS WILL NOT WORK WITH GUNICORN - Windows only
-def localinput():                    
-    while sysactive:
-        try:
-            ip = input()
-            for card in carddb:
-                if carddb[card]["memno"] == int(ip):
-                    cards.put(card)
-        except Exception as e:
-            pass
-# threads.start_thread(localinput)
+## Pynput- this has performance issues so I only use it for testing/on Windows where evdev does not work
+def pyninput():
+    try:
+        from pynput import keyboard
+        while sysactive:
+            try:                
+                def on_press(key):
+                    global inputcard,lastkey
+                    if utils.getnowlong() - lastkey > timedelta(seconds=1):
+                        inputcard = ""
+                    try:
+                        if key == keyboard.Key.enter and inputcard != "":
+                            cards.put(inputcard)
+                            inputcard = ""
+                        elif key.char in "0123456789":
+                            inputcard += key.char
+                            lastkey = utils.getnowlong()
+                    except Exception as e:
+                        pass                
 
+                # Collect events until released
+                with keyboard.Listener(
+                    on_press=on_press) as listener:
+                    listener.join()
+
+            except Exception as e:
+                log.addlog("pynputexception",excep=e)
+    except:
+        log.addlog("pynputexception",excep=e)
+# threads.start_thread(pyninput)
+  
 ## Card Processing
 def clearq():
     global cardq
