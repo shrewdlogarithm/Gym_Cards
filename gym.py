@@ -237,7 +237,7 @@ def eventinput():
         # pyninput()
 threads.start_thread(eventinput)
 
-## Local Input
+## Local Input - THIS WILL NOT WORK WITH GUNICORN - Windows only
 def localinput():                    
     while sysactive:
         try:
@@ -247,7 +247,7 @@ def localinput():
                     cards.put(card)
         except Exception as e:
             pass
-threads.start_thread(localinput)
+# threads.start_thread(localinput)
 
 ## Card Processing
 def clearq():
