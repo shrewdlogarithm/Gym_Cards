@@ -171,7 +171,7 @@
 }
 
 /* this all hacks the theme.css */
-form input[type=submit] {
+form input[type=submit],input[type=button] {
     color: black !important;
 }
 
