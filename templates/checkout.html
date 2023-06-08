@@ -4,11 +4,7 @@
   <link rel="stylesheet" href="checkout.css">
   <script src="checkout.js"></script>
   <script>
-    {% if "reqcard" in sett %}
-      var reqcard = true
-    {% else %}
-      var reqcard = false
-    {% endif %}
+    var reqcard = {{ "true" if "reqcard" in opt else "false" }}
   </script>
 </head>
 <body>

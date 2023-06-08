@@ -564,7 +564,7 @@ def showstats1():
 @app.route('/checkout')
 def checkouttemplate():
     if sysactive:
-        return render_template('checkout.html',itemdb=checkout.itemdb,sett=utils.sett)
+        return render_template('checkout.html',itemdb=checkout.itemdb,opt=utils.sett)
     else:
         return "System Shutting Down"
 
