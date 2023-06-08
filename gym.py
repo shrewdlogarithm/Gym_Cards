@@ -564,7 +564,7 @@ def showstats1():
 @app.route('/checkout')
 def checkouttemplate():
     if sysactive:
-        return render_template('checkout.html',itemdb=checkout.itemdb)
+        return render_template('checkout.html',itemdb=checkout.itemdb,sett=utils.sett)
     else:
         return "System Shutting Down"
 
@@ -665,7 +665,10 @@ def savesettings():
                     del(utils.sett["adpic"])
                 utils.savesett()
             log.addlog("Settings Before",0,db=utils.sett) 
-            for st in utils.sett:
+            # Because HTML doesn't pass unchecked checkboxes...
+            for st in [key for key in utils.sett if utils.sett[key] == "on"]:
+                del utils.sett[st]
+            for st in request.form:
                 try:
                     utils.sett[st] = request.form[st]
                 except:

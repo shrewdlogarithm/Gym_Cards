@@ -46,6 +46,14 @@
   {% include 'toplayout.j2' %}
   <div id=settings>
     <form id="settform" action=savesettings enctype=multipart/form-data target="status" method="POST">
+      <P> Checkout Settings</P>
+      <div>Require Card
+      {% if sett["reqcard"] == "on" %}
+        <input id="reqcard" name="reqcard" type="checkbox" checked>
+      {% else %}
+        <input id="reqcard" name="reqcard" type="checkbox">
+      {% endif %}
+      </div>
       <P> Ad Settings</P>
       <div>Advert 1</div>
       <input size=60 id="ad1" name="ad1" type="text" value='{{ sett["ad1"] }}'>

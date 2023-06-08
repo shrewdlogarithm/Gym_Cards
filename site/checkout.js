@@ -343,7 +343,8 @@ function checkgo() {
             changepage(1)
             playsnd("beep")
         } else if (cstate == 1 && vtotal <= ttotal) {
-            //opendrawer() // enable to allow pressing the button
+            if (!reqcard)
+                opendrawer()
         } else if (cstate == 3) {
             vtotal = 0
             ttotal = 0            

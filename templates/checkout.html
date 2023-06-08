@@ -3,6 +3,13 @@
   {% include 'head.j2' %}
   <link rel="stylesheet" href="checkout.css">
   <script src="checkout.js"></script>
+  <script>
+    {% if "reqcard" in sett %}
+      var reqcard = true
+    {% else %}
+      var reqcard = false
+    {% endif %}
+  </script>
 </head>
 <body>
   <div class="debug"></div>
