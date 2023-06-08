@@ -143,7 +143,7 @@ def getdata():
                     logs = json.loads("[" + listo[0:len(listo)-2] + "]")
                     for log in logs:
                         tdatefull = datetime.strptime(log["date"],dateformlong)
-                        tdate = datetime.strftime(tdatefull,"%d/%m")
+                        tdate = datetime.strftime(tdatefull,"%m/%d")
                         ttime = datetime.strftime(tdatefull,"%H:%M:%S")
                         if tdate not in tilltrans:
                             tilltrans[tdate] = {"times": {},"tots": {}}
