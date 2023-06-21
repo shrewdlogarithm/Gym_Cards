@@ -585,7 +585,7 @@ def checkoutlog():
         for tx in txdb["sales"]:
             if "type" in tx and tx["type"] == "Subscription" and "card" in tx and tx["card"] != "":
                 tx["card"] = str(tx["card"]) # data attrs can be converted - we want a string
-                if "isnew" in tx and tx["isnew"]:
+                if tx["card"] not in carddb:
                     addcard(tx["card"],getmtype(tx),tx["membername"])
                 else:      
                     renewcard(tx["card"],getmtype(tx),tx["membername"])

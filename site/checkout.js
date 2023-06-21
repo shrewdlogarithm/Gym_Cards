@@ -295,9 +295,8 @@ function checkother() {
         updateprices()
     }
 }
-function updatename(nm,isnew=false,ex="") {
+function updatename(nm,ex="") {
     lastvend().attr("data-membername",nm)
-    lastvend().attr("data-isnew",isnew)
     let lv = lastvend().find(".checkrightlabeltext").text(nm + " - " + ex)
 }
 function opendrawer(staffcard="") {
@@ -357,11 +356,11 @@ function checkgo() {
             totaldiv.remove()
             playsnd("beep")
         } else if (cstate == 5) {            
-            updatename("",true)
+            updatename("")
             cstate = 0
             playsnd("beep")
         } else if (cstate == 6) {
-            updatename(cotext,true)
+            updatename(cotext)
             cstate = 0
             playsnd("beep")
         }
@@ -411,43 +410,42 @@ $(document).ready(function() {
                         data : {"card": cardinput},
                         type : 'POST',
                         success: function(response) {
-                            if (cstate == 0) {
+                            if (cstate == 0) { // renewing a card directly
                                 cardswiped = true
                                 btntopress = $("#Subscription"+response["vip"])
                                 if (btntopress.length) {
                                     btntopress.click()
                                     lastvend().attr("data-card",cardinput)
+                                    updatename(response["name"],response["newexpires"])
                                 } else
                                     playsnd("uhoh")
                                 cardswiped = false
-                            }
-                            if (response == "Not Found") {
-                                if (cstate == 5) {
-                                    updatename("")
-                                    cotext = ""
-                                    cstate = 6                                
+                            } else if (cstate == 1) { // opening drawer
+                                if (response["staff"]) {
+                                    opendrawer(cardinput)
                                 } else {
                                     playsnd("uhoh")
                                 }
-                            } else {
-                                if (cstate == 1) {
-                                    if (response["staff"]) {
-                                        opendrawer()
-                                    } else {
-                                        playsnd("uhoh")
-                                    }
-                                } else {
-                                    updatename(response["name"],false,response["newexpires"])
-                                    cstate = 0             
-                                }                                                       
-                            }
+                            } else if (cstate == 5) { // swiping card after choosing a subscription
+                                if (response["name"])
+                                    updatename(response["name"],response["newexpires"])
+                                else
+                                    updatename("New Card")
+                                cstate = 0             
+                            }                                                       
                             updateprices()
                             cardinput = ""
                         },
                         error: function(xhr, ajaxOptions, thrownError) {
-                            cardinput = ""
-                            cstate = 0 // TODO not sure what to do here - why would this possibly fail???
+                            if (cstate == 5) {
+                                updatename("")
+                                cotext = ""
+                                cstate = 6                                
+                            } else {
+                                playsnd("uhoh")
+                            }
                             updateprices()
+                            cardinput = ""
                         }
                     })                                        
                 }
