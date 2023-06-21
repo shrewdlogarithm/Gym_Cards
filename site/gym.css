@@ -134,10 +134,10 @@
     display:none;
 }
 #settings {
-    background-color: transparent;
+    background-color: #88888888;
     font-size: 18px;
-    width:45%;
-    margin-left: 55% !important;
+    width:500px;
+    min-width: 500px;
     z-index:1;
 }
 #ads {

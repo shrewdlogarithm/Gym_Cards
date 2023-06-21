@@ -46,15 +46,22 @@
   {% include 'toplayout.j2' %}
   <div id=settings>
     <form id="settform" action=savesettings enctype=multipart/form-data target="status" method="POST">
-      <P> Checkout Settings</P>
+      <fieldset>
+      <legend> Checkout Settings</legend>
       <div>Require Card
       {% if sett["reqcard"] == "on" %}
         <input id="reqcard" name="reqcard" type="checkbox" checked>
       {% else %}
         <input id="reqcard" name="reqcard" type="checkbox">
       {% endif %}
-      </div>
-      <P> Ad Settings</P>
+      </fieldset>
+      <fieldset>
+      <legend> Ad Settings </legend>
+      <div>Advert Image</div>
+      <input id="upload" type="file" accept="image/gif, image/jpeg, image/png" onchange="loadFile(event)" name="image" id="file" style="display:none;">
+      <input id="uploadbutton" type="button" value="Upload Ad Image">
+      <input id="delpic" name="delpic" type=checkbox style="display:none">
+      <input id="deletebutton" type="button" value="Delete Ad Image">
       <div>Advert 1</div>
       <input size=60 id="ad1" name="ad1" type="text" value='{{ sett["ad1"] }}'>
       <input type=color id="ad1col" name="ad1col" value="{{ sett["ad1col"] }}"><br>
@@ -64,11 +71,6 @@
       <div>Advert 3</div>
       <input size=60 id="ad3" name="ad3" type="text" value='{{ sett["ad3"] }}'>
       <input type=color id="ad3col" name="ad3col" value="{{ sett["ad3col"] }}"><br>
-      <div>Advert Image</div>
-      <input id="upload" type="file" accept="image/gif, image/jpeg, image/png" onchange="loadFile(event)" name="image" id="file" style="display:none;">
-      <input id="uploadbutton" type="button" value="Upload Ad Image">
-      <input id="delpic" name="delpic" type=checkbox style="display:none">
-      <input id="deletebutton" type="button" value="Delete Ad Image">
       <!-- <P> Theme Settings</P>
       Background <input type=color id="theme0" name="theme0" value="{{ sett["theme0"] }}">
       Message <input type=color id="theme1" name="theme1" value="{{ sett["theme1"] }}">
@@ -79,6 +81,7 @@
       Long Delay <input min=0 max=90 type="number" name="dlong" value={{ sett["dlong"] }}> -->
       <div>&nbsp;</div>
       <input type="submit" value="Save Changes">
+      </fieldset>
     </form>
   </div>
   {% include 'bottomlayout.j2' %}
