@@ -174,6 +174,7 @@ def eventinput():
                 for dev in devices:
                     if "RFID" in devices[dev].name:
                         rffound = True
+                        sse.add_message("Welcome!")
                         break;
                 if not rffound:
                     log.addlog("evdev_no_card_reader")
