@@ -1,5 +1,5 @@
 .tillholder,.tillholder * {
-    font-size: 2vh;
+    font-size: 2.2vh;
     font-family: 'Courier New', Courier, monospace;
 }
 .tillholder {
@@ -51,4 +51,9 @@ th,td {
 
 .receiptview * {
     color: darkblue !important;
+}
+
+.indenter a:link,.indenter a:visited,.indenter a:active {
+    color: green;
+    text-decoration: none;
 }
