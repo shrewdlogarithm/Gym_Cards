@@ -301,7 +301,6 @@ function updatename(nm,ex="") {
 }
 function opendrawer(staffcard="") {
     let transdata = {
-        "staff": staffcard,
         "sales": [],
         "tender": {}
     }
@@ -316,6 +315,7 @@ function opendrawer(staffcard="") {
     transdata["tender"]["Paid"] = tenderdiv.find(".checkrightlabel").text()
     transdata["tender"]["Total"] = vtotal
     transdata["tender"]["Change"] = vtotal-ttotal
+    transdata["tender"]["Staff"] = staffcard
     cstate = 4
     $.ajax("/checkoutlog", {
         data : JSON.stringify(transdata),

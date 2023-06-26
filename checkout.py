@@ -141,24 +141,28 @@ def getdata():
                 listo = listo.replace("\x00","")
                 try: 
                     logs = json.loads("[" + listo[0:len(listo)-2] + "]")
-                    for log in logs:
-                        tdatefull = datetime.strptime(log["date"],dateformlong)
+                    for logline in logs:
+                        tdatefull = datetime.strptime(logline["date"],dateformlong)
                         tdate = datetime.strftime(tdatefull,"%m/%d")
                         ttime = datetime.strftime(tdatefull,"%H:%M:%S")
                         if tdate not in tilltrans:
                             tilltrans[tdate] = {"times": {},"tots": {}}
                         if ttime not in tilltrans[tdate]["times"]:
                             tilltrans[tdate]["times"][ttime] = {"trans": [],"tots": {}}
-                        for sale in log["sales"]:
+                        for sale in logline["sales"]:
                             if sale["type"] not in ttypes:
                                 ttypes[sale["type"]] = 0
-                            tilltrans[tdate]["times"][ttime]["trans"].append({"label": sale["label"],"type": sale["type"], "price": sale["price"]})
+                            tilltrans[tdate]["times"][ttime]["trans"].append(sale)
                             addto(tilltrans[tdate]["tots"],"Total",sale["price"])
                             addto(tilltrans[tdate]["tots"],sale["type"],sale["price"])
                             addto(tilltrans[tdate]["times"][ttime]["tots"],"Total",sale["price"])
                             addto(tilltrans[tdate]["times"][ttime]["tots"],sale["type"],sale["price"])
-                        for tender in log["tender"]:
-                            tilltrans[tdate]["times"][ttime]["trans"].append({"label": tender,"type": "Total", "price": log["tender"][tender]})
+                        for tender in ["Total","Change","Paid","Staff"]:
+                            if tender in logline["tender"]:
+                                if tender == "Paid" or tender == "Staff":
+                                    tilltrans[tdate]["times"][ttime]["trans"].append({"label": tender + ":" + logline["tender"][tender],"type": "Total"})
+                                else:
+                                    tilltrans[tdate]["times"][ttime]["trans"].append({"label": tender,"type": "Total", "price": logline["tender"][tender]})
                 except Exception as e:
                     log.addlog("GetDataLoop",excep=e)    
     except Exception as e:

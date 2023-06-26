@@ -11,18 +11,31 @@
       function nodeCollapse() {
 
       }
-      $("#treedemo").treetable({ 
+      function treedone() {
+        $("#tilltree").show()
+        $(".hasreceipt").on("mouseover",function() {
+          $(".receiptview").html($(this).find(".receipt").html())
+          $(this).css("background-color","green")
+        }).on("mouseout",function() {
+          // $(".receiptview").html("")
+          $(this).css("background-color","#00000000")
+        })
+      }
+      $("#tilltree").treetable({ 
         clickableNodeNames: true,
         expandable: true,
         expanderTemplate: "<a href='#'>\>\>\></a>",
+        onInitialized:  treedone,
         onNodeExpand:   nodeExpand,
         onNodeCollapse: nodeCollapse });
     })
+    
   </script>
 </head>
 <body>
   {% include 'toplayout.j2' %}
-  <table class="treetable" id="treedemo">
+  <div class="tillholder">
+  <table class="treetable" id="tilltree">
     <thead>
       <th></th>
       {% for type in tilldata.ttypes %}
@@ -32,7 +45,7 @@
     <tbody>
       {% for tdate in tilldata.tilldates %}
         {% set date_loop = loop %}
-        <tr data-tt-id="{{ date_loop.index }}">
+        <tr data-tt-id="{{ date_loop.index }}" class="tilldate">
           <td>{{ tdate }}</td>
           {% for type in tilldata.ttypes %}
               <td>{{ tilldata.tilltrans[tdate]["tots"][type] }}</td>
@@ -40,26 +53,34 @@
         </tr>
         {% for ttime in tilldata.tilltrans[tdate]["times"] %}
           {% set time_loop = loop %}
-          <tr data-tt-id="{{ date_loop.index }}{{ time_loop.index }}" data-tt-parent-id="{{ date_loop.index }}">
+          <tr class="hasreceipt" data-tt-id="{{ date_loop.index }}-{{ time_loop.index }}" data-tt-parent-id="{{ date_loop.index }}">
             <td>{{ ttime }}</td>              
             {% for type in tilldata.ttypes %}
               <td>{{ tilldata.tilltrans[tdate]["times"][ttime]["tots"][type] }}</td>
             {% endfor %}
-          </tr>
-          {% for ttrans in tilldata.tilltrans[tdate]["times"][ttime]["trans"] %}
-            <tr data-tt-id="{{ date_loop.index }}{{ time_loop.index }}{{ loop.index }}" data-tt-parent-id="{{ date_loop.index }}{{ time_loop.index }}">
-              <td>{{ ttrans["label"] }}</td>
-              {% for type in tilldata.ttypes %}
-                <td>
-                {% if type == ttrans["type"] %}
-                  {{ ttrans["price"] }}
+            <td class="receipt"><table>
+            {% for ttrans in tilldata.tilltrans[tdate]["times"][ttime]["trans"] %}
+              {% if ttrans["label"] == "Total" and ttrans["type"] == "Total" %}
+                <tr><td colspan=2><hr></hr></td></tr>
+              {% endif %}
+              <tr>
+                <td>{{ ttrans["label"] }}</td>
+                {% if "price" in ttrans %}
+                  <td>{{ "%.2f"|format(ttrans["price"] | float) }}</td>
                 {% endif %}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
+              </tr>
+              {% if "membername" in ttrans %}
+                <tr><td colspan=2>{{ ttrans["membername"] }}</td></tr>
+              {% endif %}
+            {% endfor %}
+            </table></td>
+          </tr>
         {% endfor %}
       {% endfor %}
     </tbody>
   </table>
+
+  <div class="receiptview"></div>
+  </div>
+</td></tr></table>
 </body>
