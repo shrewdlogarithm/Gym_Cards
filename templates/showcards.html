@@ -1,10 +1,14 @@
 <head>
-  {% include 'head.j2' %}
+   {% include 'head.j2' %}
   <link rel="stylesheet" href="tablesorter/css/theme.grey.css">
   <script src="tablesorter/js/jquery.tablesorter.js"></script>
   <script src="tablesorter/js/jquery.tablesorter.widgets.js"></script>
   <script src="tablesorter/js/parsers/parser-input-select.js"></script>
   <style>
+    body {
+      user-select: none;
+      touch-action: pan-y;
+    }
     .tablesorter  td:nth-child(1),
     .tablesorter  td:nth-child(5),
     .tablesorter  td:nth-child(8),
@@ -69,6 +73,7 @@
             }
           })
           $("#membertable").tablesorter({ 
+            debug: true,
             sortList: [[0,0]],
             theme: "grey",
             headers: {
@@ -109,7 +114,7 @@
               8 : {
                 sorter: "select-text"
               },
-              11 : {
+              10 : {
                 filter: false
               }
             },
@@ -122,17 +127,16 @@
               },
               9: function(node,table,cellIndex) {
                 return $(node).find("input[type=submit]").val()
-              },
-              10: function(node,table,cellIndex) {
-                return $(node).find("input[type=submit]").val()
               }
             },
             emptyTo: 'emptyMax',
-            widgets: ["zebra", "filter"],
+            widgets: ["filter"], // zebra
             widgetOptions : {
               filter_columnFilters : true,
               filter_startsWith: false,
             }
+          }).bind("sortStart",function(e,t) {
+            console.log(e,t)
           })
           lastval = 0
           $("#membertable tbody input,select").on("focus",function() {
@@ -169,7 +173,7 @@
       <th>Expires</th>
       <th>MemType</th>
       <th>In/Out</th>
-      <th>Photo</th>
+      <!-- <th>Photo</th> -->
       <th>&nbsp;</th>
       </tr>
     </thead>
@@ -254,7 +258,7 @@
               {% endif %}
             </form>
         </td>
-        <td>                            
+        <!-- <td>                            
           <form action="takephoto" target="status" method="POST">
             <input name="card" type="hidden" value="{{ card }}">
             {% if os.path.exists("site/images/" ~ carddb[card]["memno"] ~ ".png") %}              
@@ -267,7 +271,7 @@
             <input name="card" type="hidden" value="{{ card }}"> 
             <input type=submit class="danger dangerhide" value="X">
           </form>
-        </td>
+        </td> -->
       </tr>
     {% endfor %}
     </tbody>
