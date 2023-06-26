@@ -174,7 +174,6 @@ def eventinput():
                 for dev in devices:
                     if "RFID" in devices[dev].name:
                         rffound = True
-                        sse.add_message("Welcome!")
                         break;
                 if not rffound:
                     log.addlog("evdev_no_card_reader")
@@ -199,6 +198,8 @@ def eventinput():
                                     log.addlog("evdev_keyevent_exception",excep=e)
             except Exception as e: # this traps reloads AND devices which have disconnected
                 sse.add_message("Card Reader not found")
+                sse.add_message("##Timer" + str(3))
+                threads.reset_timeout(3,kto)
                 time.sleep(2)
                 sse.add_message("")
                 devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
