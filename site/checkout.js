@@ -422,7 +422,7 @@ $(document).ready(function() {
                                 cardswiped = false
                             } else if (cstate == 1) { // opening drawer
                                 if (response["staff"]) {
-                                    opendrawer(cardinput)
+                                    opendrawer(response["name"] + "(" + cardinput + ")")
                                 } else {
                                     playsnd("uhoh")
                                 }
