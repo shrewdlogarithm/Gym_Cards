@@ -1,3 +1,30 @@
+## LJ's Gym Membership System
+##
+## If you're reading this and you're not me, something bad has happened and I'm sorry you're stuck with sorting this out!
+##
+## This started as a Raspberry Pi project to add/remove/scan member cards - no screen, just beeps to tell if OK or expired
+##
+## It grew a bit and...
+##
+## Well - it's a bit of a spaghetti lashup in places to say the least - again, sorry!
+##
+## Start in the system folder - install.sh explains how to get it setup and the run/show.sh scripts fire-it-up
+##
+## The entire source is on github - link in the install script
+##
+## At time of typing there is a sqlite database which stores all the log files for the DBStats page - which no-one really uses so don't worry about it
+## 
+## The system captures pictures via a webcam for new members - this has also never really been used and bits of it are commented out (showcards screen) 
+##
+## On Linux, evdev is the best way of scanning the card reader - pynput has performance issues so I only use it for testing on Windows 
+##
+## Back-end is Python3
+## Front-End deliered via FLASK using Jinja2 templates
+## Front-end is HTML/CSS/jQuery, TableSorter (card screen - installed from repo) and jQuery-TreeTable (till roll screen - packaged with source)
+## Back-end talks to Front-End via SSE  it works well enough if you use the right server for the back-end!
+## This script runs standalone (python3 gym.py) for 1/2 clients/testing OR via Gunicorn (using gevent as that supports SSE properly) for infinite clients/production
+
+
 import sys,os,random,json,time,base64,shutil,subprocess
 from queue import Queue
 from playsound import playsound
