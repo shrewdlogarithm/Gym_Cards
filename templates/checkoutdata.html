@@ -35,6 +35,7 @@
 <body>
   {% include 'toplayout.j2' %}
   <div class="tillholder">
+    <div class="tillscroll">
   <table class="treetable" id="tilltree">
     <thead>
       <th></th>
@@ -43,7 +44,7 @@
       {% endfor %}
     </thead>
     <tbody>
-      {% for tdate in tilldata.tilldates %}
+      {% for tdate in tilldata["tilltrans"].keys()|sort(reverse=True) %}
         {% set date_loop = loop %}
         <tr data-tt-id="{{ date_loop.index }}" class="tilldate">
           <td>{{ tdate }}</td>
@@ -51,7 +52,7 @@
               <td>{{ tilldata.tilltrans[tdate]["tots"][type] }}</td>
             {% endfor %}
         </tr>
-        {% for ttime in tilldata.tilltrans[tdate]["times"] %}
+        {% for ttime in tilldata.tilltrans[tdate]["times"].keys()|sort(reverse=True) %}        
           {% set time_loop = loop %}
           <tr class="hasreceipt" data-tt-id="{{ date_loop.index }}-{{ time_loop.index }}" data-tt-parent-id="{{ date_loop.index }}">
             <td>{{ ttime }}</td>              
@@ -79,6 +80,7 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
 
   <div class="receiptview"></div>
   </div>

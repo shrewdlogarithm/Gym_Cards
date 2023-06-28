@@ -1,3 +1,9 @@
+<!-- 
+  This is the card browsing/editting screen - Lee uses this to enter member names/edit types and fiddle with membership dates...
+  
+  All members are loaded at-once - no paging - if membership gets into the 1000s, it will run like crap so you might need to add that!!
+
+ -->
 <head>
    {% include 'head.j2' %}
   <link rel="stylesheet" href="tablesorter/css/theme.grey.css">
@@ -5,10 +11,6 @@
   <script src="tablesorter/js/jquery.tablesorter.widgets.js"></script>
   <script src="tablesorter/js/parsers/parser-input-select.js"></script>
   <style>
-    body {
-      user-select: none;
-      touch-action: pan-y;
-    }
     .tablesorter  td:nth-child(1),
     .tablesorter  td:nth-child(5),
     .tablesorter  td:nth-child(8),

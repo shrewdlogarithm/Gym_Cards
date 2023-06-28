@@ -167,4 +167,4 @@ def getdata():
                     log.addlog("GetDataLoop",excep=e)    
     except Exception as e:
         log.addlog("GetData",excep=e)    
-    return {"tilldates": sorted(tilltrans,reverse=True),"tilltrans": tilltrans,"ttypes": ttypes}
+    return {"tilltrans": tilltrans,"ttypes": ttypes}

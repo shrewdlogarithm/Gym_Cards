@@ -1,3 +1,8 @@
+body {
+    user-select: none;
+    touch-action: pan-y;
+  }
+
 @font-face {
     font-family: 'Bunken Tech Sans Pro SeBd';
     src: url('fonts/BunkenTechSansPro-SeBd.eot');

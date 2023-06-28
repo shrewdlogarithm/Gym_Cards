@@ -17,6 +17,9 @@
 .tillholder div {
     margin-left: 20px;
 }
+.tillscroll {
+    overflow-y: scroll;
+}
 
 #tilltree {
     max-width: 100%;
