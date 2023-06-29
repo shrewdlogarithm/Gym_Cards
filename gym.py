@@ -2,27 +2,31 @@
 ##
 ## If you're reading this and you're not me, something bad has happened and I'm sorry you're stuck with sorting this out!
 ##
-## This started as a Raspberry Pi project to add/remove/scan member cards - no screen, just beeps to tell if OK or expired
+## This started as a Raspberry Pi project to add/remove/scan member cards - no screens at all - just beeps to tell if OK or expired
 ##
-## It grew a bit and...
-##
-## Well - it's a bit of a spaghetti lashup in places to say the least - again, sorry!
+## It grew a bit...
+## and... it's a bit of a spaghetti lashup in places to say the least - again, sorry!
 ##
 ## Start in the system folder - install.sh explains how to get it setup and the run/show.sh scripts fire-it-up
+## Source is on github - link in the install script
 ##
-## The entire source is on github - link in the install script
+## Weird Bits
 ##
-## At time of typing there is a sqlite database which stores all the log files for the DBStats page - which no-one really uses so don't worry about it
+## There is a sqlite database which stores all the log files for the DBStats page - which no-one really uses so don't worry about it too much
 ## 
-## The system captures pictures via a webcam for new members - this has also never really been used and bits of it are commented out (showcards screen) 
+## The system captures pictures via a webcam - this has NEVER been actually used and bits of it are commented out (showcards screen for example) 
 ##
-## On Linux, evdev is the best way of scanning the card reader - pynput has performance issues so I only use it for testing on Windows 
+## What we're using (specific requirements are in the install script - no requirements.txt because it varies depending on platform)
 ##
 ## Back-end is Python3
-## Front-End deliered via FLASK using Jinja2 templates
-## Front-end is HTML/CSS/jQuery, TableSorter (card screen - installed from repo) and jQuery-TreeTable (till roll screen - packaged with source)
-## Back-end talks to Front-End via SSE  it works well enough if you use the right server for the back-end!
-## This script runs standalone (python3 gym.py) for 1/2 clients/testing OR via Gunicorn (using gevent as that supports SSE properly) for infinite clients/production
+## Front-End served by FLASK using Jinja2 templates
+## Front-end uses jQuery, TableSorter (card screen - installed from repo) and jQuery-TreeTable (tillroll - packaged here as there are dozens of variants)
+##
+## Back-end talks to Front-End via SSE - can be moody (esp on Firefox) but works well enough if you use the right WSGI server
+##
+## This script can run standalone (python3 gym.py) for 1/2 clients (testing) OR via Gunicorn (using gevent as that supports SSE properly) for infinite clients (production)
+##
+## More comments appear in the code where I've remembered to make them - Good Luck!
 
 
 import sys,os,random,json,time,base64,shutil,subprocess
@@ -754,7 +758,7 @@ def checkcard():
     if card in carddb:
         return carddb[card] | {"staff": utils.mtypes[carddb[card]["vip"]]["staff"],"newexpires": utils.calc_expiry(carddb[card]["expires"])}
     else:
-        return "Not Found"
+        return "Not Found",404
     
 @app.route('/replace', methods=['POST'])
 def replace():
