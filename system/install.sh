@@ -1,10 +1,9 @@
-# In Raspi-config ensure you have
-# Set machine name, enables Wifi, disable screen-blanking etc.
+# IMPORTANT NOTE: If you're not me - the main problem here is gym.py - that contains some comments which might help you see how this works
 
-# Then run
-# git clone https://github.com/shrewdlogarithm/Gym_Cards.git
+# To install from scratch
+git clone https://github.com/shrewdlogarithm/Gym_Cards.git
 
-# maybe run the following manually - just to ensure everything works as expected?
+# IMPORTANT -  I would run the following manually as there are decisions I was too lazy to code as questions!
 
 # Update everything
 sudo apt-get update
@@ -22,7 +21,7 @@ cd
 sudo apt install python3-gst-1.0
 
 # For backups
-sudo apt-get install l
+sudo apt install lftp
 
 # Basic Python Requirements
 pip3 install python_dateutil
@@ -31,19 +30,20 @@ pip3 install PyQuery
 pip3 install flask
 pip3 install playsound
 
-# for the RFID DoorLock
+# IMPORTANT - below here are mostly Linux OR Windows choices so this is where you need a bit of manual effort - sorry again!
+
+# for the RFID DoorLock (Linux only)
 pip3 install Chinese-RFID-Access-Control-Library
 
-# To access the cardreader (pick one)
-pip3 install evdev # this one for production
-# pip3 install pynput # this one for Windows
-sudo usermod -a -G input $USER # may be required on some systems
+# To access the cardreader (choose)
+pip3 install evdev # this one for Linux
+pip3 install pynput # this one for Windows - HAS PERFORMANCE PROBLEMS ON LINUX
+sudo usermod -a -G input $USER 
 
-# for the cash drawer
+# for the cash drawer (Linux only)
 sudo echo 'KERNEL=="ttyUSB0", MODE="0666"' > /etc/udev/rules.d/cashdrawer.rules
 sudo usermod -a -G dialout $USER 
 
-# to run under gunicorn
+# production WSGI server (Linux only)
 sudo apt install gunicorn
 pip3 install gevent
-sudo apt install gunicorn

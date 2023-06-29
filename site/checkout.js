@@ -64,10 +64,7 @@ function updateprices() {
         else
             $("#checkcancel span").text("Remove Last Item")
         $("#checkother").removeClass("checkhide")
-        if (vendlines() > 9)
-            $("#checkother span").text(">> MAX ENTRIES <<")
-        else
-            $("#checkother span").text("Enter Any Price")
+        $("#checkother span").text("Enter Any Price")
         if (vtotal > 0) {
             $("#checkgo span").text("Checkout")
         } else {
@@ -267,9 +264,19 @@ function checkcancel() {
         totaldiv.remove()
     }
 }
+let errclr = 0
+function showerror(msg) {
+    if (errclr) 
+        clearTimeout(errclr)
+    $(".checkerror div").text(msg).show()
+    playsnd("uhoh")
+    errclr = setTimeout(function() {
+        $(".checkerror div").hide()
+    },1000)
+}
 function checkmaxvendlines() {
     if (vendlines() > 9) {
-        playsnd("uhoh")
+        showerror("Max Transactions Reached")        
         return false
     } else   
         return true
@@ -326,7 +333,7 @@ function opendrawer(staffcard="") {
             updateprices()
         },
         error: function(xhr, ajaxOptions, thrownError) {
-            playsnd("uhoh")
+            showerror("Server Disconnected?")
             cstate = 1
             updateprices()
         }
@@ -373,9 +380,6 @@ $(document).ready(function() {
     $("#checkother").on("click",checkother)
     $("#checkcancel").on("click",checkcancel)
     $("#checkgo").on("click",checkgo)
-    $(window).on("mousedown touchdown",function(e) {
-        $(".debug").text(e.screenX + " - " + e.screenY + " - " + e.timeStamp)
-    })
     changepage(0)
     updateprices()
 
@@ -400,8 +404,8 @@ $(document).ready(function() {
             cardinput = ""
         if (e.key == "Enter" && cardinput != "") {
             if (cstate == 5 || cstate == 0 || (cstate == 1 && vtotal <= ttotal))  {
-                if (cardexists(cardinput)) {
-                    playsnd("uhoh")
+                if (cstate == 0 && cardexists(cardinput)) {
+                    showerror("Can't renew Member twice")
                     cardinput = ""
                 } else {
                     if (cstate != 1) 
@@ -418,20 +422,21 @@ $(document).ready(function() {
                                     lastvend().attr("data-card",cardinput)
                                     updatename(response["name"],response["newexpires"])
                                 } else
-                                    playsnd("uhoh")
+                                    showerror("Cannot renew STAFF Cards")
                                 cardswiped = false
                             } else if (cstate == 1) { // opening drawer
                                 if (response["staff"]) {
                                     opendrawer(response["name"] + "(" + cardinput + ")")
                                 } else {
-                                    playsnd("uhoh")
+                                    showerror("Not a STAFF card")
                                 }
                             } else if (cstate == 5) { // swiping card after choosing a subscription
-                                if (response["name"])
-                                    updatename(response["name"],response["newexpires"])
-                                else
-                                    updatename("New Card")
-                                cstate = 0             
+                                if (response["staff"])
+                                    showerror("Cannot renew STAFF cards")
+                                else {
+                                    updatename(response["name"],response["newexpires"])                                
+                                    cstate = 0             
+                                }
                             }                                                       
                             updateprices()
                             cardinput = ""
@@ -442,7 +447,7 @@ $(document).ready(function() {
                                 cotext = ""
                                 cstate = 6                                
                             } else {
-                                playsnd("uhoh")
+                                showerror("Card not recognised")
                             }
                             updateprices()
                             cardinput = ""
