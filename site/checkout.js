@@ -127,12 +127,13 @@ function getprice(price) {
     price = price.replace("£","")
     return parseFloat(price)
 }
-function addvend(type,label,price,color) {
+function addvend(type,label,price,color,vip=null) {
     parentdiv = $("<div/>")
         .addClass("checkrightline")
         .attr("data-price",price)
         .attr("data-type",type)
         .attr("data-label",label)
+        .attr("data-vip",vip)
     parentdiv.append($("<div/>")
         .addClass("checkrightlabel")
         .text(label).append($("<div></div>")
@@ -154,7 +155,7 @@ function itemclick() {
         thisprice = $(this).data("price")
         if (cstate == 0) {
             if (checkmaxvendlines()) {
-                addvend($(this).parent().data("type"),$(this).find(".checkitemlabel").text(),thisprice,$(this).css("background-color"))
+                addvend($(this).parent().data("type"),$(this).find(".checkitemlabel").text(),thisprice,$(this).css("background-color"),$(this).data("vip"))
                 addvtotal(thisprice)
                 $(".checktoprightbottom").append(totaldiv)
                 playthen("pop",this)

@@ -80,8 +80,9 @@ def calc_expiry(expdate):
         return getrenewform()
     
 mtypes = {
-    0: {"name": "Normal", "price": 25, "vip": False, "staff": False},
     1: {"name": "Lite", "price": 20, "vip": False, "staff": False},
+    0: {"name": "Normal", "price": 25, "vip": False, "staff": False},
+    5: {"name": "Junior VIP", "price": 25, "vip": True, "staff": False},
     2: {"name": "VIP", "price": 30, "vip": True, "staff": False},
     3: {"name": "Couple", "price": 40, "vip": False, "staff": False},
     4: {"name": "Staff", "price": 0, "vip": False, "staff": True},

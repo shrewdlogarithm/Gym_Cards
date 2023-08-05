@@ -28,7 +28,7 @@
           {% for type in itemdb[page] %}
           <span class="checktopleftrow" data-type="{{type}}">
             {% for item in itemdb[page][type]["items"] %}
-              <span id="{{ type }}{{ loop.index-1 }}" class="checkitem checklayer{{ page }}" style="background-color: {{ itemdb[page][type]['color'] }}" data-type="{{ type }}" data-price="{{item['price']}}">
+              <span id="{{ type }}{{ loop.index-1 }}" class="checkitem checklayer{{ page }}" style="background-color: {{ itemdb[page][type]['color'] }}" data-type="{{ type }}" data-price="{{item['price']}}"  data-vip="{{item['vip']}}">
                 <span class="checkitemlabel">{{ item["title"] }}</span>
                 <span class="checkitemprice"></span>
               </span>

@@ -73,23 +73,6 @@ except Exception as e:
 for c in carddb:
     if int(carddb[c]["memno"]) > nmemno:
         nmemno = int(carddb[c]["memno"])
-    # fix VIP flag and merge staff into vip mtypes
-    if "vip" in carddb[c]:
-        mtype = carddb[c]["vip"]
-        try:
-            if mtype is True:
-                mtype = 2
-            elif mtype is False:
-                mtype = 0
-            else:
-                mtype = int(mtype)
-        except:
-            pass
-        carddb[c]["vip"] = mtype
-    if "staff" in carddb[c]:
-        if carddb[c]["staff"]:
-            carddb[c]["vip"] = 4
-        del carddb[c]["staff"]
 savedb()
             
 
@@ -604,14 +587,10 @@ def checkouttemplate():
 @app.route('/checkoutlog', methods=['POST'])
 def checkoutlog():
     def getmtype(tx):
-        if "label" in tx:
-            if "lite" in tx["label"].lower():
-                return 1
-            elif "vip" in tx["label"].lower():
-                return 2
-            elif "couple" in tx["label"].lower():
-                return 3
-        return 0        
+        if "vip" in tx:
+            return tx["vip"]
+        else:
+            return 0        
     txdb  = request.get_json()
     checkout.addcheckoutlog(txdb)
     if "sales" in txdb:
