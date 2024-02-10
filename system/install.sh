@@ -12,11 +12,6 @@ sudo apt-get upgrade
 sudo apt install git
 sudo apt install python3-pip
 
-# Install Tablesorter from GIT
-cd ~/Gym_Cards/site
-bash get_tablesorter.sh
-cd
-
 # For sound playback
 sudo apt install python3-gst-1.0
 
