@@ -1,7 +1,7 @@
 from datetime import timedelta,datetime
 
-import json,threading,socket
-import utils,log,lock
+import json,threading
+import utils,log
 
 from glob import glob
 dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
@@ -109,7 +109,7 @@ def logdate(dys=0):
     return utils.getnow() - offs
 
 def logname(dys=0):    
-    return f'logs/{socket.gethostname()}-{logdate(dys).strftime("%Y%m%d")}.checkout'
+    return f'logs/{utils.sett["servername"]}-{logdate(dys).strftime("%Y%m%d")}.checkout'
 
 def addcheckoutlog(db):
     thrlock.acquire()
@@ -134,7 +134,7 @@ def getdata():
     ttypes = {"Total": 0}
     tilltrans = {}
     try:
-        lfiles = glob("./logs/*.checkout")
+        lfiles = glob(f"./logs/{utils.sett['systemname']}*.checkout")
         for file in lfiles:
             with open(file) as lf:
                 listo = lf.read()
@@ -146,7 +146,7 @@ def getdata():
                         tdate = datetime.strftime(tdatefull,"%y/%m/%d")
                         ttime = datetime.strftime(tdatefull,"%H:%M:%S")
                         if tdate not in tilltrans:
-                            tilltrans[tdate] = {"times": {},"tots": {}}
+                            tilltrans[tdate] = {"times": {},"tots": {},"age": (tdatefull-datetime.today()).days}
                         if ttime not in tilltrans[tdate]["times"]:
                             tilltrans[tdate]["times"][ttime] = {"trans": [],"tots": {}}
                         for sale in logline["sales"]:

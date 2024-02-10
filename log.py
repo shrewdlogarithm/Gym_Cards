@@ -1,7 +1,7 @@
 from datetime import timedelta
 from glob import glob 
 
-import os,json,threading,socket
+import json,threading
 import utils
 
 import sqlite3
@@ -28,7 +28,7 @@ def logdtto(dys=0):
     return logdate(dys-1).strftime("%Y-%m-%d 00:00:00")
 
 def logname(dys=0):    
-    return f'logs/{socket.gethostname()}-{logdate(dys).strftime("%Y%m%d")}.log'
+    return f'logs/{utils.sett["systemname"]}-{logdate(dys).strftime("%Y%m%d")}.log'
     # return f'logs/gympi-{logdate(dys).strftime("%Y%m%d")}.log'
 
 def addlog(ev,card="",db={},excep=""):
@@ -103,7 +103,7 @@ def getlogmsgsfile(typ,dys=0):
     logs = []
     retlogs = []
     try:
-        lfiles = glob(f'logs/*-{logdate(dys).strftime("%Y%m%d")}.log')
+        lfiles = glob(f'logs/{utils.sett["systemname"]}*-{logdate(dys).strftime("%Y%m%d")}.log')
         for file in lfiles:
             with open(file) as lf:
                 listo = lf.read()
