@@ -20,8 +20,7 @@
 ##
 ## Back-end is Python3
 ## Front-End served by FLASK using Jinja2 templates
-## Front-end uses jQuery, TableSorter (card screen - installed from repo) and jQuery-TreeTable (tillroll - packaged here as there are dozens of variants)
-##
+## Front-end uses jQuery, TableSorter (card screen) and jQuery-TreeTable (tillroll) - all packaged locally
 ## Back-end talks to Front-End via SSE - can be moody (esp on Firefox) but works well enough if you use the right WSGI server
 ##
 ## This script can run standalone (python3 gym.py) for 1/2 clients (testing) OR via Gunicorn (using gevent as that supports SSE properly) for infinite clients (production)
@@ -251,7 +250,7 @@ def pyninput():
                 log.addlog("pynputexception",excep=e)
     except:
         log.addlog("pynputexception",excep=e)
-# threads.start_thread(pyninput)
+threads.start_thread(pyninput)
   
 ## Card Processing
 def clearq():

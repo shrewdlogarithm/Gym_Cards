@@ -60,7 +60,26 @@
         }
       }
     }
+
     startserver()
+
+    lastad = 0
+    ad = 0
+    function rotatead() {
+      while (lastad == ad) {
+        ad = Math.floor({{ sett["adcount"] }}*Math.random())+1        
+      }
+      if ($("#adv" + ad).text().length > 2) { // don't show empty ads - just leave last ad showing
+        $(".adv").css("opacity",0)
+        $("#adv"+ad).css("opacity",1)
+        adrotator = setTimeout(rotatead,{{  sett["adtime"] }})
+      } else {
+        adrotator = setTimeout(rotatead,50)
+      }
+      lastad = ad
+    }
+
+    adrotator = setTimeout(rotatead,{{  sett["adtime"] }})
   </script>
 </head>
 <body>

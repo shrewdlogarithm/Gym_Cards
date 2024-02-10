@@ -1,4 +1,4 @@
-import json,os
+import json,os,socket
 from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta 
 
@@ -13,7 +13,9 @@ sett = {
     "theme0": "#000000","theme1": "#ffffff","theme2": "#333333","theme3": "#acf310",
     "ad1": "","ad2": "", "adpic": "",
     "ad1col": "#ffffff","ad2col": "#ffffff","ad3col": "#ffffff",
-    "dshort": "2","dmedium": "5","dlong": "0"
+    "dshort": "2","dmedium": "5","dlong": "0",
+    "adcount": 8, "adtime": 2000,
+    "systemname": f"{socket.gethostname()}"
 }
 def savesett():
     with open(stname, 'w') as json_file:
@@ -22,8 +24,8 @@ def savesett():
 if os.path.exists(stname):
     with open(stname) as json_file:
         sett = {**sett,**json.load(json_file)}
-else:
-    savesett()
+
+savesett()
 
 def getdelay(dl): 
     delays = ["short","medium","long"]

@@ -141,8 +141,8 @@ body {
 #settings {
     background-color: #88888888;
     font-size: 18px;
-    width:500px;
-    min-width: 500px;
+    width:600px;
+    min-width: 600px;
     z-index:1;
 }
 #ads {
@@ -155,19 +155,27 @@ body {
     align-items: center; 
     justify-content: center;
     width:100%;
-    height: 100%;
-    font-size: 77px;
+    height: 100%;    
 }
-#adv1 {
+
+textarea {
+    background-color: black;
+    color: white;
+    font-size: 20px;
+}
+
+.adv {
     position: absolute;
-    top: 40px;
+    display: table;
+    vertical-align: middle;
+    top: 0;
+    width: 80%;
+    height: 90%;
+    max-height:90%;
 }
-#adv2 {
-    position:absolute;
-}
-#adv3 {
-    position: absolute;
-    bottom: 40px;
+.adv span {
+    display: table-cell !important;
+    vertical-align: middle;
 }
 
 #adpic {
@@ -175,6 +183,11 @@ body {
     max-height:90%;
 }
 
+#advlist {
+    width: 570px;
+    height: 60%;
+    overflow:scroll
+}
 /* this all hacks the theme.css */
 form input[type=submit],input[type=button] {
     color: black !important;

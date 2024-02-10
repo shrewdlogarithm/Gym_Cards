@@ -40,43 +40,51 @@
     <thead>
       <th></th>
       {% for type in tilldata.ttypes %}
-        <th>{{ type }}</th>
+        <th>{{ type }}}</th>
       {% endfor %}
     </thead>
     <tbody>
+      {% if request.args.get('days') %}
+        {% set age = 0-request.args.get('days')|int %}
+      {% else %}
+        {% set age = -90 %}
+      {% endif %}
       {% for tdate in tilldata["tilltrans"].keys()|sort(reverse=True) %}
-        {% set date_loop = loop %}
-        <tr data-tt-id="{{ date_loop.index }}" class="tilldate">
-          <td>{{ tdate }}</td>
-          {% for type in tilldata.ttypes %}
-              <td>{{ tilldata.tilltrans[tdate]["tots"][type] }}</td>
-            {% endfor %}
-        </tr>
-        {% for ttime in tilldata.tilltrans[tdate]["times"].keys()|sort(reverse=True) %}        
-          {% set time_loop = loop %}
-          <tr class="hasreceipt" data-tt-id="{{ date_loop.index }}-{{ time_loop.index }}" data-tt-parent-id="{{ date_loop.index }}">
-            <td>{{ ttime }}</td>              
+        {% if tilldata["tilltrans"][tdate]["age"]|int > age %}
+          <!-- {{tdate}} {{tilldata["tilltrans"][tdate]["age"]}} {{ age }}-->
+          {% set date_loop = loop %}
+          <tr data-tt-id="{{ date_loop.index }}" class="tilldate">
+            <td>{{ tdate }}</td>
             {% for type in tilldata.ttypes %}
-              <td>{{ tilldata.tilltrans[tdate]["times"][ttime]["tots"][type] }}</td>
-            {% endfor %}
-            <td class="receipt"><table>
-            {% for ttrans in tilldata.tilltrans[tdate]["times"][ttime]["trans"] %}
-              {% if ttrans["label"] == "Total" and ttrans["type"] == "Total" %}
-                <tr><td colspan=2><hr></hr></td></tr>
-              {% endif %}
-              <tr>
-                <td>{{ ttrans["label"] }}</td>
-                {% if "price" in ttrans %}
-                  <td>{{ "%.2f"|format(ttrans["price"] | float) }}</td>
-                {% endif %}
-              </tr>
-              {% if "membername" in ttrans %}
-                <tr><td colspan=2>{{ ttrans["membername"] }}</td></tr>
-              {% endif %}
-            {% endfor %}
-            </table></td>
+                <td>{{ tilldata.tilltrans[tdate]["tots"][type] }}</td>
+              {% endfor %}
           </tr>
-        {% endfor %}
+          {% for ttime in tilldata.tilltrans[tdate]["times"].keys()|sort(reverse=True) %}        
+            {% set time_loop = loop %}
+            <tr class="hasreceipt" data-tt-id="{{ date_loop.index }}-{{ time_loop.index }}" data-tt-parent-id="{{ date_loop.index }}">
+              <td>{{ ttime }}</td>              
+              {% for type in tilldata.ttypes %}
+                <td>{{ tilldata.tilltrans[tdate]["times"][ttime]["tots"][type] }}</td>
+              {% endfor %}
+              <td class="receipt"><table>
+              {% for ttrans in tilldata.tilltrans[tdate]["times"][ttime]["trans"] %}
+                {% if ttrans["label"] == "Total" and ttrans["type"] == "Total" %}
+                  <tr><td colspan=2><hr></hr></td></tr>
+                {% endif %}
+                <tr>
+                  <td>{{ ttrans["label"] }}</td>
+                  {% if "price" in ttrans %}
+                    <td>{{ "%.2f"|format(ttrans["price"] | float) }}</td>
+                  {% endif %}
+                </tr>
+                {% if "membername" in ttrans %}
+                  <tr><td colspan=2>{{ ttrans["membername"] }}</td></tr>
+                {% endif %}
+              {% endfor %}
+              </table></td>
+            </tr>
+          {% endfor %}
+        {% endif %}
       {% endfor %}
     </tbody>
   </table>

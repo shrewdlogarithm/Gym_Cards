@@ -1,25 +1,10 @@
 <head>
   {% include 'head.j2' %}
   <script>
-    $(document).ready(function(){
+    $(document).ready(function(){      
       $("#headright").show()
-      $("#ad1").on("keyup",function() {
-        $("#adv1").html($("#ad1").val())
-      })
-      $("#ad2").on("keyup",function() {
-        $("#adv2").html($("#ad2").val())
-      })
-      $("#ad3").on("keyup",function() {
-        $("#adv3").html($("#ad3").val())
-      })
-      $("#ad1col").on("input",function() {
-        $("#ad1,#adv1").css("color",$("#ad1col").val())
-      }).trigger("input")
-      $("#ad2col").on("input",function() {
-        $("#ad2,#adv2").css("color",$("#ad2col").val())
-      }).trigger("input")
-      $("#ad3col").on("input",function() {
-        $("#ad3,#adv3").css("color",$("#ad3col").val())
+      $(".adtext,.adcol").on("focus keyup input",function() {
+          showad($(this)[0].id.substring(2,3))
       }).trigger("input")
       $("#uploadbutton").click(function() {
         $("#upload").click()
@@ -56,21 +41,22 @@
       {% endif %}
       </fieldset>
       <fieldset>
-      <legend> Ad Settings </legend>
+      <legend> Ad Image </legend>
       <div>Advert Image</div>
       <input id="upload" type="file" accept="image/gif, image/jpeg, image/png" onchange="loadFile(event)" name="image" id="file" style="display:none;">
       <input id="uploadbutton" type="button" value="Upload Ad Image">
       <input id="delpic" name="delpic" type=checkbox style="display:none">
       <input id="deletebutton" type="button" value="Delete Ad Image">
-      <div>Advert 1</div>
-      <input size=60 id="ad1" name="ad1" type="text" value='{{ sett["ad1"] }}'>
-      <input type=color id="ad1col" name="ad1col" value="{{ sett["ad1col"] }}"><br>
-      <div>Advert 2</div>
-      <input size=60 id="ad2" name="ad2" type="text" value='{{ sett["ad2"] }}'>
-      <input type=color id="ad2col" name="ad2col" value="{{ sett["ad2col"] }}"><br>
-      <div>Advert 3</div>
-      <input size=60 id="ad3" name="ad3" type="text" value='{{ sett["ad3"] }}'>
-      <input type=color id="ad3col" name="ad3col" value="{{ sett["ad3col"] }}"><br>
+      </fieldset>
+      <fieldset>
+      <legend> Ads </legend>  
+      <div id="advlist">
+      {% for adn in range(1,sett["adcount"]+1) %}
+        <div>Advert {{adn}}</div>
+        <textarea rows=3 cols=40 class="adtext" id="ad{{adn}}" name="ad{{adn}}" type="text">{{ sett["ad" + adn|string] }}</textarea>
+        <input type=color class="adcol" id="ad{{adn}}col" name="ad{{adn}}col" value="{{ sett["ad" + adn|string + "col"] }}"><br>
+      {% endfor %}
+      </div>
       <!-- <P> Theme Settings</P>
       Background <input type=color id="theme0" name="theme0" value="{{ sett["theme0"] }}">
       Message <input type=color id="theme1" name="theme1" value="{{ sett["theme1"] }}">

@@ -55,8 +55,30 @@ function updateTime() {
     $('#footleft').html(ndate.toString().replace(/ GMT.*/,""));
   }
 }
+
+function tobr(val) {
+  try {
+    return val.replace(/[\r\n]+/g,"<br>") + "&nbsp;"
+  } catch (e) {
+    return "&nbsp;"
+  }
+}
+
+function showad(nn) {
+  $(".adv").css("opacity",0)
+  $("#adv"+nn).css("opacity",1)
+  $("#adv"+nn).html(tobr($("#ad"+nn).val()))
+  $("#ad"+ nn + ",#adv" + nn).css("color",$("#ad" + nn + "col").val())
+  textFit(document.getElementsByClassName('adv'), {maxFontSize: 600,multiLine: true})
+}
+
 $(document).ready(function(){
     gymserver()
     updateTime();
-    setInterval(updateTime, 1000);
+    setInterval(updateTime, 1000);   
+    $(".adv").each(function() {
+      $(this).html(tobr($(this).text()))
+      $(this).css("opacity",0)
+    } )
+    textFit(document.getElementsByClassName('adv'), {maxFontSize: 600,multiLine: true})
 });
