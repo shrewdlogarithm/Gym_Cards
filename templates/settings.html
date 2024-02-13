@@ -54,7 +54,7 @@
       {% for adn in range(1,sett["adcount"]+1) %}
         <div>Advert {{adn}}</div>
         <textarea rows=3 cols=40 class="adtext" id="ad{{adn}}" name="ad{{adn}}" type="text">{{ sett["ad" + adn|string] }}</textarea>
-        <input type=color class="adcol" id="ad{{adn}}col" name="ad{{adn}}col" value="{{ sett["ad" + adn|string + "col"] }}"><br>
+        <input type=color class="adcol" id="ad{{adn}}col" name="ad{{adn}}col" value="{{ sett["ad" + adn|string + "col"]|default("#ffffff", true) }}"><br>
       {% endfor %}
       </div>
       <!-- <P> Theme Settings</P>

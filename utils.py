@@ -11,12 +11,12 @@ dateformlong = '%Y-%m-%d %H:%M:%S' # javascript format
 stname = "data/settings.json"
 sett = {
     "theme0": "#000000","theme1": "#ffffff","theme2": "#333333","theme3": "#acf310",
-    "ad1": "","ad2": "", "adpic": "",
-    "ad1col": "#ffffff","ad2col": "#ffffff","ad3col": "#ffffff",
+    "adpic": "",
     "dshort": "2","dmedium": "5","dlong": "0",
-    "adcount": 8, "adtime": 2000,
+    "adcount": 9, "adtime": 2000,
     "systemname": f"{socket.gethostname()}"
 }
+
 def savesett():
     with open(stname, 'w') as json_file:
         json.dump(sett, json_file, indent=4,default=str)        
