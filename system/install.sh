@@ -1,5 +1,7 @@
 # IMPORTANT NOTE: If you're not me - the main problem here is gym.py - that contains some comments which might help you see how this works
 
+sudo apt install git
+
 # To install from scratch
 git clone https://github.com/shrewdlogarithm/Gym_Cards.git
 
@@ -9,7 +11,6 @@ git clone https://github.com/shrewdlogarithm/Gym_Cards.git
 sudo apt-get update
 sudo apt-get upgrade
 
-sudo apt install git
 sudo apt install python3-pip
 
 # For sound playback
@@ -42,3 +43,7 @@ sudo usermod -a -G dialout $USER
 # production WSGI server (Linux only)
 sudo apt install gunicorn
 pip3 install gevent
+
+# Lastly - if you're restoring the entire system this pulls the last image from the cloud backup
+cd ~/Gym_Cards/system
+sh restore.sh
