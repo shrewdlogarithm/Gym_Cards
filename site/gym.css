@@ -185,7 +185,7 @@ textarea {
 
 #advlist {
     width: 570px;
-    height: 60%;
+    height: 350px;
     overflow:scroll
 }
 /* this all hacks the theme.css */
