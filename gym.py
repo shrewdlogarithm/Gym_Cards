@@ -250,7 +250,7 @@ def pyninput():
                 log.addlog("pynputexception",excep=e)
     except:
         log.addlog("pynputexception",excep=e)
-threads.start_thread(pyninput)
+# threads.start_thread(pyninput)
   
 ## Card Processing
 def clearq():
