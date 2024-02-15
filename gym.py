@@ -173,85 +173,84 @@ def cardvisit(card):
 inputcard = ""
 lastkey = utils.getnowlong()
 
-## EvDev Input (USB RFID Reader)
+## EvDev Input (USB RFID Reader) - this only works on *nix - not available for Windows
 def eventinput():
-    try: 
-        import evdev
-        from select import select
-        devs={}
-        devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-        devices = {dev.fd: dev for dev in devices}
-        while sysactive:
-            try:
-                rffound = False
-                for dev in devices:
-                    if "RFID" in devices[dev].name:
-                        rffound = True
-                        break;
-                if not rffound:
-                    log.addlog("evdev_no_card_reader")
-                    raise Exception # reload devices
-                r, w, x = select(devices,[],[],0.2)
-                for fd in r:
-                    for event in devices[fd].read():  
-                        if "RFID" in devices[fd].name:                          
-                            if event.type == evdev.ecodes.EV_KEY:
-                                try:
-                                    keyevent = evdev.categorize(event)
-                                    if (keyevent.keystate == keyevent.key_up):
-                                        if (keyevent.keycode == "KEY_ENTER"):
-                                            if (devs[fd] != ""):
-                                                cards.put(devs[fd])
-                                                devs[fd] = ""
-                                        else:
-                                            if (fd not in devs):
-                                                devs[fd] = ""
-                                            devs[fd] += keyevent.keycode.replace("KEY_","")                                
-                                except Exception as e:
-                                    log.addlog("evdev_keyevent_exception",excep=e)
-            except Exception as e: # this traps reloads AND devices which have disconnected
-                sse.add_message("Card Reader not found")
-                sse.add_message("##Timer" + str(3))
-                threads.reset_timeout(3,kto)
-                time.sleep(2)
-                sse.add_message("")
-                devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
-                devices = {dev.fd: dev for dev in devices}
-    except Exception as e:
-        log.addlog("evdev_exception",excep=e)
-threads.start_thread(eventinput)
+    from select import select
+    devs={}
+    devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+    devices = {dev.fd: dev for dev in devices}
+    while sysactive:
+        try:
+            rffound = False
+            for dev in devices:
+                if "RFID" in devices[dev].name:
+                    rffound = True
+                    break;
+            if not rffound:
+                log.addlog("evdev_no_card_reader")
+                raise Exception # reload devices
+            r, w, x = select(devices,[],[],0.2)
+            for fd in r:
+                for event in devices[fd].read():  
+                    if "RFID" in devices[fd].name:                          
+                        if event.type == evdev.ecodes.EV_KEY:
+                            try:
+                                keyevent = evdev.categorize(event)
+                                if (keyevent.keystate == keyevent.key_up):
+                                    if (keyevent.keycode == "KEY_ENTER"):
+                                        if (devs[fd] != ""):
+                                            cards.put(devs[fd])
+                                            devs[fd] = ""
+                                    else:
+                                        if (fd not in devs):
+                                            devs[fd] = ""
+                                        devs[fd] += keyevent.keycode.replace("KEY_","")                                
+                            except Exception as e:
+                                log.addlog("evdev_keyevent_exception",excep=e)
+        except Exception as e: # this traps reloads AND devices which have disconnected
+            sse.add_message("Card Reader not found")
+            sse.add_message("##Timer" + str(3))
+            threads.reset_timeout(3,kto)
+            time.sleep(2)
+            sse.add_message("")
+            devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+            devices = {dev.fd: dev for dev in devices}
 
-## Pynput- this has performance issues so I only use it for testing/on Windows where evdev does not work
+## Pynput- this has performance issues on *nix so I only use it for testing on Windows
 def pyninput():
-    try:
-        from pynput import keyboard
-        while sysactive:
-            try:                
-                def on_press(key):
-                    global inputcard,lastkey
-                    if utils.getnowlong() - lastkey > timedelta(seconds=1):
+    while sysactive:
+        try:                
+            def on_press(key):
+                global inputcard,lastkey
+                if utils.getnowlong() - lastkey > timedelta(seconds=1):
+                    inputcard = ""
+                try:
+                    if key == keyboard.Key.enter and inputcard != "":
+                        cards.put(inputcard)
                         inputcard = ""
-                    try:
-                        if key == keyboard.Key.enter and inputcard != "":
-                            cards.put(inputcard)
-                            inputcard = ""
-                        elif key.char in "0123456789":
-                            inputcard += key.char
-                            lastkey = utils.getnowlong()
-                    except Exception as e:
-                        pass                
+                    elif key.char in "0123456789":
+                        inputcard += key.char
+                        lastkey = utils.getnowlong()
+                except Exception as e:
+                    pass                
 
-                # Collect events until released
-                with keyboard.Listener(
-                    on_press=on_press) as listener:
-                    listener.join()
+            # Collect events until released
+            with keyboard.Listener(
+                on_press=on_press) as listener:
+                listener.join()
 
-            except Exception as e:
-                log.addlog("pynputexception",excep=e)
-    except:
-        log.addlog("pynputexception",excep=e)
-# threads.start_thread(pyninput)
-  
+        except Exception as e:
+            log.addlog("pynputexception",excep=e)
+
+# if evdev isn't available we use pynput
+try: 
+    import evdev 
+    threads.start_thread(eventinput)
+except Exception as e:
+    log.addlog("evdev_exception",excep=e)
+    from pynput import keyboard
+    threads.start_thread(pyninput)
+
 ## Card Processing
 def clearq():
     global cardq
