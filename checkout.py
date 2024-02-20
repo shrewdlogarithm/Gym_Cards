@@ -109,7 +109,7 @@ def logdate(dys=0):
     return utils.getnow() - offs
 
 def logname(dys=0):    
-    return f'logs/{utils.sett["servername"]}-{logdate(dys).strftime("%Y%m%d")}.checkout'
+    return f'logs/{utils.sett["systemname"]}-{logdate(dys).strftime("%Y%m%d")}.checkout'
 
 def addcheckoutlog(db):
     thrlock.acquire()
