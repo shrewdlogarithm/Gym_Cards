@@ -398,7 +398,7 @@ $(document).ready(function() {
         })
         return found
     }
-    $(document).on("cardswiped",function(e) {
+    $(document).on("cardswiped",function(e,cardinput) {
         if (cstate == 5 || cstate == 0 || (cstate == 1 && vtotal <= ttotal))  {
             if (cstate == 0 && cardexists(cardinput)) {
                 showerror("Can't renew Member twice")
