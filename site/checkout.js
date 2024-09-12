@@ -393,72 +393,64 @@ $(document).ready(function() {
         found = false
         $(".checkrightline[data-card]").each(function() {
             if ($(this).data("card") == card) {
-                console.log("NO")
                 found = true
             }
         })
         return found
     }
-    $(window).on("keydown",function(e) {
-        let nw = new Date().getTime()
-        if (nw - lastcardinput > 750)
-            cardinput = ""
-        if (e.key == "Enter" && cardinput != "") {
-            if (cstate == 5 || cstate == 0 || (cstate == 1 && vtotal <= ttotal))  {
-                if (cstate == 0 && cardexists(cardinput)) {
-                    showerror("Can't renew Member twice")
-                    cardinput = ""
-                } else {
-                    if (cstate != 1) 
-                        lastvend().attr("data-card",cardinput)
-                    $.ajax("/checkcard", {
-                        data : {"card": cardinput},
-                        type : 'POST',
-                        success: function(response) {
-                            if (cstate == 0) { // renewing a card directly
-                                cardswiped = true
-                                btntopress = $("#Subscription"+response["vip"])
-                                if (btntopress.length) {
-                                    btntopress.click()
-                                    lastvend().attr("data-card",cardinput)
-                                    updatename(response["name"],response["newexpires"])
-                                } else
-                                    showerror("Cannot renew STAFF Cards")
-                                cardswiped = false
-                            } else if (cstate == 1) { // opening drawer
-                                if (response["staff"]) {
-                                    opendrawer(response["name"] + "(" + cardinput + ")")
-                                } else {
-                                    showerror("Not a STAFF card")
-                                }
-                            } else if (cstate == 5) { // swiping card after choosing a subscription
-                                if (response["staff"])
-                                    showerror("Cannot renew STAFF cards")
-                                else {
-                                    updatename(response["name"],response["newexpires"])                                
-                                    cstate = 0             
-                                }
-                            }                                                       
-                            updateprices()
-                            cardinput = ""
-                        },
-                        error: function(xhr, ajaxOptions, thrownError) {
-                            if (cstate == 5) {
-                                updatename("")
-                                cotext = ""
-                                cstate = 6                                
+    $(document).on("cardswiped",function(e) {
+        if (cstate == 5 || cstate == 0 || (cstate == 1 && vtotal <= ttotal))  {
+            if (cstate == 0 && cardexists(cardinput)) {
+                showerror("Can't renew Member twice")
+                cardinput = ""
+            } else {
+                if (cstate != 1) 
+                    lastvend().attr("data-card",cardinput)
+                $.ajax("/checkcard", {
+                    data : {"card": cardinput},
+                    type : 'POST',
+                    success: function(response) {
+                        if (cstate == 0) { // renewing a card directly
+                            cardswiped = true
+                            btntopress = $("#Subscription"+response["vip"])
+                            if (btntopress.length) {
+                                btntopress.click()
+                                lastvend().attr("data-card",cardinput)
+                                updatename(response["name"],response["newexpires"])
+                            } else
+                                showerror("Cannot renew STAFF Cards")
+                            cardswiped = false
+                        } else if (cstate == 1) { // opening drawer
+                            if (response["staff"]) {
+                                opendrawer(response["name"] + "(" + cardinput + ")")
                             } else {
-                                showerror("Card not recognised")
+                                showerror("Not a STAFF card")
                             }
-                            updateprices()
-                            cardinput = ""
+                        } else if (cstate == 5) { // swiping card after choosing a subscription
+                            if (response["staff"])
+                                showerror("Cannot renew STAFF cards")
+                            else {
+                                updatename(response["name"],response["newexpires"])                                
+                                cstate = 0             
+                            }
+                        }                                                       
+                        updateprices()
+                        cardinput = ""
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        if (cstate == 5) {
+                            updatename("")
+                            cotext = ""
+                            cstate = 6                                
+                        } else {
+                            showerror("Card not recognised")
                         }
-                    })                                        
-                }
+                        updateprices()
+                        cardinput = ""
+                    }
+                })                                        
             }
-        } else if ("0123456789".includes(e.key))
-            cardinput += e.key
-        lastcardinput = nw
+        }
     })
     checkoutboard = "ABCDEFGHIJKLMNOPQRSTUVWXYZ <"
     chrows = 4

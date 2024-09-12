@@ -32,7 +32,6 @@ function gymserver() {
         stime = e.data.substring(9)
         serverTime = Date.parse(stime)
       } else if (e.data.startsWith("##Active Members")) {
-        console.log(e.data)
         $('#footright').text(e.data.substring(2));
       } else if (e.data.startsWith("##Timer")) {
         timerbar(e.data.substring(7))
@@ -72,6 +71,28 @@ function showad(nn) {
   textFit(document.getElementsByClassName('adv'), {maxFontSize: 600,multiLine: true})
 }
 
+var keycard = ""
+var clearcardp
+function clearcard() {
+  keycard = ""
+}
+
+$(document).keypress(function(e) {
+  if ("0123456789".includes(e.key)) {
+    keycard += e.key
+    if (clearcardp) {
+      clearTimeout(clearcardp)
+    }
+    clearcardp = setTimeout(clearcard,1000)
+  } else {
+    if (e.code = 13 && keycard != "") {
+      $(document).trigger("cardswiped",[keycard])
+    } else {
+      clearcard()
+    }
+  }
+})
+
 $(document).ready(function(){
     gymserver()
     updateTime();
@@ -81,4 +102,21 @@ $(document).ready(function(){
       $(this).css("opacity",0)
     } )
     textFit(document.getElementsByClassName('adv'), {maxFontSize: 600,multiLine: true})
+
+  if (location.search.includes("door")) {
+    $(document).on("cardswiped", function(e,cardno) {
+          $.ajax("/swipe", {
+            data : {"card": cardno, "door": true},
+            type : 'POST',
+            success: function(response) {
+                
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                
+            }
+          })           
+      }
+    );
+  }
+
 });
