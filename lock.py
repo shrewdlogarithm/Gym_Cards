@@ -1,6 +1,5 @@
 import requests,time,threading,re,os,json
 from pyquery import PyQuery
-from datetime import datetime
 import log,utils
 
 try:
@@ -50,10 +49,10 @@ def writelog(rows):
         pass
 
 def readlogs(lasttime):
-    getpage("ACT_ID_1",{'s6': 'exit'}) # logout just because
-    time.sleep(1)
-    getpage("ACT_ID_1",{'username': 'abc',"pwd":"654321","logId":"20101222"}) # login because it might help?
-    time.sleep(1)
+    # getpage("ACT_ID_1",{'s6': 'exit'}) # logout just because
+    # time.sleep(1)
+    # getpage("ACT_ID_1",{'username': 'abc',"pwd":"654321","logId":"20101222"}) # login because it might help?
+    # time.sleep(1)
     rows = []
     un = 1
     done = False
@@ -115,4 +114,13 @@ def getpage(path,vars={}):
         page = rs.post("http://" + lock_address + "/" + path, headers={'Content-Type': 'application/x-www-form-urlencoded','referer': lock_address}, data = vars, timeout=3).text
         return page
     except Exception as e:
-        raise e
+        print("Getpage failed with",e)
+        return
+    
+def opendoor():
+    try:
+        client = RFIDClient(lock_address, controller_serial)
+        client.open_door(1)
+    except Exception as e:
+        print("Open door failed >> ",e)
+        return

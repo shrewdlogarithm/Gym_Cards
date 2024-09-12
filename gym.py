@@ -28,12 +28,13 @@
 ## More comments appear in the code where I've remembered to make them - Good Luck!
 
 
-import sys,os,random,json,time,base64,shutil,subprocess
+import os,random,json,time,base64,shutil,subprocess,requests
 from queue import Queue
 from playsound import playsound
 from flask import Flask, Response, request, render_template
 import sse,log,threads,utils,lock,checkout
-from datetime import datetime,timedelta
+from datetime import timedelta
+from threading import Timer
 
 sysactive = True
 nmemno = 0
@@ -716,16 +717,119 @@ def savepic():
     else:
         return "System Shutting Down"
 
+class DoorControl:
+    dtimer = False
+    logs = []
+    lastdate = None
+    checkneeded = False
+    opendoor = False
+    rs = None
+    
+    def __init__(self):
+        self.dtimer = False
+        logs = lock.getlogs()
+        try:
+            self.lastdate = utils.parsedatelong(logs[len(logs)-1][4])
+        except:
+            self.lastdate = utils.getnowlong()
+        self.rs = requests.session()
+        threads.start_thread(self.checker)
+        threads.start_thread(self.dooropener)
+
+    def dooropener(self):
+        while sysactive:
+            if self.opendoor:
+                self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=off")
+                print("Door UnLocked")
+                time.sleep(5)
+                self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=on")
+                print("Door Locked")
+                self.opendoor = False
+        #lock.opendoor()
+
+    def cleartimer(self):
+        if self.dtimer:
+            self.dtimer.cancel()
+
+    def starttimer(self):
+        self.cleartimer()
+        self.dtimer = Timer(10,self.alert)
+        self.dtimer.start()
+
+    def alert(self):
+        # print("ALERT")
+        self.starttimer()
+
+    def checker(self):
+        while 1==1:
+            time.sleep(1)
+            if self.checkneeded:
+                self.docheck()
+
+    def check(self):    
+        self.checkneeded = True
+
+    def docheck(self):        
+        try:
+            logs=lock.readlogs(self.lastdate)            
+            try:
+                if (len(logs)):
+                    cardsread = {}
+                    for log in logs:
+                        self.lastdate = utils.parsedatelong(log[4])
+                        card = log[1]
+                        print(card)
+                        if card in carddb:
+                            if card in cardsread:
+                                since = self.lastdate - cardsread[card]
+                                print(card,since)
+                            else:
+                                cardsread[card] = utils.parsedatelong(log[4])
+                                clearq()
+                                cards.put(card)
+                                time.sleep(2)
+                    lock.writelog(logs)
+                    self.checkneeded = False
+            except Exception as e:
+                # we didn't get anything from the lock
+                pass
+
+        except Exception as e:
+            return(str(e))
+        
+doorc = DoorControl()
+
 @app.route('/swipe', methods=['POST'])
 def swipe():
     if sysactive:
         clearq()
         card = request.form.get("card")
         if card in carddb:
-            cards.put(card)
+            cardvisit(card)
+            if request.form.get("door"):
+                doorc.opendoor = True
             return "OK"
         else:
             return "Not Found"
+    else:
+        return "System Shutting Down"
+
+# called by the relay when the door 'opens'
+@app.route('/dooropen')
+def dooropen():
+    if sysactive:
+        doorc.starttimer()   
+        doorc.check()     
+        return "OK"
+    else:
+        return "System Shutting Down"
+
+# called by the door magnet when it closes
+@app.route('/doorclose')
+def doorclose():
+    if sysactive:
+        doorc.cleartimer()
+        return "OK"
     else:
         return "System Shutting Down"
 
@@ -736,6 +840,7 @@ def checkcard():
         return carddb[card] | {"staff": utils.mtypes[carddb[card]["vip"]]["staff"],"newexpires": utils.calc_expiry(carddb[card]["expires"])}
     else:
         return "Not Found",404
+
     
 @app.route('/replace', methods=['POST'])
 def replace():
