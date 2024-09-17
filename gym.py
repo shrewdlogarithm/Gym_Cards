@@ -739,10 +739,17 @@ class DoorControl:
     def dooropener(self):
         while sysactive:
             if self.opendoor:
-                self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=off")
+                # using the relay directly to avoid multi-triggering the swipe
+                try:
+                    self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=off")
+                except:
+                    pass
                 print("Door UnLocked")
                 time.sleep(5)
-                self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=on")
+                try:
+                    self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=on")
+                except:
+                    pass
                 print("Door Locked")
                 self.opendoor = False
         #lock.opendoor()
@@ -780,13 +787,14 @@ class DoorControl:
                         card = log[1]
                         print(card)
                         if card in carddb:
+                            since = 99
                             if card in cardsread:
                                 since = self.lastdate - cardsread[card]
                                 print(card,since)
-                            else:
+                            if since > 5: # ignore multi-swipes inside 5s
                                 cardsread[card] = utils.parsedatelong(log[4])
                                 clearq()
-                                cards.put(card)
+                                handlecard(card)
                                 time.sleep(2)
                     lock.writelog(logs)
                     self.checkneeded = False
@@ -805,7 +813,7 @@ def swipe():
         clearq()
         card = request.form.get("card")
         if card in carddb:
-            cardvisit(card)
+            handlecard(card)
             if request.form.get("door"):
                 doorc.opendoor = True
             return "OK"

@@ -90,6 +90,13 @@ def readlogs(lasttime):
                 un += 1
     except Exception as e:
         print("Failed with ", e)
+        # rows = [
+        #     ["1","1","1","1",utils.getnowformlong()],
+        #     ["1","2","1","1",utils.getnowformlong()],
+        #     ["1","3","1","1",utils.getnowformlong()],
+        #     ["1","5","1","1",utils.getnowformlong()],
+        #     ["1","4","1","1",utils.getnowformlong()]
+        # ]
     rows.sort(key=lambda x:x[4],reverse=False) # reverse the list
     return rows
 
