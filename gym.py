@@ -784,7 +784,7 @@ class DoorControl:
                     cardsread = {}
                     for log in logs:
                         self.lastdate = utils.parsedatelong(log[4])
-                        card = log[1]
+                        card = log[1].zfill(10)
                         print(card)
                         if card in carddb:
                             since = 99
