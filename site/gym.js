@@ -35,6 +35,8 @@ function gymserver() {
         $('#footright').text(e.data.substring(2));
       } else if (e.data.startsWith("##Timer")) {
         timerbar(e.data.substring(7))
+      } else if (e.data == "##Refresh") {
+        location.reload(true);
       }
     }
     gymsource.onerror = function(e) {
@@ -117,6 +119,6 @@ $(document).ready(function(){
           })           
       }
     );
-  }
+  }  
 
 });

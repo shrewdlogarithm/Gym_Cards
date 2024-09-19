@@ -44,9 +44,9 @@
             $("#video").hide()
             $("#photo").attr("src","images/" + e.data.substring(8) + ".png?" + Math.random()).show()
           }
-          if (e.data == "##Refresh") {
-            location.reload(true);
-          }
+          // if (e.data == "##Refresh") {
+          //   location.reload(true);
+          // }
         }
         source.onerror = function(e) {
           if (sto != 0)
