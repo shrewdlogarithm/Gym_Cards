@@ -744,13 +744,11 @@ class DoorControl:
                     self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=off")
                 except:
                     pass
-                print("Door UnLocked")
                 time.sleep(5)
                 try:
                     self.rs.get("http://shellyplus1-cc7b5c876d9c/relay/0?turn=on")
                 except:
                     pass
-                print("Door Locked")
                 self.opendoor = False
         #lock.opendoor()
 
@@ -785,12 +783,10 @@ class DoorControl:
                     for log in logs:
                         self.lastdate = utils.parsedatelong(log[4])
                         card = log[1].zfill(10)
-                        print(card)
                         if card in carddb:
                             since = 99
                             if card in cardsread:
                                 since = self.lastdate - cardsread[card]
-                                print(card,since)
                             if since > 5: # ignore multi-swipes inside 5s
                                 cardsread[card] = utils.parsedatelong(log[4])
                                 clearq()

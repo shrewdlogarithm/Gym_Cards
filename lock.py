@@ -33,7 +33,10 @@ def getlockdb():
     logs = getlogs()
     lockdb = {}
     for log in logs:
-        card = log[1].zfill(10)
+        try:
+            card = log[1].zfill(10)
+        except Exception as e:
+            print(e)
         if card in lockdb:
             lockdb[card].insert(0,log)
         else:
@@ -59,7 +62,7 @@ def readlogs(lasttime):
     try:  
         page = getpage("ACT_ID_21",{'s4': 'Swipe'})
         while 1==1:
-            print("Reading Page",un)
+            # print("Reading Page",un)
             recid2 = 0
             pgs = re.findall(r"Page[^0-9]+?([0-9]+)[^0-9]+?Of[^0-9]+?([0-9]+)[^0-9]+?Page",page)
             pq = PyQuery(bytes(bytearray(page, encoding='utf-8')))
