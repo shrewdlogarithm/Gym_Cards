@@ -16,7 +16,7 @@
       {% if sett: %}
         <div id="ads">
           {% for i in range(1,sett["adcount"]+1) %}
-            <div id="adv{{i}}" class="adv" style="opacity:0;color:{{ sett["ad" + i|string + "col"] }}">{{ sett["ad" + i|string] }}</div>
+            <div id="adv{{i}}" class="adv advtag-{{ sett['ad' + i|string + 'tag'] }}" style="opacity:0;color:{{ sett["ad" + i|string + "col"] }}">{{ sett["ad" + i|string] }}</div>
           {% endfor %}
           {% if "adpic" in sett and sett["adpic"] != "" and os.path.exists("site/" + sett["adpic"]): %}
             <img id="adpic" src="{{ sett["adpic"] }}?{{ random.randrange(0,1000) }}">

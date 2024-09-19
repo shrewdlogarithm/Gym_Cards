@@ -69,7 +69,7 @@
       while (lastad == ad) {
         ad = Math.floor({{ sett["adcount"] }}*Math.random())+1        
       }
-      if ($("#adv" + ad).text().length > 2) { // don't show empty ads - just leave last ad showing
+      if ($("#adv" + ad).hasClass("advtag-" + location.search.substr(1)) && $("#adv" + ad).text().length > 2) { // don't show empty ads - just leave last ad showing
         $(".adv").css("opacity",0)
         $("#adv"+ad).css("opacity",1)
         adrotator = setTimeout(rotatead,{{  sett["adtime"] }})
