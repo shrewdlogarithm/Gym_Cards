@@ -750,6 +750,8 @@ class DoorControl:
                 except:
                     pass
                 self.opendoor = False
+            else:
+                time.sleep(5)
         #lock.opendoor()
 
     def cleartimer(self):
@@ -767,7 +769,7 @@ class DoorControl:
 
     def checker(self):
         while 1==1:
-            time.sleep(1)
+            time.sleep(5)
             if self.checkneeded:
                 self.docheck()
 
