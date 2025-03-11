@@ -227,7 +227,7 @@ def pyninput():
                     inputcard = ""
                 try:
                     if key == keyboard.Key.enter and inputcard != "":
-                        cards.put(inputcard)
+                        cards.put(inputcard.zfill(10))
                         inputcard = ""
                     elif key.char in "0123456789":
                         inputcard += key.char
@@ -250,7 +250,7 @@ try:
 except Exception as e:
     log.addlog("evdev_exception",excep=e)
     from pynput import keyboard
-    threads.start_thread(pyninput)
+    # threads.start_thread(pyninput)
 
 ## Card Processing
 def clearq():

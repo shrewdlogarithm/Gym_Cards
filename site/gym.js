@@ -88,6 +88,7 @@ $(document).keypress(function(e) {
     clearcardp = setTimeout(clearcard,1000)
   } else {
     if (e.code = 13 && keycard != "") {
+      keycard = keycard.padStart(10,"0")
       $(document).trigger("cardswiped",[keycard])
     } else {
       clearcard()
