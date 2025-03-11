@@ -305,7 +305,6 @@ function checkother() {
                     if (ean) {
                         otheramt = geteanprice(ean)
                         addvend("Scanned",ean,otheramt,"LightGreen")
-                        ean = ""
                     } else {
                         addvend("Other","Other",0,"Orange")
                     }            
