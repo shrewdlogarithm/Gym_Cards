@@ -6,6 +6,16 @@ lastendedevent = 0
 cotext = ""
 cardswiped = false
 
+ean = ""
+function geteanprice(ean) {
+    eanprice = window.localStorage.getItem("ean" + ean)
+    if (eanprice) {
+        return parseFloat(eanprice)
+    } else {
+        return 0
+    }
+}
+
 // using the sound sample length to limit button-presses
 function readysnd(snd) {
     return ($('audio#' + snd)[0].paused)
@@ -151,29 +161,32 @@ function addvtotal(amt) {
     settotal(totaldiv,vtotal)
 }
 function itemclick() {
+    doclick($(this).data("price"),$(this).parent().data("type"),$(this).find(".checkitemlabel").text(),$(this).css("background-color"),$(this).data("vip"))
+}
+
+function doclick(pprice,pptype,plabel,pbgcolor,pvip) {
     if (readysnd("pop")) {
-        thisprice = $(this).data("price")
         if (cstate == 0) {
             if (checkmaxvendlines()) {
-                addvend($(this).parent().data("type"),$(this).find(".checkitemlabel").text(),thisprice,$(this).css("background-color"),$(this).data("vip"))
-                addvtotal(thisprice)
+                addvend(pptype,plabel,pprice,pbgcolor,pvip)
+                addvtotal(pprice)
                 $(".checktoprightbottom").append(totaldiv)
                 playthen("pop",this)
-                if ($(this).data("type") == "Subscription" && !cardswiped) {
+                if (pptype == "Subscription" && !cardswiped) {
                     cstate = 5
                 }
             }
         } else if (cstate == 1) {
-            if ($(this).data("price") == -1) {
+            if (pprice == -1) {
                 settotal(tenderdiv,vtotal)
                 ttotal = vtotal
-                tenderdiv.find(".checkrightlabel").text($(this).find(".checkitemlabel").text())
+                tenderdiv.find(".checkrightlabel").text(plabel)
                 playthen("pop",this)
             } else {
                 if (ttotal >= vtotal && tenderdiv.find(".checkrightlabel").text() != "Cash") 
-                    ttotal = thisprice
+                    ttotal = pprice
                 else if (ttotal < vtotal)
-                    ttotal += thisprice
+                    ttotal += pprice
                 else
                     return
                 settotal(tenderdiv,ttotal)
@@ -194,7 +207,7 @@ function itemclick() {
             $(".checktoprightbottom").append(changediv)
         } else if (cstate == 2) {
             addvtotal(0-otheramt/100)
-            let amt = $(this).find(".checkitemlabel").text()
+            let amt = plabel
             if (amt == "<<<") {
                 if (otheramt > 0) {
                     otheramt = Math.trunc(otheramt / 10)
@@ -233,6 +246,7 @@ function changepage(pg) {
     }
 }
 function checkcancel() {
+    ean = ""
     if (readysnd("undo")) {
         flipborder($("#checkcancel"),"white","")
         if (cstate == 0) {
@@ -287,15 +301,24 @@ function checkother() {
         flipborder($("#checkother"),"white","")
         if (cstate == 0) {
             if (checkmaxvendlines()) {
-                if (cstate == 0) {
-                    otheramt = "0"
-                    addvend("Other","Other",0,"Orange")            
+                if (cstate == 0) { 
+                    if (ean) {
+                        otheramt = geteanprice(ean)
+                        addvend("Scanned",ean,otheramt,"LightGreen")
+                        ean = ""
+                    } else {
+                        addvend("Other","Other",0,"Orange")
+                    }            
                 }
                 changepage(2)        
                 playsnd("pop")
             }
         } else {
             if (otheramt != 0) {
+                if (ean) {
+                    window.localStorage.setItem("ean" + ean,otheramt/100)
+                    ean = ""
+                }
                 changepage(0)
                 playsnd("pop")
             }
@@ -399,26 +422,36 @@ $(document).ready(function() {
         return found
     }
     $(document).on("cardswiped",function(e,cardinput) {
-        if (cstate == 5 || cstate == 0 || (cstate == 1 && vtotal <= ttotal))  {
+        if (cstate == 0 && cardinput.length == 13) { // ean-13
+            ean = cardinput
+            eanprice = geteanprice(ean)
+            if (eanprice > 0) {
+                doclick(eanprice,"Scanned",ean,"LightGreen")
+            } else {
+                checkother()
+            }
+        } else if (cardinput.length == 10 && (cstate == 5 || cstate == 0 || (cstate == 1 && vtotal <= ttotal)))  {
             if (cstate == 0 && cardexists(cardinput)) {
                 showerror("Can't renew Member twice")
                 cardinput = ""
             } else {
-                if (cstate != 1) 
-                    lastvend().attr("data-card",cardinput)
                 $.ajax("/checkcard", {
                     data : {"card": cardinput},
                     type : 'POST',
                     success: function(response) {
                         if (cstate == 0) { // renewing a card directly
-                            cardswiped = true
-                            btntopress = $("#Subscription"+response["vip"])
-                            if (btntopress.length) {
-                                btntopress.click()
-                                lastvend().attr("data-card",cardinput)
-                                updatename(response["name"],response["newexpires"])
-                            } else
+                            if (!response["staff"]) {
+                                cardswiped = true
+                                btntopress = $("#Subscription"+response["vip"])
+                                if (btntopress.length) {
+                                    btntopress.click()
+                                    lastvend().attr("data-card",cardinput)
+                                    updatename(response["name"],response["newexpires"])
+                                }
+                            } else {
                                 showerror("Cannot renew STAFF Cards")
+                                window.localStorage.removeItem("ean" + lastvend().attr("data-label"))
+                            }
                             cardswiped = false
                         } else if (cstate == 1) { // opening drawer
                             if (response["staff"]) {
