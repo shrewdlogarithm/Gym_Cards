@@ -421,7 +421,7 @@ $(document).ready(function() {
         return found
     }
     $(document).on("cardswiped",function(e,cardinput) {
-        if (cstate == 0 && cardinput.length == 13) { // ean-13
+        if (cstate == 0 && (cardinput.length == 12 || cardinput.length ==13)) {
             ean = cardinput
             eanprice = geteanprice(ean)
             if (eanprice > 0) {
@@ -434,22 +434,23 @@ $(document).ready(function() {
                 showerror("Can't renew Member twice")
                 cardinput = ""
             } else {
+                if (cstate != 1) 
+                    lastvend().attr("data-card",cardinput)
                 $.ajax("/checkcard", {
                     data : {"card": cardinput},
                     type : 'POST',
                     success: function(response) {
                         if (cstate == 0) { // renewing a card directly
-                            if (!response["staff"]) {
+                            if (response["staff"]) {
+                                showerror("Cannot renew STAFF Cards")
+                                window.localStorage.removeItem("ean" + lastvend().attr("data-label"))
+                            } else {
                                 cardswiped = true
                                 btntopress = $("#Subscription"+response["vip"])
                                 if (btntopress.length) {
                                     btntopress.click()
-                                    lastvend().attr("data-card",cardinput)
                                     updatename(response["name"],response["newexpires"])
                                 }
-                            } else {
-                                showerror("Cannot renew STAFF Cards")
-                                window.localStorage.removeItem("ean" + lastvend().attr("data-label"))
                             }
                             cardswiped = false
                         } else if (cstate == 1) { // opening drawer
