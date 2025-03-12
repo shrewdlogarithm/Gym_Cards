@@ -449,6 +449,7 @@ $(document).ready(function() {
                                 btntopress = $("#Subscription"+response["vip"])
                                 if (btntopress.length) {
                                     btntopress.click()
+                                    lastvend().attr("data-card",cardinput)
                                     updatename(response["name"],response["newexpires"])
                                 }
                             }
