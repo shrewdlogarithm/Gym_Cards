@@ -73,6 +73,7 @@ def getrenewform(dt=0):
     if dt == 0:
         dt = getnowlong()
     return (dt+relativedelta(months=1)).strftime(dateform)
+    # return (dt+relativedelta(days=28)).strftime(dateform)
 
 def calc_expiry(expdate):
     expdate = parsedate(expdate)

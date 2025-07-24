@@ -14,7 +14,7 @@ itemdb = {
             "color": "limegreen",
             "items": [
                 {"title": "1-Day Member","price": 4.5},
-                {"title": "1-Week Member","price": 10},
+                {"title": "1-Week Member","price": 15},
                 ],
             },
         "Subscription": {
@@ -27,16 +27,15 @@ itemdb = {
             "items": [
                 {"title": "Water","price": .7},
                 {"title": "Energy Drink","price": 1},
-                {"title": "Energy Drink","price": 1.55},
                 {"title": "Energy Drink","price": 1.65},
                 {"title": "Energy Drink","price": 2},
+                {"title": "Energy Drink","price": 2.50},
             ],
         },
         "Protein": {
             "color": "lightblue",
             "items": [
-                {"title": "Protein Tub","price": 35},
-                {"title": "Protein Tub","price": 45},
+                {"title": "Protein Tub","price": 47},
             ],
         },
     },
